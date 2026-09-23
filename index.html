@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Сармат-ИТ: сборка и интеграция серверного и сетевого оборудования</title>
+<meta name="description" content="Сборка и интеграция серверного и сетевого оборудования под вашу задачу: конфигурация, закупка, сборка и тест, монтаж. Доставка и монтаж по всей России.">
+<meta name="theme-color" content="#03050b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%2303050b'/%3E%3Cpath d='M20 3 37 34H3Z' fill='none' stroke='%23e8eef7' stroke-width='1.6'/%3E%3Ccircle cx='20' cy='24' r='10.5' fill='%2303050b' stroke='%23e8eef7' stroke-width='1.8'/%3E%3Ccircle cx='20' cy='24' r='4.2' fill='%235fb0e8'/%3E%3C/svg%3E">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<script src="main.js" defer></script>
+</head>
+<body>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header class="hdr" id="hdr">
+  <div class="hdr-in">
+    <a class="brand" href="#hero" aria-label="Сармат-ИТ, в начало">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 37 34H3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="20" cy="24" r="10.5" fill="#03050b" stroke="currentColor" stroke-width="1.8"/><circle cx="20" cy="24" r="4.2" fill="#5fb0e8"/></svg>
+      <span>САРМАТ-ИТ</span>
+    </a>
+    <nav class="nav" aria-label="Разделы">
+      <a href="#process">Как мы работаем</a>
+      <a href="#catalog">Готовые конфигурации</a>
+      <a href="#request">Заявка на расчёт</a>
+    </nav>
+    <a class="hdr-phone" href="tel:+74994606265" aria-label="Позвонить: 8 (499) 460-62-65">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+      <span>8 (499) 460-62-65</span>
+    </a>
+    <a class="btn btn-primary btn-sm" href="#request">Рассчитать конфигурацию</a>
+  </div>
+</header>
+
+<main>
+  <!-- 1. HERO -->
+  <section class="hero" id="hero" aria-label="Сармат-ИТ">
+    <div class="si-track">
+      <div class="si-stage">
+        <div class="si-logo" aria-hidden="true"></div>
+        <div class="hero-foot"><h1 class="hero-line">Сборка и интеграция серверного и сетевого оборудования под вашу задачу</h1></div>
+        <div class="si-hint" aria-hidden="true"><span>Прокрутите</span><i></i></div>
+        <div class="si-bar" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+  <div class="first-screen-end" id="firstScreenEnd" aria-hidden="true"></div>
+
+  <!-- 2. PROCESS -->
+  <section class="sec" id="process" aria-labelledby="process-title">
+    <div class="wrap">
+      <div class="eyebrow" aria-hidden="true">01</div>
+      <h2 class="h2" id="process-title">Как мы работаем</h2>
+      <ol class="steps4" id="steps4">
+        <li class="st"><div class="num" aria-hidden="true">01</div><h3>Конфигурация</h3><p>Разбираем задачу и нагрузку, подбираем конфигурацию, проверяем совместимость до заказа.</p></li>
+        <li class="st"><div class="num" aria-hidden="true">02</div><h3>Закупка</h3><p>Находим и закупаем комплектующие у поставщиков.</p></li>
+        <li class="st"><div class="num" aria-hidden="true">03</div><h3>Сборка и тест</h3><p>Собираем сервер и тестируем до отправки.</p></li>
+        <li class="st"><div class="num" aria-hidden="true">04</div><h3>Монтаж</h3><p>Устанавливаем в стойку на месте, по всей России.</p></li>
+      </ol>
+      <div class="deliv">
+        <p>Доставку по всей России берём на себя. Если проект не нужен, просто привезём готовое оборудование под ваш запрос.</p>
+        <a class="btn btn-primary" href="#request">Рассчитать конфигурацию <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. CATALOG -->
+  <section class="sec sec-catalog" id="catalog" aria-labelledby="catalog-title">
+    <div class="wrap">
+      <div class="eyebrow" aria-hidden="true">02</div>
+      <h2 class="h2" id="catalog-title">Готовые конфигурации</h2>
+      <p class="lede">Три типовые сборки. Под вашу задачу изменим любую из них.</p>
+
+      <div class="stack" id="stack">
+        <!-- card 1: 3D assembly. Характеристики: пример конфигурации от Антона (23.09.2026), цифры не менять без него -->
+        <article class="stack-card c1" id="card1" aria-labelledby="card1-title">
+          <canvas role="img" aria-label="Трёхмерная модель сервера: детали встают на места при прокрутке"></canvas>
+          <div class="bar" aria-hidden="true"></div>
+          <div class="c1-head">
+            <div class="card-num">01 <span>/ 03</span></div>
+            <h3 class="card-title" id="card1-title">Сервер для 1С</h3>
+            <p class="card-desc">Для учёта в 1С в небольшой компании, до 20 пользователей.</p>
+            <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Сервер для 1С">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+          </div>
+          <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
+          <!-- TODO: плата C252, корпус 1U, пять вентиляторов, частоты и кэш E-2314 пришли из референса аниматора, а не из брифа Антона. Подтвердить у Антона или убрать из шагов -->
+          <div class="build">
+            <h4 class="build-title">Сборка</h4>
+            <ol class="steps">
+              <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>C252, LGA1200, 4 × DDR4</span></div><small>Основа сервера: встаёт на стойки в корпусе 1U.</small></li>
+              <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор</b><span>Intel Xeon E-2314, 4 ядра</span></div><small>2,8-4,5 ГГц, 8 МБ кэша. Серверный процессор с поддержкой памяти ECC.</small></li>
+              <li class="step" data-key="cooler"><div class="dot" aria-hidden="true"></div><div><b>Радиатор</b><span>Пассивный, обдув вентиляторами</span></div><small>Воздух от пяти вентиляторов проходит сквозь рёбра.</small></li>
+              <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>32 GB DDR4 ECC, 2 × 16 ГБ</span></div><small>ECC исправляет ошибки памяти на лету, базы 1С не повреждаются.</small></li>
+              <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>SSD</b><span>480 GB, система и БД</span></div><small>Windows и базы 1С на быстром диске: отчёты и проведение без ожиданий.</small></li>
+              <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Жёсткие диски</b><span>2 × 2 TB, RAID 1</span></div><small>Зеркало: каждый файл пишется на оба диска. Отказал один, данные на втором.</small></li>
+              <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>1U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
+              <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>Windows Server 2019</b><span>до 20 пользователей 1С</span></div><small>Система установлена, 1С:Предприятие готово к работе.</small></li>
+            </ol>
+          </div>
+          <div class="tag" aria-hidden="true"></div>
+          <div class="boot" aria-hidden="true">
+            <div class="os">Windows Server 2019 <em class="bootState">загрузка</em></div>
+            <div class="pbar"><i></i></div>
+            <div class="bootText">Подготовка системы</div>
+            <ul class="bootList"></ul>
+          </div>
+        </article>
+        <div class="spacer" id="spacer1" aria-hidden="true"></div>
+
+        <!-- card 2 -->
+        <article class="stack-card cN" aria-labelledby="card2-title">
+          <div class="cN-body">
+            <div class="card-num">02 <span>/ 03</span></div>
+            <h3 class="card-title" id="card2-title">Файловый сервер</h3>
+            <p class="card-desc">Общее хранилище файлов для офиса. RAID 5 сохраняет данные, если откажет один диск.</p>
+            <!-- TODO: подтвердить характеристики у Антона. RAID 5 условно, из концепта. Процессор, память, диски, ОС: данных нет, строки не показываем, пока Антон не пришлёт -->
+            <dl class="spec">
+              <dt>Массив</dt><dd>RAID 5</dd>
+            </dl>
+            <button class="btn btn-primary js-pick" type="button" data-pos="Файловый сервер">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+          </div>
+          <div class="cN-art" aria-hidden="true">
+            <svg class="raid" viewBox="0 0 360 250" font-family="JetBrains Mono, monospace" font-size="13" text-anchor="middle">
+              <g fill="none" stroke-width="1.5">
+                <rect x="30" y="20" width="84" height="210" rx="10" stroke="#3b5579"/>
+                <rect class="disk-b" x="138" y="20" width="84" height="210" rx="10" stroke="#3b5579"/>
+                <rect x="246" y="20" width="84" height="210" rx="10" stroke="#3b5579"/>
+              </g>
+              <g fill="#5fb0e8"><circle cx="72" cy="42" r="4"/><circle cx="180" cy="42" r="4"/><circle cx="288" cy="42" r="4"/></g>
+              <g>
+                <g><rect x="44" y="64" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="72" y="90" fill="#e8eef7">A1</text></g>
+                <g><rect x="44" y="118" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="72" y="144" fill="#e8eef7">B1</text></g>
+                <g><rect x="44" y="172" width="56" height="42" rx="5" fill="rgba(242,184,75,.14)" stroke="#f2b84b"/><text x="72" y="198" fill="#f2b84b">P</text></g>
+                <g class="blk-b"><rect x="152" y="64" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="180" y="90" fill="#e8eef7">A2</text></g>
+                <g class="blk-b"><rect x="152" y="118" width="56" height="42" rx="5" fill="rgba(242,184,75,.14)" stroke="#f2b84b"/><text x="180" y="144" fill="#f2b84b">P</text></g>
+                <g class="blk-b"><rect x="152" y="172" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="180" y="198" fill="#e8eef7">C1</text></g>
+                <g><rect x="260" y="64" width="56" height="42" rx="5" fill="rgba(242,184,75,.14)" stroke="#f2b84b"/><text x="288" y="90" fill="#f2b84b">P</text></g>
+                <g><rect x="260" y="118" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="288" y="144" fill="#e8eef7">B2</text></g>
+                <g><rect x="260" y="172" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="288" y="198" fill="#e8eef7">C2</text></g>
+              </g>
+              <g class="rebuilt" fill="none" stroke="#7fe0a6" stroke-dasharray="4 4">
+                <rect x="152" y="64" width="56" height="42" rx="5"/><rect x="152" y="118" width="56" height="42" rx="5"/><rect x="152" y="172" width="56" height="42" rx="5"/>
+              </g>
+              <g class="xmark" stroke="#ff8a7a" stroke-width="2.5" stroke-linecap="round"><path d="M170 32l20 20M190 32l-20 20"/></g>
+            </svg>
+          </div>
+        </article>
+
+        <!-- card 3 -->
+        <article class="stack-card cN" aria-labelledby="card3-title">
+          <div class="cN-body">
+            <div class="card-num">03 <span>/ 03</span></div>
+            <h3 class="card-title" id="card3-title">Сервер виртуализации</h3>
+            <p class="card-desc">Несколько рабочих систем на одном сервере, каждая в своей виртуальной машине.</p>
+            <!-- TODO: подтвердить характеристики у Антона. VMware vSphere Standard и "до 10 пользователей" условны, из концепта (вопрос 7 копирайтера: можем ли реально поставить лицензию VMware). Процессор, память, диски: данных нет, строки не показываем -->
+            <dl class="spec">
+              <dt>Гипервизор</dt><dd>VMware vSphere Standard</dd>
+              <dt>Пользователи</dt><dd>до 10</dd>
+            </dl>
+            <button class="btn btn-primary js-pick" type="button" data-pos="Сервер виртуализации">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+          </div>
+          <div class="cN-art" aria-hidden="true">
+            <svg class="vm" viewBox="0 0 360 250">
+              <rect x="20" y="16" width="320" height="218" rx="14" fill="none" stroke="#3b5579" stroke-width="1.5"/>
+              <rect x="36" y="188" width="288" height="30" rx="7" fill="rgba(95,176,232,.14)" stroke="#5fb0e8"/>
+              <g class="vmw"><rect x="40" y="36" width="86" height="136" rx="8" fill="#0b1324" stroke="#8fd0ff"/><rect x="40" y="36" width="86" height="18" rx="8" fill="rgba(143,208,255,.2)"/><g fill="#3b5579"><rect x="52" y="68" width="62" height="6" rx="3"/><rect x="52" y="82" width="44" height="6" rx="3"/><rect x="52" y="96" width="54" height="6" rx="3"/></g></g>
+              <g class="vmw"><rect x="137" y="36" width="86" height="136" rx="8" fill="#0b1324" stroke="#8fd0ff"/><rect x="137" y="36" width="86" height="18" rx="8" fill="rgba(143,208,255,.2)"/><g fill="#3b5579"><rect x="149" y="68" width="62" height="6" rx="3"/><rect x="149" y="82" width="44" height="6" rx="3"/><rect x="149" y="96" width="54" height="6" rx="3"/></g></g>
+              <g class="vmw"><rect x="234" y="36" width="86" height="136" rx="8" fill="#0b1324" stroke="#8fd0ff"/><rect x="234" y="36" width="86" height="18" rx="8" fill="rgba(143,208,255,.2)"/><g fill="#3b5579"><rect x="246" y="68" width="62" height="6" rx="3"/><rect x="246" y="82" width="44" height="6" rx="3"/><rect x="246" y="96" width="54" height="6" rx="3"/></g></g>
+            </svg>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. REQUEST FORM -->
+  <section class="sec" id="request" aria-labelledby="request-title">
+    <div class="wrap req">
+      <div>
+        <div class="eyebrow" aria-hidden="true">03</div>
+        <h2 class="h2" id="request-title">Заявка на расчёт</h2>
+        <p class="lede">Опишите задачу. Подберём конфигурацию и свяжемся с вами, чтобы уточнить детали.</p>
+        <ul class="contacts">
+          <li><span class="k">Телефон</span><a href="tel:+74994606265">8 (499) 460-62-65</a></li>
+          <li><span class="k">Почта</span><a href="mailto:sarmat-it@ya.ru">sarmat-it@ya.ru</a></li>
+          <li><span class="k">Адрес</span><span class="v">г. Москва, Карамышевская наб., д. 48, корп. 3</span></li>
+        </ul>
+      </div>
+      <form class="form" id="reqForm" method="post" novalidate>
+        <noscript><p class="form-noscript">Форма работает с включённым JavaScript. Позвоните по номеру 8 (499) 460-62-65 или напишите на sarmat-it@ya.ru.</p></noscript>
+        <div class="row2">
+          <div class="field"><label for="f-name">Имя</label><input class="input" id="f-name" name="name" placeholder="Как к вам обращаться" autocomplete="name"></div>
+          <div class="field">
+            <label for="f-phone">Телефон <span class="req-mark" aria-hidden="true">*</span></label>
+            <input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" placeholder="+7" autocomplete="tel" required aria-describedby="f-phone-err">
+            <p class="field-err" id="f-phone-err" hidden>Укажите телефон: не меньше 10 цифр.</p>
+          </div>
+        </div>
+        <div class="field"><label for="f-pos">Интересующая позиция</label>
+          <select class="input" id="f-pos" name="pos">
+            <option>Сервер для 1С</option><option>Файловый сервер</option><option>Сервер виртуализации</option><option>Своя конфигурация под задачу</option>
+          </select>
+        </div>
+        <div class="field"><label for="f-msg">Комментарий</label><textarea class="input" id="f-msg" name="msg" placeholder="Задача, число пользователей, сроки"></textarea></div>
+        <button class="btn btn-primary" type="submit">Отправить заявку</button>
+        <!-- TODO: согласие на обработку персональных данных (152-ФЗ). Чекбокс и текст не добавлены: текст согласия и ссылка на политику появятся после утверждения юристом, юрлицо пока не указано -->
+        <div aria-live="polite">
+          <p class="form-msg ok" id="msgOk" hidden>Заявка отправлена. Мы свяжемся с вами по указанному телефону.</p>
+          <p class="form-msg err" id="msgErr" hidden>Не получилось отправить заявку. Попробуйте ещё раз или позвоните нам: <a href="tel:+74994606265">8 (499) 460-62-65</a>.</p>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr">
+  <div class="wrap ftr-in">
+    <div class="ftr-brand">
+      <a class="ftr-logo" href="#hero" aria-label="Сармат-ИТ, в начало">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 37 34H3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="20" cy="24" r="10.5" fill="#03050b" stroke="currentColor" stroke-width="1.8"/><circle cx="20" cy="24" r="4.2" fill="#5fb0e8"/></svg>
+        <span>САРМАТ-ИТ</span>
+      </a>
+      <p>Сборка и интеграция серверного и сетевого оборудования под вашу задачу. Доставка и монтаж по всей России.</p>
+    </div>
+    <nav class="ftr-nav" aria-label="Разделы (подвал)">
+      <a href="#process">Как мы работаем</a>
+      <a href="#catalog">Готовые конфигурации</a>
+      <a href="#request">Заявка на расчёт</a>
+    </nav>
+    <address class="ftr-contacts">
+      <a class="ftr-phone" href="tel:+74994606265">8 (499) 460-62-65</a>
+      <a href="mailto:sarmat-it@ya.ru">sarmat-it@ya.ru</a>
+      <span>г. Москва, Карамышевская наб., д. 48, корп. 3</span>
+    </address>
+  </div>
+  <!-- TODO: юрлицо и реквизиты (ИНН/ОГРН), ссылка на политику обработки персональных данных. Данных нет: юрлицо "уточнить" в CLAUDE.md, текст политики за юристом -->
+</footer>
+
+<!-- 4. ASSISTANT (appears after the first screen) -->
+<div class="asst" id="asst">
+  <div class="asst-panel" id="asstPanel" role="dialog" aria-labelledby="asstTitle" hidden>
+    <header><h3 id="asstTitle">Вопрос сотруднику</h3><button class="asst-x" id="asstClose" type="button" aria-label="Закрыть">&#x2715;</button></header>
+    <form class="asst-form" id="asstForm">
+      <textarea class="input" id="asstQ" name="question" placeholder="Опишите задачу или задайте вопрос" aria-label="Вопрос" required></textarea>
+      <button class="btn btn-primary" type="submit">Спросить</button>
+    </form>
+    <!-- TODO: часы работы помощника и срок ответа. Антон пока не назвал, конкретное время не пишем. Когда появится: "Вопрос получили. Ответим <когда>." -->
+    <p class="asst-done" id="asstDone" role="status" hidden>Вопрос получили. Если вопрос срочный, позвоните: <a href="tel:+74994606265">8 (499) 460-62-65</a>.</p>
+  </div>
+  <button class="asst-bubble" id="asstBubble" type="button">Вопрос по конфигурации? Напишите, ответит сотрудник.</button>
+  <button class="asst-fab" id="asstFab" type="button" aria-label="Вопрос сотруднику" aria-expanded="false" aria-controls="asstPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></button>
+</div>
+
+</body>
+</html>
