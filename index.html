@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Сармат-ИТ: сборка и интеграция серверного и сетевого оборудования</title>
-<meta name="description" content="Сборка и интеграция серверного и сетевого оборудования под вашу задачу: конфигурация, закупка, сборка и тест, монтаж. Доставка и монтаж по всей России.">
+<title>Сармат-ИТ: сборка и интеграция серверов, сетей и видеонаблюдения</title>
+<meta name="description" content="Сборка и интеграция серверов, сетей и видеонаблюдения под вашу задачу: конфигурация, закупка, сборка и тест, монтаж серверной и камер. Доставка и монтаж по всей России.">
 <meta name="theme-color" content="#03050b">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%2303050b'/%3E%3Cpath d='M20 3 37 34H3Z' fill='none' stroke='%23e8eef7' stroke-width='1.6'/%3E%3Ccircle cx='20' cy='24' r='10.5' fill='%2303050b' stroke='%23e8eef7' stroke-width='1.8'/%3E%3Ccircle cx='20' cy='24' r='4.2' fill='%235fb0e8'/%3E%3C/svg%3E">
 <script>document.documentElement.classList.add('js')</script>
@@ -24,9 +24,10 @@
       <span>САРМАТ-ИТ</span>
     </a>
     <nav class="nav" aria-label="Разделы">
-      <a href="#process">Как мы работаем</a>
-      <a href="#catalog">Готовые конфигурации</a>
-      <a href="#request">Заявка на расчёт</a>
+      <a href="#catalog">Конфигурации</a>
+      <a href="#turnkey">Серверная</a>
+      <a href="#video">Видеонаблюдение</a>
+      <a href="#request">Заявка</a>
     </nav>
     <a class="hdr-phone" href="tel:+74994606265" aria-label="Позвонить: 8 (499) 460-62-65">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
@@ -41,8 +42,15 @@
   <section class="hero" id="hero" aria-label="Сармат-ИТ">
     <div class="si-track">
       <div class="si-stage">
+        <!-- Спуск: после сборки логотипа камера влетает в глобус эмблемы и садится на Землю, в Москве -->
+        <canvas class="ds-cv" aria-hidden="true"></canvas>
         <div class="si-logo" aria-hidden="true"></div>
-        <div class="hero-foot"><h1 class="hero-line">Сборка и интеграция серверного и сетевого оборудования под вашу задачу</h1></div>
+        <div class="hero-foot"><h1 class="hero-line">Сборка и интеграция серверов, сетей и видеонаблюдения под вашу задачу</h1></div>
+        <div class="ds-caps" aria-hidden="true">
+          <p class="ds-cap"><span class="ds-eyebrow">География</span><span class="ds-line">Доставка и монтаж по всей России</span></p>
+          <p class="ds-cap"><span class="ds-eyebrow">55°45′ с. ш., 37°37′ в. д.</span><span class="ds-line">Москва</span></p>
+          <p class="ds-cap ds-cap-land"><span class="ds-eyebrow">Посадка</span><span class="ds-line">Ближе к делу</span></p>
+        </div>
         <div class="si-hint" aria-hidden="true"><span>Прокрутите</span><i></i></div>
         <div class="si-bar" aria-hidden="true"></div>
       </div>
@@ -73,33 +81,37 @@
     <div class="wrap">
       <div class="eyebrow" aria-hidden="true">02</div>
       <h2 class="h2" id="catalog-title">Готовые конфигурации</h2>
-      <p class="lede">Три типовые сборки. Под вашу задачу изменим любую из них.</p>
+      <p class="lede">Три типовые сборки. Состав примерный: точную конфигурацию, срок и цену считаем под вашу задачу.</p>
 
+      <!-- Все три карточки: одна и та же 3D-сцена (main.js, serverScene), модели и тайминги в SCENES.
+           Шаги ниже видны и без JS. Источники характеристик: mockups/configurations.md -->
       <div class="stack" id="stack">
-        <!-- card 1: 3D assembly. Характеристики: пример конфигурации от Антона (23.09.2026), цифры не менять без него -->
-        <article class="stack-card c1" id="card1" aria-labelledby="card1-title">
-          <canvas role="img" aria-label="Трёхмерная модель сервера: детали встают на места при прокрутке"></canvas>
+        <!-- card 1. Характеристики: пример конфигурации от Антона (23.09.2026), цифры не менять без него -->
+        <article class="stack-card sc" id="card1" data-scene="c1" aria-labelledby="card1-title">
+          <canvas role="img" aria-label="Трёхмерная модель сервера для 1С: детали встают на места при прокрутке"></canvas>
           <div class="bar" aria-hidden="true"></div>
-          <div class="c1-head">
-            <div class="card-num">01 <span>/ 03</span></div>
-            <h3 class="card-title" id="card1-title">Сервер для 1С</h3>
-            <p class="card-desc">Для учёта в 1С в небольшой компании, до 20 пользователей.</p>
-            <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Сервер для 1С">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
-          </div>
           <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
-          <!-- TODO: плата C252, корпус 1U, пять вентиляторов, частоты и кэш E-2314 пришли из референса аниматора, а не из брифа Антона. Подтвердить у Антона или убрать из шагов -->
-          <div class="build">
-            <h4 class="build-title">Сборка</h4>
-            <ol class="steps">
-              <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>C252, LGA1200, 4 × DDR4</span></div><small>Основа сервера: встаёт на стойки в корпусе 1U.</small></li>
-              <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор</b><span>Intel Xeon E-2314, 4 ядра</span></div><small>2,8-4,5 ГГц, 8 МБ кэша. Серверный процессор с поддержкой памяти ECC.</small></li>
-              <li class="step" data-key="cooler"><div class="dot" aria-hidden="true"></div><div><b>Радиатор</b><span>Пассивный, обдув вентиляторами</span></div><small>Воздух от пяти вентиляторов проходит сквозь рёбра.</small></li>
-              <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>32 GB DDR4 ECC, 2 × 16 ГБ</span></div><small>ECC исправляет ошибки памяти на лету, базы 1С не повреждаются.</small></li>
-              <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>SSD</b><span>480 GB, система и БД</span></div><small>Windows и базы 1С на быстром диске: отчёты и проведение без ожиданий.</small></li>
-              <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Жёсткие диски</b><span>2 × 2 TB, RAID 1</span></div><small>Зеркало: каждый файл пишется на оба диска. Отказал один, данные на втором.</small></li>
-              <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>1U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
-              <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>Windows Server 2019</b><span>до 20 пользователей 1С</span></div><small>Система установлена, 1С:Предприятие готово к работе.</small></li>
-            </ol>
+          <div class="sc-side">
+            <div class="sc-head">
+              <div class="card-num">01 <span>/ 03</span></div>
+              <h3 class="card-title" id="card1-title">Сервер для 1С</h3>
+              <p class="card-desc">Для учёта в 1С в небольшой компании, до 20 пользователей.</p>
+              <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Сервер для 1С">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+            </div>
+            <!-- TODO: плата C252, корпус 1U, пять вентиляторов, частоты и кэш E-2314 пришли из референса аниматора, а не из брифа Антона. Подтвердить у Антона или убрать из шагов -->
+            <div class="build">
+              <h4 class="build-title">Сборка</h4>
+              <ol class="steps">
+                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>C252, LGA1200, 4 × DDR4</span></div><small>Основа сервера: встаёт на стойки в корпусе 1U.</small></li>
+                <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор</b><span>Intel Xeon E-2314, 4 ядра</span></div><small>2,8-4,5 ГГц, 8 МБ кэша. Серверный процессор с поддержкой памяти ECC.</small></li>
+                <li class="step" data-key="cooler"><div class="dot" aria-hidden="true"></div><div><b>Радиатор</b><span>Пассивный, обдув вентиляторами</span></div><small>Воздух от пяти вентиляторов проходит сквозь рёбра.</small></li>
+                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>32 GB DDR4 ECC, 2 × 16 ГБ</span></div><small>ECC исправляет ошибки памяти на лету, базы 1С не повреждаются.</small></li>
+                <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>SSD</b><span>480 GB, система и БД</span></div><small>Windows и базы 1С на быстром диске: отчёты и проведение без ожиданий.</small></li>
+                <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Жёсткие диски</b><span>2 × 2 TB, RAID 1</span></div><small>Зеркало: каждый файл пишется на оба диска. Отказал один, данные на втором.</small></li>
+                <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>1U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
+                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>Windows Server 2019</b><span>до 20 пользователей 1С</span></div><small>Система установлена, 1С:Предприятие готово к работе.</small></li>
+              </ol>
+            </div>
           </div>
           <div class="tag" aria-hidden="true"></div>
           <div class="boot" aria-hidden="true">
@@ -109,70 +121,168 @@
             <ul class="bootList"></ul>
           </div>
         </article>
-        <div class="spacer" id="spacer1" aria-hidden="true"></div>
+        <div class="spacer" aria-hidden="true" style="--scroll: 400vh"></div>
 
-        <!-- card 2 -->
-        <article class="stack-card cN" aria-labelledby="card2-title">
-          <div class="cN-body">
-            <div class="card-num">02 <span>/ 03</span></div>
-            <h3 class="card-title" id="card2-title">Файловый сервер</h3>
-            <p class="card-desc">Общее хранилище файлов для офиса. RAID 5 сохраняет данные, если откажет один диск.</p>
-            <!-- TODO: подтвердить характеристики у Антона. RAID 5 условно, из концепта. Процессор, память, диски, ОС: данных нет, строки не показываем, пока Антон не пришлёт -->
-            <dl class="spec">
-              <dt>Массив</dt><dd>RAID 5</dd>
-            </dl>
-            <button class="btn btn-primary js-pick" type="button" data-pos="Файловый сервер">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+        <!-- card 2. Примерная конфигурация, собрана 28.09.2026 под сайт. E-2336: intel.com. Подтвердить у Антона: ОС, объём дисков, RAID 5 против RAID 6 -->
+        <article class="stack-card sc" id="card2" data-scene="fs" aria-labelledby="card2-title">
+          <canvas role="img" aria-label="Трёхмерная модель файлового сервера: детали встают на места при прокрутке, в конце показан отказ и замена диска"></canvas>
+          <div class="bar" aria-hidden="true"></div>
+          <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
+          <div class="sc-side">
+            <div class="sc-head">
+              <div class="card-num">02 <span>/ 03</span></div>
+              <h3 class="card-title" id="card2-title">Файловый сервер</h3>
+              <p class="card-desc">Общие папки для офиса. Около 24 ТБ под файлы, данные сохраняются при отказе диска.</p>
+              <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Файловый сервер">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+            </div>
+            <div class="build">
+              <h4 class="build-title">Сборка</h4>
+              <ol class="steps">
+                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>C252, LGA1200, 2 канала DDR4</span></div><small>Основа сервера в корпусе 2U на 8 дисков.</small></li>
+                <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор и радиатор</b><span>Intel Xeon E-2336, 6 ядер</span></div><small>6 ядер, 12 потоков, 2,9-4,8 ГГц. Поддерживает память ECC.</small></li>
+                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>32 GB DDR4 ECC, 2 × 16 ГБ</span></div><small>По модулю на каждый из двух каналов процессора, без потери пропускной способности.</small></li>
+                <li class="step" data-key="raid"><div class="dot" aria-hidden="true"></div><div><b>RAID-контроллер</b><span>Аппаратный, с кэшем</span></div><small>Считает чётность RAID 5 сам, без нагрузки на процессор. Кэш защищён от отключения питания.</small></li>
+                <li class="step" data-key="nic"><div class="dot" aria-hidden="true"></div><div><b>Сетевая карта</b><span>2 × 10 Гбит/с</span></div><small>Два порта: можно объединить для скорости или развести на два коммутатора.</small></li>
+                <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>Системные SSD</b><span>2 × 480 GB, RAID 1</span></div><small>Windows на зеркале из двух SSD. Отказ одного не останавливает сервер.</small></li>
+                <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Диски под файлы</b><span>4 × 8 TB HDD, RAID 5</span></div><small>Около 24 ТБ под файлы. Один диск может отказать без потери данных. 4 отсека свободны.</small></li>
+                <li class="step" data-key="psu"><div class="dot" aria-hidden="true"></div><div><b>Блоки питания</b><span>2 шт, горячая замена</span></div><small>Если один блок откажет, сервер работает на втором. Замена без выключения.</small></li>
+                <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>2U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
+                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>Windows Server 2025</b><span>общие папки, теневые копии</span></div><small>Доступ по отделам. Прошлую версию файла сотрудник восстанавливает сам.</small></li>
+              </ol>
+            </div>
           </div>
-          <div class="cN-art" aria-hidden="true">
-            <svg class="raid" viewBox="0 0 360 250" font-family="JetBrains Mono, monospace" font-size="13" text-anchor="middle">
-              <g fill="none" stroke-width="1.5">
-                <rect x="30" y="20" width="84" height="210" rx="10" stroke="#3b5579"/>
-                <rect class="disk-b" x="138" y="20" width="84" height="210" rx="10" stroke="#3b5579"/>
-                <rect x="246" y="20" width="84" height="210" rx="10" stroke="#3b5579"/>
-              </g>
-              <g fill="#5fb0e8"><circle cx="72" cy="42" r="4"/><circle cx="180" cy="42" r="4"/><circle cx="288" cy="42" r="4"/></g>
-              <g>
-                <g><rect x="44" y="64" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="72" y="90" fill="#e8eef7">A1</text></g>
-                <g><rect x="44" y="118" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="72" y="144" fill="#e8eef7">B1</text></g>
-                <g><rect x="44" y="172" width="56" height="42" rx="5" fill="rgba(242,184,75,.14)" stroke="#f2b84b"/><text x="72" y="198" fill="#f2b84b">P</text></g>
-                <g class="blk-b"><rect x="152" y="64" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="180" y="90" fill="#e8eef7">A2</text></g>
-                <g class="blk-b"><rect x="152" y="118" width="56" height="42" rx="5" fill="rgba(242,184,75,.14)" stroke="#f2b84b"/><text x="180" y="144" fill="#f2b84b">P</text></g>
-                <g class="blk-b"><rect x="152" y="172" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="180" y="198" fill="#e8eef7">C1</text></g>
-                <g><rect x="260" y="64" width="56" height="42" rx="5" fill="rgba(242,184,75,.14)" stroke="#f2b84b"/><text x="288" y="90" fill="#f2b84b">P</text></g>
-                <g><rect x="260" y="118" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="288" y="144" fill="#e8eef7">B2</text></g>
-                <g><rect x="260" y="172" width="56" height="42" rx="5" fill="rgba(95,176,232,.16)" stroke="#5fb0e8"/><text x="288" y="198" fill="#e8eef7">C2</text></g>
-              </g>
-              <g class="rebuilt" fill="none" stroke="#7fe0a6" stroke-dasharray="4 4">
-                <rect x="152" y="64" width="56" height="42" rx="5"/><rect x="152" y="118" width="56" height="42" rx="5"/><rect x="152" y="172" width="56" height="42" rx="5"/>
-              </g>
-              <g class="xmark" stroke="#ff8a7a" stroke-width="2.5" stroke-linecap="round"><path d="M170 32l20 20M190 32l-20 20"/></g>
-            </svg>
+          <div class="tag" aria-hidden="true"></div>
+          <div class="boot" aria-hidden="true">
+            <div class="os">Windows Server 2025 <em class="bootState">загрузка</em></div>
+            <div class="pbar"><i></i></div>
+            <div class="bootText">Подготовка системы</div>
+            <ul class="bootList"></ul>
           </div>
         </article>
+        <div class="spacer" aria-hidden="true" style="--scroll: 440vh"></div>
 
-        <!-- card 3 -->
-        <article class="stack-card cN" aria-labelledby="card3-title">
-          <div class="cN-body">
-            <div class="card-num">03 <span>/ 03</span></div>
-            <h3 class="card-title" id="card3-title">Сервер виртуализации</h3>
-            <p class="card-desc">Несколько рабочих систем на одном сервере, каждая в своей виртуальной машине.</p>
-            <!-- TODO: подтвердить характеристики у Антона. VMware vSphere Standard и "до 10 пользователей" условны, из концепта (вопрос 7 копирайтера: можем ли реально поставить лицензию VMware). Процессор, память, диски: данных нет, строки не показываем -->
-            <dl class="spec">
-              <dt>Гипервизор</dt><dd>VMware vSphere Standard</dd>
-              <dt>Пользователи</dt><dd>до 10</dd>
-            </dl>
-            <button class="btn btn-primary js-pick" type="button" data-pos="Сервер виртуализации">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+        <!-- card 3. Основа: конфигурация узла Hyper-V из нашей сделки 09.2026 (docs/03-deals/.../конфигурация.md, источники Intel/Dell/HPE там). Имя заказчика на сайт не выносим -->
+        <article class="stack-card sc" id="card3" data-scene="vs" aria-labelledby="card3-title">
+          <canvas role="img" aria-label="Трёхмерная модель сервера виртуализации: детали встают на места, в конце над сервером появляются виртуальные машины"></canvas>
+          <div class="bar" aria-hidden="true"></div>
+          <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
+          <div class="sc-side">
+            <div class="sc-head">
+              <div class="card-num">03 <span>/ 03</span></div>
+              <h3 class="card-title" id="card3-title">Сервер виртуализации</h3>
+              <p class="card-desc">Домен, 1С и файлы на одном сервере, каждая система в своей виртуальной машине. Второй процессор и память добавляются без замены сервера.</p>
+              <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Сервер виртуализации">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+            </div>
+            <div class="build">
+              <h4 class="build-title">Сборка</h4>
+              <ol class="steps">
+                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Двухпроцессорная плата</b><span>2 сокета, DDR5 RDIMM</span></div><small>Основа сервера 2U. Занят один сокет, второй оставлен под рост.</small></li>
+                <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор и радиатор</b><span>Intel Xeon Gold 6544Y, 16 ядер</span></div><small>16 ядер, 32 потока, 3,6-4,1 ГГц: высокая частота на ядро нужна 1С. Под 270 Вт стоит усиленный радиатор.</small></li>
+                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>256 GB DDR5 ECC, 8 × 32 ГБ</span></div><small>По модулю на каждый из 8 каналов процессора. Свободные слоты под рост.</small></li>
+                <li class="step" data-key="boss"><div class="dot" aria-hidden="true"></div><div><b>Загрузочный модуль</b><span>2 × 960 GB NVMe M.2, RAID 1</span></div><small>Гипервизор на отдельном зеркале. Передние отсеки остаются под данные.</small></li>
+                <li class="step" data-key="raid"><div class="dot" aria-hidden="true"></div><div><b>RAID-контроллер</b><span>С кэшем и защитой кэша</span></div><small>Держит два массива: под виртуальные машины и под файлы.</small></li>
+                <li class="step" data-key="nic"><div class="dot" aria-hidden="true"></div><div><b>Сеть</b><span>2 × 10/25 GbE SFP28</span></div><small>Трафик машин, реплики и резервных копий разводим по отдельным виртуальным сетям (VLAN).</small></li>
+                <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>SSD, 8 дисков</b><span>4 × 1,92 TB + 4 × 3,84 TB, RAID 10</span></div><small>3,84 ТБ под машины и базы, 7,68 ТБ под файлы. 8 отсеков свободны.</small></li>
+                <li class="step" data-key="psu"><div class="dot" aria-hidden="true"></div><div><b>Блоки питания</b><span>2 шт, горячая замена</span></div><small>Если один блок откажет, сервер работает на втором. Замена без выключения.</small></li>
+                <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>2U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
+                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>Hyper-V</b><span>Windows Server 2025</span></div><small>Домен, 1С и файлы в отдельных виртуальных машинах. Сбой одной не затрагивает остальные.</small></li>
+              </ol>
+            </div>
           </div>
-          <div class="cN-art" aria-hidden="true">
-            <svg class="vm" viewBox="0 0 360 250">
-              <rect x="20" y="16" width="320" height="218" rx="14" fill="none" stroke="#3b5579" stroke-width="1.5"/>
-              <rect x="36" y="188" width="288" height="30" rx="7" fill="rgba(95,176,232,.14)" stroke="#5fb0e8"/>
-              <g class="vmw"><rect x="40" y="36" width="86" height="136" rx="8" fill="#0b1324" stroke="#8fd0ff"/><rect x="40" y="36" width="86" height="18" rx="8" fill="rgba(143,208,255,.2)"/><g fill="#3b5579"><rect x="52" y="68" width="62" height="6" rx="3"/><rect x="52" y="82" width="44" height="6" rx="3"/><rect x="52" y="96" width="54" height="6" rx="3"/></g></g>
-              <g class="vmw"><rect x="137" y="36" width="86" height="136" rx="8" fill="#0b1324" stroke="#8fd0ff"/><rect x="137" y="36" width="86" height="18" rx="8" fill="rgba(143,208,255,.2)"/><g fill="#3b5579"><rect x="149" y="68" width="62" height="6" rx="3"/><rect x="149" y="82" width="44" height="6" rx="3"/><rect x="149" y="96" width="54" height="6" rx="3"/></g></g>
-              <g class="vmw"><rect x="234" y="36" width="86" height="136" rx="8" fill="#0b1324" stroke="#8fd0ff"/><rect x="234" y="36" width="86" height="18" rx="8" fill="rgba(143,208,255,.2)"/><g fill="#3b5579"><rect x="246" y="68" width="62" height="6" rx="3"/><rect x="246" y="82" width="44" height="6" rx="3"/><rect x="246" y="96" width="54" height="6" rx="3"/></g></g>
-            </svg>
+          <div class="tag" aria-hidden="true"></div>
+          <div class="boot" aria-hidden="true">
+            <div class="os">Windows Server 2025, Hyper-V <em class="bootState">загрузка</em></div>
+            <div class="pbar"><i></i></div>
+            <div class="bootText">Подготовка системы</div>
+            <ul class="bootList"></ul>
           </div>
         </article>
+        <div class="spacer" aria-hidden="true" style="--scroll: 440vh"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. TURNKEY: server room from our proposal + video surveillance -->
+  <section class="sec sec-catalog" id="turnkey" aria-labelledby="turnkey-title">
+    <div class="wrap">
+      <div class="eyebrow" aria-hidden="true">03</div>
+      <h2 class="h2" id="turnkey-title">Объекты под ключ</h2>
+      <p class="lede">Серверная и видеонаблюдение целиком: от обследования до сдачи с документами.</p>
+
+      <div class="stack" id="stack2">
+        <!-- card 4. Объект из нашего КП по ТЗ (сделка 2026-09, КП v2, схема «Архитектура»). Заказчика, цены и даты на сайт не выносим.
+             Факты: стойка 42U, ИБП онлайн 6 кВА, 2 сервера Hyper-V (16 ядер, 256 ГБ), NAS 2U 6 × 8 ТБ RAID 6 (32 ТБ, рост до 80), 2 коммутатора L3 10 GbE,
+             межсетевой экран, 50 ПК, реплика APP01 каждые 5 минут, запуск копии вручную -->
+        <article class="stack-card sc" id="card4" data-scene="rk" aria-labelledby="card4-title">
+          <canvas role="img" aria-label="Трёхмерная модель серверной: стойка заполняется оборудованием, подключаются рабочие места, в конце отказ одного сервера и запуск копии на втором"></canvas>
+          <div class="bar" aria-hidden="true"></div>
+          <p class="model-note">Модель условная: пропорции и внешний вид оборудования нарисованы, состав как в КП.</p>
+          <div class="sc-side">
+            <div class="sc-head">
+              <div class="card-num">01 <span>/ 02</span></div>
+              <h3 class="card-title" id="card4-title">Серверная под ключ</h3>
+              <p class="card-desc">Пример из нашего КП по ТЗ: 50 рабочих мест, 1С на 20 пользователей. Запас до 200 пользователей без замены серверов.</p>
+              <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Серверная под ключ">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+            </div>
+            <div class="build">
+              <h4 class="build-title">Монтаж</h4>
+              <ol class="steps">
+                <li class="step" data-key="rack"><div class="dot" aria-hidden="true"></div><div><b>Стойка</b><span>19", 42U</span></div><small>Оборудование займёт меньше половины юнитов, остальное под рост.</small></li>
+                <li class="step" data-key="ups"><div class="dot" aria-hidden="true"></div><div><b>ИБП</b><span>онлайн, 6 кВА</span></div><small>У каждого сервера два блока питания на разные линии. При долгом отключении серверы выключаются штатно.</small></li>
+                <li class="step" data-key="srv"><div class="dot" aria-hidden="true"></div><div><b>Серверы HV01 и HV02</b><span>Hyper-V, 16 ядер, 256 ГБ</span></div><small>Два одинаковых сервера: каждый может принять нагрузку второго.</small></li>
+                <li class="step" data-key="nas"><div class="dot" aria-hidden="true"></div><div><b>Хранилище копий</b><span>NAS 2U, 6 × 8 ТБ, RAID 6</span></div><small>32 ТБ под резервные копии, рост до 80 ТБ. Отдельный сегмент сети, копию нельзя стереть до срока.</small></li>
+                <li class="step" data-key="net"><div class="dot" aria-hidden="true"></div><div><b>Ядро сети и защита</b><span>2 коммутатора L3 10 GbE, межсетевой экран</span></div><small>Коммутаторы работают как один: отказ одного не рвёт связь. Экран закрывает вход из интернета и делит сеть на сегменты.</small></li>
+                <li class="step" data-key="pcs"><div class="dot" aria-hidden="true"></div><div><b>50 рабочих мест</b><span>вход под доменной учётной записью</span></div><small>Вводим ПК в домен и переносим профили. Диски и доступ к 1С выдаются по группам.</small></li>
+                <li class="step" data-key="vms"><div class="dot" aria-hidden="true"></div><div><b>Виртуальные машины</b><span>домен, 1С, файлы, мониторинг</span></div><small>DC01 и DC02 на разных серверах. Копия APP01 с 1С и файлами обновляется на втором сервере каждые 5 минут.</small></li>
+                <li class="step" data-key="fail"><div class="dot" aria-hidden="true"></div><div><b>Проверка отказа</b><span>HV01 выключен</span></div><small>Запускаем копию APP01 на HV02. Теряется не больше 5 минут работы, домен продолжает работать на DC02.</small></li>
+              </ol>
+            </div>
+          </div>
+          <div class="tag" aria-hidden="true"></div>
+          <div class="boot" aria-hidden="true">
+            <div class="os">Hyper-V, 2 сервера <em class="bootState">проверка</em></div>
+            <div class="pbar"><i></i></div>
+            <div class="bootText">Запуск машин</div>
+            <ul class="bootList"></ul>
+          </div>
+        </article>
+        <div class="spacer" aria-hidden="true" style="--scroll: 420vh"></div>
+
+        <!-- card 5. Видеонаблюдение: объект условный, без марок и цифр (решение Антона 28.09.2026).
+             TODO: состав услуги (IP или аналог, регистратор или сервер с ПО), свой монтаж или партнёр, марки, реальные объекты. PoE в шаге «кабель» подтвердить -->
+        <div class="anchor" id="video" aria-hidden="true"></div>
+        <article class="stack-card sc" id="card5" data-scene="cv" aria-labelledby="card5-title">
+          <canvas role="img" aria-label="Трёхмерный план объекта: расстановка камер с секторами обзора, прокладка кабеля к шкафу, запуск записи"></canvas>
+          <div class="bar" aria-hidden="true"></div>
+          <p class="model-note">Объект на схеме условный: планировка и число камер для примера.</p>
+          <div class="sc-side">
+            <div class="sc-head">
+              <div class="card-num">02 <span>/ 02</span></div>
+              <h3 class="card-title" id="card5-title">Видеонаблюдение под ключ</h3>
+              <p class="card-desc">Проектируем, прокладываем кабель, ставим камеры и запись, сдаём с документами.</p>
+              <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Видеонаблюдение">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+            </div>
+            <div class="build">
+              <h4 class="build-title">Работы</h4>
+              <ol class="steps">
+                <li class="step" data-key="obj"><div class="dot" aria-hidden="true"></div><div><b>Обследование</b><span>зоны контроля</span></div><small>Отмечаем, что нужно видеть: входы, склад, ворота, парковку.</small></li>
+                <li class="step" data-key="cams"><div class="dot" aria-hidden="true"></div><div><b>Проект и камеры</b><span>сектор обзора у каждой</span></div><small>Для каждой зоны подбираем камеру и угол обзора. Слепые зоны видно на схеме до монтажа.</small></li>
+                <li class="step" data-key="cable"><div class="dot" aria-hidden="true"></div><div><b>Прокладка кабеля</b><span>по стенам и лоткам</span></div><small>Ведём трассы от камер к шкафу. Камера получает питание по тому же кабелю (PoE).</small></li>
+                <li class="step" data-key="cab"><div class="dot" aria-hidden="true"></div><div><b>Шкаф и запись</b><span>коммутатор, запись, ИБП</span></div><small>Архив пишется в шкафу на регистратор или сервер. ИБП держит запись при отключении света, пока хватает батарей.</small></li>
+                <li class="step" data-key="launch"><div class="dot" aria-hidden="true"></div><div><b>Запуск</b><span>все камеры на одном экране</span></div><small>Настраиваем углы обзора и архив, проверяем изображение с каждой камеры.</small></li>
+                <li class="step" data-key="hand"><div class="dot" aria-hidden="true"></div><div><b>Сдача</b><span>доступ с телефона, схема</span></div><small>Настраиваем просмотр с телефона, передаём схему расстановки камер и трасс.</small></li>
+              </ol>
+            </div>
+          </div>
+          <div class="tag" aria-hidden="true"></div>
+          <div class="boot" aria-hidden="true">
+            <div class="os">Видеонаблюдение <em class="bootState">запуск</em></div>
+            <div class="pbar"><i></i></div>
+            <div class="bootText">Подключение камер</div>
+            <ul class="bootList"></ul>
+          </div>
+        </article>
+        <div class="spacer" aria-hidden="true" style="--scroll: 360vh"></div>
       </div>
     </div>
   </section>
@@ -181,7 +291,7 @@
   <section class="sec" id="request" aria-labelledby="request-title">
     <div class="wrap req">
       <div>
-        <div class="eyebrow" aria-hidden="true">03</div>
+        <div class="eyebrow" aria-hidden="true">04</div>
         <h2 class="h2" id="request-title">Заявка на расчёт</h2>
         <p class="lede">Опишите задачу. Подберём конфигурацию и свяжемся с вами, чтобы уточнить детали.</p>
         <ul class="contacts">
@@ -202,7 +312,7 @@
         </div>
         <div class="field"><label for="f-pos">Интересующая позиция</label>
           <select class="input" id="f-pos" name="pos">
-            <option>Сервер для 1С</option><option>Файловый сервер</option><option>Сервер виртуализации</option><option>Своя конфигурация под задачу</option>
+            <option>Сервер для 1С</option><option>Файловый сервер</option><option>Сервер виртуализации</option><option>Серверная под ключ</option><option>Видеонаблюдение</option><option>Своя конфигурация под задачу</option>
           </select>
         </div>
         <div class="field"><label for="f-msg">Комментарий</label><textarea class="input" id="f-msg" name="msg" placeholder="Задача, число пользователей, сроки"></textarea></div>
@@ -224,11 +334,12 @@
         <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 37 34H3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="20" cy="24" r="10.5" fill="#03050b" stroke="currentColor" stroke-width="1.8"/><circle cx="20" cy="24" r="4.2" fill="#5fb0e8"/></svg>
         <span>САРМАТ-ИТ</span>
       </a>
-      <p>Сборка и интеграция серверного и сетевого оборудования под вашу задачу. Доставка и монтаж по всей России.</p>
+      <p>Сборка и интеграция серверов, сетей и видеонаблюдения под вашу задачу. Доставка и монтаж по всей России.</p>
     </div>
     <nav class="ftr-nav" aria-label="Разделы (подвал)">
       <a href="#process">Как мы работаем</a>
       <a href="#catalog">Готовые конфигурации</a>
+      <a href="#turnkey">Объекты под ключ</a>
       <a href="#request">Заявка на расчёт</a>
     </nav>
     <address class="ftr-contacts">
