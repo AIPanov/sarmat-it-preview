@@ -804,12 +804,13 @@ const TX = (() => {
     }),
     // VM plate: on (working), copy (switched-off replica), fail
     plate: (title, sub, mode) => tex(420, 200, (g, w, h) => {
-      g.fillStyle = mode === 'on' ? '#1b5aa0' : mode === 'fail' ? '#3a1418' : '#0b1a33'; g.fillRect(0, 0, w, h);
-      g.strokeStyle = mode === 'on' ? '#8fd0ff' : mode === 'fail' ? '#ff8a7a' : 'rgba(143,208,255,.6)'; g.lineWidth = 6;
+      const lin = mode === 'lin' || mode === 'linOn';
+      g.fillStyle = mode === 'on' ? '#1b5aa0' : lin ? '#123a63' : mode === 'fail' ? '#3a1418' : '#0b1a33'; g.fillRect(0, 0, w, h);
+      g.strokeStyle = mode === 'on' || mode === 'linOn' ? '#8fd0ff' : mode === 'lin' ? 'rgba(143,208,255,.75)' : mode === 'fail' ? '#ff8a7a' : 'rgba(143,208,255,.6)'; g.lineWidth = 6;
       if (mode === 'copy') g.setLineDash([18, 12]);
       g.strokeRect(4, 4, w - 8, h - 8); g.setLineDash([]);
       g.fillStyle = mode === 'copy' ? '#a8c4e4' : '#ffffff'; g.font = '600 56px "Golos Text", system-ui, sans-serif'; g.fillText(title, 26, 90);
-      g.fillStyle = mode === 'on' ? '#cfe6fb' : mode === 'fail' ? '#ffb4a8' : '#7f96b2'; g.font = '500 25px "JetBrains Mono", monospace'; g.fillText(sub, 28, 150);
+      g.fillStyle = mode === 'linOn' ? '#7fe0a6' : mode === 'on' || lin ? '#cfe6fb' : mode === 'fail' ? '#ffb4a8' : '#7f96b2'; g.font = '500 25px "JetBrains Mono", monospace'; g.fillText(sub, 28, 150);
     }, true),
     // Video surveillance
     poe: tex(240, 30, (g, w, h) => { g.fillStyle = '#1f252d'; g.fillRect(0, 0, w, h); g.fillStyle = '#0c0f13'; for (let i = 0; i < 10; i++) g.fillRect(40 + i * 19, 7, 15, 16); g.fillStyle = '#7fe0a6'; g.fillRect(10, 12, 12, 6); }),
@@ -1114,7 +1115,7 @@ const SCENES = {
       states: [[0, 'Подготовка системы', 'загрузка'], [0.8301, 'Загрузка гипервизора', 'загрузка'], [0.88, 'Hyper-V работает, запуск машин', 'загрузка'], [0.965, 'Готов к работе, 3 ВМ запущены', 'в работе', 'ready']] }
   },
 
-  /* Серверная под ключ: объект из нашего КП по ТЗ (сделка 2026-09, КП v2, схема «Архитектура»). Без заказчика, цен и дат.
+  /* Серверная под ключ: объект из нашего КП по ТЗ (сделка 2026-09, КП v3, схема «Архитектура» и таблица отказов). Без заказчика, цен и дат.
      Стойка 42U, ИБП онлайн 6 кВА, 2 сервера Hyper-V, NAS 2U 6 × 8 ТБ RAID 6, 2 коммутатора L3 10 GbE, межсетевой экран, 50 ПК.
      Высота устройств в юнитах условная: в КП её нет. */
   rk: {
@@ -1123,8 +1124,9 @@ const SCENES = {
     build({ part, box }, X) {
       const U = 0.46, yU = (k, n) => 0.5 + (k - 1) * U + n * U / 2; // centre of an n-unit device mounted from unit k
       const T = { hv1: X.srvFront('HV01'), hv2: X.srvFront('HV02'), sw: X.sw1u('CORE L3  10GbE'),
-        dc1: X.plate('DC01', 'домен, DNS', 'on'), app1: X.plate('APP01', '1С, файлы', 'on'), monc: X.plate('MON', 'копия', 'copy'),
-        dc2: X.plate('DC02', 'домен, DNS', 'on'), rep: X.plate('APP01', 'копия, 5 мин', 'copy'), repOn: X.plate('APP01', 'запущена', 'on'), mon: X.plate('MON', 'мониторинг', 'on') };
+        dc1: X.plate('DC01', 'домен, DNS', 'on'), app1: X.plate('APP01', '1С, файлы', 'on'), db1: X.plate('DB01', 'база 1С', 'lin'), monc: X.plate('MON01', 'копия', 'copy'),
+        dc2: X.plate('DC02', 'домен, DNS', 'on'), rep: X.plate('APP01', 'копия, 5 мин', 'copy'), repOn: X.plate('APP01', 'запущена', 'on'),
+        db2: X.plate('DB02', 'реплика базы', 'lin'), db2On: X.plate('DB02', 'основная база', 'linOn'), mon: X.plate('MON01', 'мониторинг', 'lin') };
       part('chassis', [0, 0, 0]);
       const RK = part('rack', [0, 10, 0]);
       [[-2.85, -3.55], [2.85, -3.55], [-2.85, 3.55], [2.85, 3.55]].forEach(([x, z]) => box(RK, 0.3, 20.3, 0.3, x, 10.15, z, '#1c222b', { tile: 2.5 }));
@@ -1158,19 +1160,21 @@ const SCENES = {
       }
       // Virtual machines, as on the scheme in the proposal
       const plate = (name, x, y, img, z = 3.3) => { const P = part(name, [x, y, z]); box(P, 2.1, 1.0, 0.05, x, y, z, '#0b1a33', { tex: { front: img }, tile: 2.5 }); };
-      plate('dc1', 5.2, 7.4, T.dc1); plate('app1', 7.5, 7.4, T.app1); plate('monc', 9.8, 7.4, T.monc);
-      plate('dc2', 5.2, 5.6, T.dc2); plate('rep', 7.5, 5.6, T.rep); plate('repOn', 7.5, 5.6, T.repOn, 3.34); plate('mon', 9.8, 5.6, T.mon);
+      plate('dc1', 5.2, 7.4, T.dc1); plate('app1', 7.5, 7.4, T.app1); plate('db1', 9.8, 7.4, T.db1); plate('monc', 12.1, 7.4, T.monc);
+      plate('dc2', 5.2, 5.6, T.dc2); plate('rep', 7.5, 5.6, T.rep); plate('repOn', 7.5, 5.6, T.repOn, 3.34);
+      plate('db2', 9.8, 5.6, T.db2); plate('db2On', 9.8, 5.6, T.db2On, 3.34); plate('mon', 12.1, 5.6, T.mon);
     },
     exp: { rack: { off: [0, 6, 0] }, ups: { off: [0, 0.3, 8] }, nas: { off: [0, 0.3, 8] }, hv2: { off: [0, 0.3, 8] }, hv1: { off: [0, 0.3, 8] },
       sw1: { off: [0, 0.3, 7] }, sw2: { off: [0, 0.3, 7] }, fw: { off: [0, 0.3, 7] }, pcs: { off: [0, -0.6, 0] },
-      dc1: { off: [0, 0, 1] }, app1: { off: [0, 0, 1] }, monc: { off: [0, 0, 1] }, dc2: { off: [0, 0, 1] }, rep: { off: [0, 0, 1] }, mon: { off: [0, 0, 1] } },
+      dc1: { off: [0, 0, 1] }, app1: { off: [0, 0, 1] }, db1: { off: [0, 0, 1] }, monc: { off: [0, 0, 1] }, dc2: { off: [0, 0, 1] }, rep: { off: [0, 0, 1] }, db2: { off: [0, 0, 1] }, mon: { off: [0, 0, 1] } },
     partT: { rack: [0.02, 0.09], ups: [0.11, 0.18], hv1: [0.21, 0.27], hv2: [0.26, 0.33], nas: [0.35, 0.42], sw1: [0.44, 0.48], sw2: [0.46, 0.5], fw: [0.49, 0.53], pcs: [0.55, 0.58],
-      dc1: [0.7, 0.73], dc2: [0.71, 0.74], app1: [0.72, 0.75], rep: [0.73, 0.76], monc: [0.74, 0.77], mon: [0.75, 0.78] },
-    fade: { rack: [0.02, 0.06], ups: [0.1, 0.12], hv1: [0.2, 0.22], hv2: [0.25, 0.27], nas: [0.34, 0.36], sw1: [0.43, 0.45], sw2: [0.45, 0.47], fw: [0.48, 0.5], pcs: [0.55, 0.58], dc1: [0.7, 0.73], dc2: [0.71, 0.74], app1: [0.72, 0.75], rep: [0.73, 0.76], monc: [0.74, 0.77], mon: [0.75, 0.78] },
-    // Failure of HV01: its machines dim, the replica of APP01 starts on HV02
+      dc1: [0.7, 0.73], dc2: [0.71, 0.74], app1: [0.72, 0.75], rep: [0.73, 0.76], db1: [0.735, 0.765], db2: [0.745, 0.775], monc: [0.75, 0.78], mon: [0.755, 0.785] },
+    fade: { rack: [0.02, 0.06], ups: [0.1, 0.12], hv1: [0.2, 0.22], hv2: [0.25, 0.27], nas: [0.34, 0.36], sw1: [0.43, 0.45], sw2: [0.45, 0.47], fw: [0.48, 0.5], pcs: [0.55, 0.58], dc1: [0.7, 0.73], dc2: [0.71, 0.74], app1: [0.72, 0.75], rep: [0.73, 0.76], db1: [0.735, 0.765], db2: [0.745, 0.775], monc: [0.75, 0.78], mon: [0.755, 0.785] },
+    // Failure of HV01: its machines dim, the base moves to the replica DB02, the copy of APP01 starts on HV02
     anim(p, parts) {
-      const f = 1 - 0.7 * seg(p, 0.85, 0.88), sw = seg(p, 0.9, 0.93);
-      parts.dc1.alpha *= f; parts.app1.alpha *= f; parts.monc.alpha *= f;
+      const f = 1 - 0.7 * seg(p, 0.85, 0.88), db = seg(p, 0.89, 0.92), sw = seg(p, 0.92, 0.95);
+      parts.dc1.alpha *= f; parts.app1.alpha *= f; parts.db1.alpha *= f; parts.monc.alpha *= f;
+      parts.db2.alpha *= 1 - db; parts.db2On.alpha = db;
       parts.rep.alpha *= 1 - sw; parts.repOn.alpha = sw;
     },
     led(key, p) {
@@ -1186,6 +1190,8 @@ const SCENES = {
       L.push({ pts: [[4.15, 5.6, 3.3], [3.6, 5.6, 3.3], [3.6, 4.18, 3.3], [2.25, 4.18, 3.15]], t: vm, rgb: '143,208,255', a: 0.6, w: 1.2 });
       L.push({ pts: [[5.2, 6.9, 3.3], [5.2, 6.1, 3.3]], t: seg(p, 0.75, 0.78), rgb: '143,208,255', a: 0.8 });
       L.push({ pts: [[7.5, 6.9, 3.3], [7.5, 6.1, 3.3]], t: seg(p, 0.76, 0.79), rgb: '127,224,166', a: 0.9 * (1 - seg(p, 0.85, 0.88)), dash: true });
+      L.push({ pts: [[9.8, 6.9, 3.3], [9.8, 6.1, 3.3]], t: seg(p, 0.765, 0.795), rgb: '190,150,255', a: 0.9 * (1 - seg(p, 0.85, 0.88)) });
+      L.push({ pts: [[12.1, 6.1, 3.3], [12.1, 6.9, 3.3]], t: seg(p, 0.775, 0.805), rgb: '127,224,166', a: 0.8, dash: true });
       L.push({ pts: [[-2.2, 5.1, 3.15], [-2.95, 5.1, 3.3], [-2.95, 3.26, 3.3], [-2.2, 3.26, 3.15]], t: bk, rgb: '242,184,75', a: 0.85, dash: true });
       L.push({ pts: [[-2.2, 4.18, 3.15], [-2.95, 4.18, 3.3]], t: bk, rgb: '242,184,75', a: 0.85, dash: true });
       return L;
@@ -1196,18 +1202,18 @@ const SCENES = {
         { at: [0, 12.5, 3.2], text: 'Место под рост', a: seg(p, 0.5, 0.54) * (1 - seg(p, 0.6, 0.64)) },
         { at: [14.75, 1.1, -4.4], text: '50 рабочих мест', a: seg(p, 0.6, 0.64) * (1 - seg(p, 0.69, 0.72)) },
         { at: [0.9, 5.3, 3.2], text: 'HV01: отказ', a: seg(p, 0.85, 0.88), warn: true },
-        { at: [7.5, 5.1, 3.35], text: 'Копия APP01 запущена', a: seg(p, 0.93, 0.96) }
+        { at: [7.5, 5.1, 3.35], text: 'Копия APP01 запущена', a: seg(p, 0.94, 0.97) }
       ];
     },
     steps: { rack: { t: [0.02, 0.1] }, ups: { t: [0.11, 0.19], tag: 'ИБП 6 кВА' }, srv: { t: [0.21, 0.34], tag: 'HV01 и HV02', part: 'hv1' }, nas: { t: [0.35, 0.43], tag: 'NAS, RAID 6' },
       net: { t: [0.44, 0.54], tag: 'Ядро сети и экран', part: 'fw' }, pcs: { t: [0.55, 0.68] }, vms: { t: [0.7, 0.81] }, fail: { t: [0.83, 0.98] } },
     cam: [[0.00, [20, 18, 42], [0, 9.5, 0]], [0.10, [16, 14, 34], [0, 9, 0]], [0.19, [8, 4.5, 13], [0, 2, 1]], [0.33, [8.5, 7, 13], [0, 4.6, 1]], [0.43, [8, 5, 12.5], [0, 3.4, 1]],
-      [0.54, [8, 9, 12.5], [0, 6.8, 1]], [0.68, [24, 24, 30], [9, 1, 0]], [0.81, [8.5, 9.5, 21], [5.0, 5.2, 0.5]], [0.98, [8, 9, 20], [4.8, 5.1, 0.5]], [1.00, [8, 9, 20], [4.8, 5.1, 0.5]]],
+      [0.54, [8, 9, 12.5], [0, 6.8, 1]], [0.68, [24, 24, 30], [9, 1, 0]], [0.81, [10.5, 10.5, 25], [6.2, 5.4, 0.5]], [0.98, [10, 10, 24], [6.0, 5.3, 0.5]], [1.00, [10, 10, 24], [6.0, 5.3, 0.5]]],
     power: [0.34, 0.37],
     boot: { show: [0.7, 0.73], bar: [0.71, 0.8],
-      lines: [[0.74, 'Домен: DC01 и DC02, репликация ОК'], [0.77, 'APP01: 1С и файлы работают'], [0.8, 'Копии на NAS: ежедневно'],
-        [0.86, 'HV01 не отвечает', 'warn'], [0.93, 'Копия APP01 запущена на HV02'], [0.96, 'Пользователи работают, домен на DC02']],
-      states: [[0, 'Запуск машин', 'проверка'], [0.8, 'Всё работает', 'в работе', 'ready'], [0.86, 'Отказ сервера HV01', 'отказ', 'warn'], [0.95, 'Отказ отработан: потеря не больше 5 минут', 'в работе', 'ready']] }
+      lines: [[0.74, 'Домен: DC01 и DC02, репликация ОК'], [0.765, 'База 1С: реплика на DB02 отстаёт на секунды'], [0.785, 'APP01: копия на HV02 каждые 5 минут'], [0.8, 'Копии на NAS: ежедневно'],
+        [0.86, 'HV01 не отвечает', 'warn'], [0.91, 'База переведена на DB02'], [0.945, 'Копия APP01 запущена на HV02'], [0.965, 'Пользователи работают, домен на DC02']],
+      states: [[0, 'Запуск машин', 'проверка'], [0.8, 'Всё работает', 'в работе', 'ready'], [0.86, 'Отказ сервера HV01', 'отказ', 'warn'], [0.96, 'Отказ отработан: база теряет секунды, файлы до 5 минут', 'в работе', 'ready']] }
   },
 
   /* Видеонаблюдение под ключ: условный объект (офис, склад, двор, парковка), 8 камер. Без марок и цифр до ответов Антона */
