@@ -86,7 +86,8 @@
       <!-- Все три карточки: одна и та же 3D-сцена (main.js, serverScene), модели и тайминги в SCENES.
            Шаги ниже видны и без JS. Источники характеристик: mockups/configurations.md -->
       <div class="stack" id="stack">
-        <!-- card 1. Характеристики: пример конфигурации от Антона (23.09.2026), цифры не менять без него -->
+        <!-- card 1. Конфигурация от Антона 29.09.2026: 8-12 ядер от 3,0 ГГц, 64 ГБ ECC (до 128), 2 × NVMe под базы, SSD под ОС, опционально SATA под копии, 2 × 1 GbE.
+             Процессор для модели: Xeon E-2488 (intel.com: 8/16, 3,2-5,6 ГГц, 24 МБ, 95 Вт, LGA1700, DDR5-4800 ECC, до 128 ГБ). Корпус 1U условный -->
         <article class="stack-card sc" id="card1" data-scene="c1" aria-labelledby="card1-title">
           <canvas role="img" aria-label="Трёхмерная модель сервера для 1С: детали встают на места при прокрутке"></canvas>
           <div class="bar" aria-hidden="true"></div>
@@ -95,27 +96,27 @@
             <div class="sc-head">
               <div class="card-num">01 <span>/ 03</span></div>
               <h3 class="card-title" id="card1-title">Сервер для 1С</h3>
-              <p class="card-desc">Для учёта в 1С в небольшой компании, до 20 пользователей.</p>
+              <p class="card-desc">До 20 одновременных пользователей 1С. Упор на частоту процессора: 1С она важнее числа ядер.</p>
               <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Сервер для 1С">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
             </div>
-            <!-- TODO: плата C252, корпус 1U, пять вентиляторов, частоты и кэш E-2314 пришли из референса аниматора, а не из брифа Антона. Подтвердить у Антона или убрать из шагов -->
             <div class="build">
               <h4 class="build-title">Сборка</h4>
               <ol class="steps">
-                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>C252, LGA1200, 4 × DDR4</span></div><small>Основа сервера: встаёт на стойки в корпусе 1U.</small></li>
-                <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор</b><span>Intel Xeon E-2314, 4 ядра</span></div><small>2,8-4,5 ГГц, 8 МБ кэша. Серверный процессор с поддержкой памяти ECC.</small></li>
-                <li class="step" data-key="cooler"><div class="dot" aria-hidden="true"></div><div><b>Радиатор</b><span>Пассивный, обдув вентиляторами</span></div><small>Воздух от пяти вентиляторов проходит сквозь рёбра.</small></li>
-                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>32 GB DDR4 ECC, 2 × 16 ГБ</span></div><small>ECC исправляет ошибки памяти на лету, базы 1С не повреждаются.</small></li>
-                <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>SSD</b><span>480 GB, система и БД</span></div><small>Windows и базы 1С на быстром диске: отчёты и проведение без ожиданий.</small></li>
-                <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Жёсткие диски</b><span>2 × 2 TB, RAID 1</span></div><small>Зеркало: каждый файл пишется на оба диска. Отказал один, данные на втором.</small></li>
+                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>LGA1700, DDR5 ECC, 2 × 1 GbE</span></div><small>Основа сервера. По заказу ставим сетевую карту 10 GbE.</small></li>
+                <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор</b><span>Intel Xeon E-2488, 8 ядер</span></div><small>8 ядер, 16 потоков, 3,2-5,6 ГГц. Под задачу подойдёт и Xeon Silver или Gold на 8-12 ядер от 3 ГГц.</small></li>
+                <li class="step" data-key="cooler"><div class="dot" aria-hidden="true"></div><div><b>Радиатор</b><span>обдув вентиляторами корпуса</span></div><small>Держит высокую частоту процессора под нагрузкой 1С.</small></li>
+                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>64 GB DDR5 ECC, 2 × 32 ГБ</span></div><small>ECC исправляет ошибки памяти на лету. Расширяется до 128 ГБ.</small></li>
+                <li class="step" data-key="nvme"><div class="dot" aria-hidden="true"></div><div><b>NVMe под базы 1С</b><span>2 × 0,96-1,92 ТБ, RAID 1</span></div><small>Базы и файлы 1С на быстрых дисках в зеркале: отказ одного не останавливает работу.</small></li>
+                <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>SSD под систему</b><span>480-960 ГБ</span></div><small>Операционная система отдельно от баз.</small></li>
+                <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Диски под копии</b><span>опция: 2-4 × SATA 2-4 ТБ</span></div><small>Резервные копии баз хранятся на отдельных дисках.</small></li>
                 <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>1U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
-                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>Windows Server 2019</b><span>до 20 пользователей 1С</span></div><small>Система установлена, 1С:Предприятие готово к работе.</small></li>
+                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>ОС и СУБД</b><span>Windows Server 2022/2025 или Linux</span></div><small>СУБД PostgreSQL или MS SQL, по лицензии заказчика.</small></li>
               </ol>
             </div>
           </div>
           <div class="tag" aria-hidden="true"></div>
           <div class="boot" aria-hidden="true">
-            <div class="os">Windows Server 2019 <em class="bootState">загрузка</em></div>
+            <div class="os">1С:Предприятие <em class="bootState">загрузка</em></div>
             <div class="pbar"><i></i></div>
             <div class="bootText">Подготовка системы</div>
             <ul class="bootList"></ul>
@@ -123,7 +124,7 @@
         </article>
         <div class="spacer" aria-hidden="true" style="--scroll: 400vh"></div>
 
-        <!-- card 2. Примерная конфигурация, собрана 28.09.2026 под сайт. E-2336: intel.com. Подтвердить у Антона: ОС, объём дисков, RAID 5 против RAID 6 -->
+        <!-- card 2. Примерная конфигурация под сайт, 28.09.2026. E-2336: intel.com. RAID 10 вместо RAID 5: правка Антона 29.09.2026. Открыто: ОС -->
         <article class="stack-card sc" id="card2" data-scene="fs" aria-labelledby="card2-title">
           <canvas role="img" aria-label="Трёхмерная модель файлового сервера: детали встают на места при прокрутке, в конце показан отказ и замена диска"></canvas>
           <div class="bar" aria-hidden="true"></div>
@@ -132,7 +133,7 @@
             <div class="sc-head">
               <div class="card-num">02 <span>/ 03</span></div>
               <h3 class="card-title" id="card2-title">Файловый сервер</h3>
-              <p class="card-desc">Общие папки для офиса. Около 24 ТБ под файлы, данные сохраняются при отказе диска.</p>
+              <p class="card-desc">Общие папки для офиса. 16 ТБ под файлы, данные сохраняются при отказе диска.</p>
               <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Файловый сервер">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
             </div>
             <div class="build">
@@ -141,10 +142,10 @@
                 <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>C252, LGA1200, 2 канала DDR4</span></div><small>Основа сервера в корпусе 2U на 8 дисков.</small></li>
                 <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор и радиатор</b><span>Intel Xeon E-2336, 6 ядер</span></div><small>6 ядер, 12 потоков, 2,9-4,8 ГГц. Поддерживает память ECC.</small></li>
                 <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>32 GB DDR4 ECC, 2 × 16 ГБ</span></div><small>По модулю на каждый из двух каналов процессора, без потери пропускной способности.</small></li>
-                <li class="step" data-key="raid"><div class="dot" aria-hidden="true"></div><div><b>RAID-контроллер</b><span>Аппаратный, с кэшем</span></div><small>Считает чётность RAID 5 сам, без нагрузки на процессор. Кэш защищён от отключения питания.</small></li>
+                <li class="step" data-key="raid"><div class="dot" aria-hidden="true"></div><div><b>RAID-контроллер</b><span>Аппаратный, с кэшем</span></div><small>Собирает диски в массив без нагрузки на процессор. Кэш защищён от отключения питания.</small></li>
                 <li class="step" data-key="nic"><div class="dot" aria-hidden="true"></div><div><b>Сетевая карта</b><span>2 × 10 Гбит/с</span></div><small>Два порта: можно объединить для скорости или развести на два коммутатора.</small></li>
                 <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>Системные SSD</b><span>2 × 480 GB, RAID 1</span></div><small>Windows на зеркале из двух SSD. Отказ одного не останавливает сервер.</small></li>
-                <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Диски под файлы</b><span>4 × 8 TB HDD, RAID 5</span></div><small>Около 24 ТБ под файлы. Один диск может отказать без потери данных. 4 отсека свободны.</small></li>
+                <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Диски под файлы</b><span>4 × 8 TB HDD, RAID 10</span></div><small>16 ТБ под файлы. Переживает отказ любого диска, после замены массив восстанавливается быстрее, чем RAID 5. 4 отсека свободны.</small></li>
                 <li class="step" data-key="psu"><div class="dot" aria-hidden="true"></div><div><b>Блоки питания</b><span>2 шт, горячая замена</span></div><small>Если один блок откажет, сервер работает на втором. Замена без выключения.</small></li>
                 <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>2U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
                 <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>Windows Server 2025</b><span>общие папки, теневые копии</span></div><small>Доступ по отделам. Прошлую версию файла сотрудник восстанавливает сам.</small></li>
@@ -161,7 +162,7 @@
         </article>
         <div class="spacer" aria-hidden="true" style="--scroll: 440vh"></div>
 
-        <!-- card 3. Основа: конфигурация узла Hyper-V из нашей сделки 09.2026 (docs/03-deals/.../конфигурация.md, источники Intel/Dell/HPE там). Имя заказчика на сайт не выносим -->
+        <!-- card 3. Основа: узел Hyper-V из нашей сделки 09.2026 (docs/03-deals/.../конфигурация.md). Память и ВМ по расчёту Антона 29.09.2026: 8 + 32 + 48 = 88 ГБ, с запасом 128 ГБ. Имя заказчика на сайт не выносим -->
         <article class="stack-card sc" id="card3" data-scene="vs" aria-labelledby="card3-title">
           <canvas role="img" aria-label="Трёхмерная модель сервера виртуализации: детали встают на места, в конце над сервером появляются виртуальные машины"></canvas>
           <div class="bar" aria-hidden="true"></div>
@@ -170,7 +171,7 @@
             <div class="sc-head">
               <div class="card-num">03 <span>/ 03</span></div>
               <h3 class="card-title" id="card3-title">Сервер виртуализации</h3>
-              <p class="card-desc">Домен, 1С и файлы на одном сервере, каждая система в своей виртуальной машине. Второй процессор и память добавляются без замены сервера.</p>
+              <p class="card-desc">Домен, сервер 1С и СУБД на одном сервере, каждая система в своей виртуальной машине. 16 быстрых ядер, второй процессор и память добавляются без замены сервера.</p>
               <button class="btn btn-ghost btn-sm js-pick" type="button" data-pos="Сервер виртуализации">Запросить расчёт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
             </div>
             <div class="build">
@@ -178,14 +179,14 @@
               <ol class="steps">
                 <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Двухпроцессорная плата</b><span>2 сокета, DDR5 RDIMM</span></div><small>Основа сервера 2U. Занят один сокет, второй оставлен под рост.</small></li>
                 <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор и радиатор</b><span>Intel Xeon Gold 6544Y, 16 ядер</span></div><small>16 ядер, 32 потока, 3,6-4,1 ГГц: высокая частота на ядро нужна 1С. Под 270 Вт стоит усиленный радиатор.</small></li>
-                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>256 GB DDR5 ECC, 8 × 32 ГБ</span></div><small>По модулю на каждый из 8 каналов процессора. Свободные слоты под рост.</small></li>
+                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>128 GB DDR5 ECC, 8 × 16 ГБ</span></div><small>Расчёт: машины 8 + 32 + 48 = 88 ГБ, с запасом 128 ГБ. По модулю на каждый из 8 каналов процессора.</small></li>
                 <li class="step" data-key="boss"><div class="dot" aria-hidden="true"></div><div><b>Загрузочный модуль</b><span>2 × 960 GB NVMe M.2, RAID 1</span></div><small>Гипервизор на отдельном зеркале. Передние отсеки остаются под данные.</small></li>
                 <li class="step" data-key="raid"><div class="dot" aria-hidden="true"></div><div><b>RAID-контроллер</b><span>С кэшем и защитой кэша</span></div><small>Держит два массива: под виртуальные машины и под файлы.</small></li>
                 <li class="step" data-key="nic"><div class="dot" aria-hidden="true"></div><div><b>Сеть</b><span>2 × 10/25 GbE SFP28</span></div><small>Трафик машин, реплики и резервных копий разводим по отдельным виртуальным сетям (VLAN).</small></li>
                 <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>SSD, 8 дисков</b><span>4 × 1,92 TB + 4 × 3,84 TB, RAID 10</span></div><small>3,84 ТБ под машины и базы, 7,68 ТБ под файлы. 8 отсеков свободны.</small></li>
                 <li class="step" data-key="psu"><div class="dot" aria-hidden="true"></div><div><b>Блоки питания</b><span>2 шт, горячая замена</span></div><small>Если один блок откажет, сервер работает на втором. Замена без выключения.</small></li>
                 <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>2U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
-                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>Hyper-V</b><span>Windows Server 2025</span></div><small>Домен, 1С и файлы в отдельных виртуальных машинах. Сбой одной не затрагивает остальные.</small></li>
+                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>3 виртуальные машины</b><span>Hyper-V, Windows Server 2025</span></div><small>Контроллер домена: 2 vCPU, 8 ГБ. Сервер 1С: 6 vCPU, 32 ГБ. СУБД PostgreSQL или MS SQL: 4 vCPU, 48 ГБ.</small></li>
               </ol>
             </div>
           </div>
