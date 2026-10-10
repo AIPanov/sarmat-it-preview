@@ -362,6 +362,7 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
 .ftr-logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 400 20px/1 var(--serif); letter-spacing: .06em; }
 .ftr-logo img { height: 48px; width: auto; }
 .ftr-brand p { margin: 14px 0 0; color: var(--ink-2); font-size: 14px; max-width: 40ch; }
+.ftr-brand .ftr-req { margin-top: 10px; font: 12px/1.5 var(--mono); color: var(--ink-3); }
 .ftr-nav { display: grid; gap: 10px; }
 .ftr-nav a, .ftr-contacts a { text-decoration: none; color: var(--ink-2); font-size: 14px; }
 .ftr-nav a:hover, .ftr-contacts a:hover { color: var(--ink); }
