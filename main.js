@@ -110,9 +110,12 @@ const heroView = (() => {
 
 
 /* ============ 1. Hero: logo assembly, then descent to Earth ============ */
-/* One sticky stage. Share of the track: the logo assembles in [0, L_END], holds with the headline,
+/* One sticky stage. Progress P: the logo assembles in [0, L_END], holds with the headline,
    then the camera flies into the globe of the emblem, turns to Russia, dives onto Moscow,
-   passes through clouds and lands on the ground grid [D0, D1]. */
+   passes through clouds and lands on the ground grid [D0, D1].
+   The logo assembles by itself on load (люди принимали пустой первый экран за недогруженный, 10.10.2026);
+   the scroll track covers only [L_END, 1]. One wheel turn, swipe or key plays the rest of the chapter
+   down to «Как мы работаем» (see "one gesture" below). */
 (function () {
   const R = document.getElementById('hero');
   const logo = R.querySelector('.si-logo'), stage = R.querySelector('.si-stage'), track = R.querySelector('.si-track');
@@ -230,24 +233,35 @@ const heroView = (() => {
   // Screen position and radius of the emblem's globe; the canvas planet starts exactly there.
   function globeAt(d) {
     const ez = eIO(seg(d, 0, 0.2)), k = s * Math.exp(Math.log(3.4) * ez);
-    const x = lerp(W / 2 - 5 * s, W / 2, ez), y = lerp(0.44 * H - 35 * s, H / 2, ez);
+    const x = lerp(W / 2 - 5 * s, W / 2, ez), y = lerp(gy0, H / 2, ez);
     const r0 = 99 * s * 3.4, rc = Math.min(0.49 * W, clamp(0.41 * Math.min(W, H), r0 * 0.9, r0 * 1.4));
     let r = lerp(99 * k, rc, eIO(seg(d, 0.2, 0.44)));
     r *= Math.exp(Math.log(90 * Math.max(W, H) / rc) * eIO(seg(d, 0.46, 0.7)));
     return { x, y, r, k };
   }
+  // The assembled logo fits between the header and the headline; the headline sits higher while
+  // the hint and the cookie notice are on screen. Visible logo: 279 units above the globe centre, 370 below.
+  let gy0 = 0;
   function fit() {
     W = stage.clientWidth; H = stage.clientHeight;
-    s = Math.min(W / 680, H * 0.72 / 740);
+    const foot = R.querySelector('.hero-foot');
+    const top = document.getElementById('hdr').offsetHeight + 12, room = Math.max(160, foot.offsetTop + line.offsetTop - 14 - top);
+    s = Math.min(W / 680, H * 0.72 / 740, room / 649);
+    gy0 = top + 279 * s + Math.max(0, room - 649 * s) / 2;
     planet.size(W, H);
     render(true);
   }
 
   let cur = 0, last = -1, logoOn = true, phase = 0, prevT = 0;
+  // intro: 0..1, the logo assembly on load. Any scroll into the track finishes it at once.
+  const INTRO_DELAY = 350, INTRO_MS = 3600;
+  let intro = scrollY > 0 ? 1 : 0, introT0 = 0;
   function progress() {
     if (REDUCE) return L_END;
     const r = track.getBoundingClientRect();
-    return clamp(-r.top / Math.max(1, r.height - innerHeight));
+    const f = clamp(-r.top / Math.max(1, r.height - innerHeight));
+    if (f > 0) intro = 1;
+    return f > 0 ? L_END + (1 - L_END) * f : L_END * intro;
   }
   const CAPW = [[0.24, 0.30, 0.42, 0.47], [0.50, 0.54, 0.60, 0.64], [0.86, 0.92, 2, 2]];
   function render(force) {
@@ -256,7 +270,6 @@ const heroView = (() => {
     const p = REDUCE ? 1 : clamp(P / L_END), d = REDUCE ? 0 : seg(P, D0, D1);
     heroState.d = d;
     bar.style.transform = `scaleX(${REDUCE ? 1 : P})`;
-    hint.style.opacity = 1 - seg(P, 0.004, 0.025);
     const hl = eOut(seg(p, 0.9, 1));
     line.style.opacity = hl * (1 - seg(d, 0, 0.05)); line.style.transform = `translateY(${lerp(14, 0, hl)}px)`;
     caps.forEach((c, i) => {
@@ -583,15 +596,102 @@ const heroView = (() => {
     return { size, draw };
   })();
 
+  let hintOn = false;
   function tick(t) {
+    if (intro < 1) { introT0 = introT0 || t; intro = clamp((t - introT0 - INTRO_DELAY) / INTRO_MS); }
     const target = progress();
     cur = Math.abs(target - cur) < 1e-5 ? target : lerp(cur, target, 0.14);
     render(false);
     spinGlobe(t);
     planet.draw(t);
+    const h = intro >= 1 && cur < L_END + 0.012 && !chapter.running();
+    if (h !== hintOn) { hintOn = h; hint.classList.toggle('on', h); }
   }
+
+  /* ---------- one gesture plays the chapter ---------- */
+  /* Inside the hero a wheel turn, a swipe or an arrow key does not scroll the page: it starts a ride.
+     Down: the descent with its captions, then on to «Как мы работаем». Up: back to the assembled logo.
+     The ride moves the real scroll position, so anchors, the scrollbar and the header keep working;
+     while it runs, input in the same direction is swallowed, the opposite direction turns it around,
+     and any scroll from elsewhere (a header link, the scrollbar) cancels it. */
+  const chapter = (() => {
+    const proc = document.getElementById('process');
+    const html = document.documentElement;
+    // Seconds of the way down from the assembled logo, by descent progress d. Captions get time to read.
+    const PLAN = [[0, 0.35], [0.24, 0.95], [0.47, 1.5], [0.64, 1.25], [0.86, 1.0], [1, 1.0]];
+    const TAIL = [0.25, 0.9]; // landed: stage unpins, then the page scrolls on to the process section
+    const UP = 0.4;           // the way up is the same path, faster
+    const R_IN = 0.45, R_OUT = 0.7; // speed ramps at the start and the end, seconds
+    let run = null, touchY = null;
+    function path() {
+      const top = track.getBoundingClientRect().top + scrollY, len = Math.max(1, track.offsetHeight - innerHeight);
+      const yOf = d => top + len * (D0 + d * (D1 - D0) - L_END) / (1 - L_END);
+      const pts = [[0, 0]]; let t = 0;
+      for (const [d, dt] of PLAN) { t += dt; pts.push([yOf(d), t]); }
+      t += TAIL[0]; pts.push([top + len, t]);
+      t += TAIL[1]; pts.push([proc.getBoundingClientRect().top + scrollY, t]);
+      return pts;
+    }
+    // y -> plan time and back, piecewise linear between the points
+    const timeAt = (pts, y) => { for (let i = 1; i < pts.length; i++) if (y <= pts[i][0]) return lerp(pts[i - 1][1], pts[i][1], seg(y, pts[i - 1][0], pts[i][0])); return pts[pts.length - 1][1]; };
+    const yAt = (pts, t) => { for (let i = 1; i < pts.length; i++) if (t <= pts[i][1]) return lerp(pts[i - 1][0], pts[i][0], seg(t, pts[i - 1][1], pts[i][1])); return pts[pts.length - 1][0]; };
+    const end = () => proc.getBoundingClientRect().top + scrollY;
+    const inZone = () => scrollY < end() - 2;
+    function start(dir) {
+      const pts = path(), s0 = timeAt(pts, scrollY), S = dir > 0 ? pts[pts.length - 1][1] - s0 : s0;
+      if (S < 0.02) return;
+      const k = dir > 0 ? 1 : UP, T = S * k + (R_IN + R_OUT) / 2;
+      run = { dir, pts, s0, S: S * k, k, T, t0: performance.now(), y: scrollY };
+      html.style.scrollBehavior = 'auto';
+      ticker.add(step);
+    }
+    function stop() { run = null; html.style.scrollBehavior = ''; ticker.remove(step); }
+    function step(now) {
+      if (!run) return false;
+      if (Math.abs(scrollY - run.y) > 3) { stop(); return false; } // someone else moved the page
+      const t = Math.min(run.T, (now - run.t0) / 1000), { T, S } = run;
+      // distance along the plan with smooth speed-up and slow-down
+      const s = t < R_IN ? t * t / (2 * R_IN) : t > T - R_OUT ? S - (T - t) * (T - t) / (2 * R_OUT) : R_IN / 2 + (t - R_IN);
+      const pt = run.s0 + run.dir * clamp(s, 0, S) / run.k;
+      run.y = Math.round(yAt(run.pts, pt));
+      scrollTo(0, run.y);
+      if (t >= T) { stop(); return false; }
+    }
+    function gesture(dir) {
+      if (run && run.dir === dir) return;
+      if (dir < 0 && scrollY <= 0) return;
+      start(dir);
+    }
+    const skip = el => el && el.closest && el.closest('.asst, .cookie, input, textarea, select');
+    if (!REDUCE) {
+      addEventListener('wheel', e => {
+        if (e.ctrlKey || !inZone() || skip(e.target) || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
+        e.preventDefault();
+        if (Math.abs(e.deltaY) >= 1) gesture(e.deltaY > 0 ? 1 : -1);
+      }, { passive: false });
+      addEventListener('touchstart', e => { touchY = e.touches.length === 1 && !skip(e.target) ? e.touches[0].clientY : null; }, { passive: true });
+      addEventListener('touchmove', e => {
+        if (touchY === null || e.touches.length > 1 || !inZone()) return;
+        const dy = touchY - e.touches[0].clientY;
+        if (scrollY <= 0 && dy <= 0 && !run) return; // at the very top a pull down stays the browser's (refresh)
+        e.preventDefault();
+        if (Math.abs(dy) > 12) { gesture(dy > 0 ? 1 : -1); touchY = e.touches[0].clientY; }
+      }, { passive: false });
+      addEventListener('keydown', e => {
+        if (e.altKey || e.ctrlKey || e.metaKey || !inZone() || skip(e.target)) return;
+        const onCtl = e.target.closest && e.target.closest('a, button');
+        const dir = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey && !onCtl) ? 1
+          : e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey && !onCtl) ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault(); gesture(dir);
+      });
+      hint.addEventListener('click', () => gesture(1));
+    }
+    return { running: () => !!run };
+  })();
+
   addEventListener('resize', fit); new ResizeObserver(fit).observe(stage);
-  if (REDUCE) { cur = L_END; hint.style.display = 'none'; }
+  if (REDUCE) cur = L_END;
   fit();
   buildWords();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildWords);
@@ -610,7 +710,7 @@ const heroView = (() => {
 
 /* ============ 3a. Server scenes: one engine, three models ============ */
 /* Tiny painter's-algorithm 3D on canvas 2D. A model is a set of parts made of textured boxes;
-   each part flies in from its exploded offset while the card's spacer scrolls by. */
+   each part flies in from its exploded offset while the build plays (progress 0..1 over def.dur seconds). */
 const K3 = (() => {
   const V = { add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]], sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], mul: (a, s) => [a[0] * s, a[1] * s, a[2] * s],
     dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
@@ -850,6 +950,7 @@ const SCENES = {
   /* Сервер для 1С: конфигурация от Антона 29.09.2026. Xeon E-2488 (intel.com), 2 × 32 ГБ DDR5 ECC, 2 × NVMe в RAID 1 под базы,
      SSD под систему, опционально 2-4 × SATA под копии. Корпус 1U условный */
   c1: {
+    dur: 9.5, // seconds of the build in the gallery
     build({ part, box }, X) {
       const T = { pcb: X.pcb('SERVER BOARD  DDR5 ECC', 'LGA1700'), cpu: X.cpu('XEON', 'E-2488', '3.20 GHz  8C/16T', 'LGA1700'), dimm: X.dimm('32GB DDR5 ECC'), hdd: X.hdd('2-4 TB', '3.5" SATA', 'BACKUP'),
         ssd: X.ssd('480 GB', '2.5" SATA  OS'), caddyHdd: X.caddy('#8fa3b8'), caddySsd: X.caddy('#117ca7'), m2: X.m2('NVMe'), sticker: X.sticker('1С SERVER  E-2488  64GB') };
@@ -910,7 +1011,7 @@ const SCENES = {
     partT: { board: [0.04, 0.13], cpu: [0.14, 0.22], cooler: [0.23, 0.29], ram1: [0.30, 0.36], ram2: [0.33, 0.39], nvme1: [0.40, 0.45], nvme2: [0.43, 0.48], ssd: [0.49, 0.56],
       hdd1: [0.57, 0.63], hdd2: [0.61, 0.67], lid: [0.69, 0.78] },
     fade: { lid: [0.66, 0.70] },
-    steps: { board: { t: [0.04, 0.13], tag: 'Плата LGA1700' }, cpu: { t: [0.14, 0.22], tag: 'Xeon E-2488, 8 ядер' }, cooler: { t: [0.23, 0.29], tag: 'Радиатор CPU' },
+    steps: { board: { t: [0.04, 0.13], tag: 'Плата, сокет LGA1700' }, cpu: { t: [0.14, 0.22], tag: 'Xeon E-2488, 8 ядер' }, cooler: { t: [0.23, 0.29], tag: 'Радиатор CPU' },
       ram: { t: [0.30, 0.39], tag: '2 × 32 GB DDR5 ECC', part: 'ram1' }, nvme: { t: [0.40, 0.48], tag: 'RAID 1, 2 × NVMe', part: 'nvme1' }, ssd: { t: [0.49, 0.56], tag: 'SSD под систему' },
       hdd: { t: [0.57, 0.67], tag: 'Копии, 2 × SATA', part: 'hdd1' }, lid: { t: [0.69, 0.78], tag: 'Корпус 1U' }, os: { t: [0.80, 0.97] } },
     cam: [[0.00, [8.6, 8.4, 11.6], [0, 1.9, 0.6]], [0.12, [6.2, 5.6, 6.8], [-0.4, 0.8, -0.6]], [0.26, [4.2, 4.8, 4.4], [-0.8, 0.6, -1.1]], [0.39, [4.8, 5.0, 5.2], [-0.4, 0.6, -0.9]],
@@ -925,6 +1026,7 @@ const SCENES = {
   /* Файловый сервер: 2U на 8 × 3,5", Xeon E-2336 (intel.com), 2 × 16 ГБ, RAID-контроллер, 2 × 480 ГБ RAID 1, 4 × 8 ТБ RAID 10 (правка Антона 29.09.2026), 2 × 10 Гбит/с, 2 БП.
      Примерная конфигурация под сайт, 28.09.2026: подтвердить у Антона (mockups/configurations.md) */
   fs: {
+    dur: 10, // seconds of the build in the gallery
     zoom: 0.84,
     build({ part, box }, X) {
       const T = { pcb: X.pcb('C252  FILE SERVER', 'LGA1200'), cpu: X.cpu('XEON', 'E-2336', '2.90 GHz  6C/12T', 'LGA1200'), dimm: X.dimm('16GB DDR4 ECC'),
@@ -996,7 +1098,7 @@ const SCENES = {
     partT: { board: [0.04, 0.12], cpu: [0.13, 0.19], cooler: [0.17, 0.22], ram1: [0.23, 0.28], ram2: [0.26, 0.31], raid: [0.32, 0.39], nic: [0.40, 0.46], ssd1: [0.47, 0.51], ssd2: [0.49, 0.53],
       hdd1: [0.54, 0.59], hdd2: [0.56, 0.61], hdd3: [0.58, 0.63], hdd4: [0.60, 0.65], psu1: [0.66, 0.70], psu2: [0.68, 0.72], lid: [0.73, 0.79] },
     fade: { lid: [0.70, 0.75] },
-    steps: { board: { t: [0.04, 0.12], tag: 'Плата C252' }, cpu: { t: [0.13, 0.22], tag: 'Xeon E-2336, 6 ядер' }, ram: { t: [0.23, 0.31], tag: '2 × 16 GB DDR4 ECC', part: 'ram1' },
+    steps: { board: { t: [0.04, 0.12], tag: 'Плата, чипсет C252' }, cpu: { t: [0.13, 0.22], tag: 'Xeon E-2336, 6 ядер' }, ram: { t: [0.23, 0.31], tag: '2 × 16 GB DDR4 ECC', part: 'ram1' },
       raid: { t: [0.32, 0.39], tag: 'RAID-контроллер' }, nic: { t: [0.40, 0.46], tag: '2 × 10 Гбит/с' }, ssd: { t: [0.47, 0.53], tag: 'RAID 1, 2 × 480 GB', part: 'ssd1' },
       hdd: { t: [0.54, 0.65], tag: 'RAID 10, 4 × 8 TB', part: 'hdd1' }, psu: { t: [0.66, 0.72], tag: '2 блока питания', part: 'psu2' }, lid: { t: [0.73, 0.79], tag: 'Корпус 2U' }, os: { t: [0.81, 0.99] } },
     cam: [[0.00, [8.6, 9.2, 11.6], [0, 2.2, 0.6]], [0.10, [6.4, 6.0, 6.8], [-0.6, 0.9, -0.9]], [0.20, [4.2, 5.4, 4.2], [-1.2, 0.8, -0.9]], [0.30, [4.6, 5.2, 5.0], [-0.6, 0.7, -0.9]],
@@ -1016,6 +1118,7 @@ const SCENES = {
      2U, 1 × Xeon Gold 6544Y (второй сокет пуст), 8 × 16 ГБ DDR5,
      BOSS 2 × 960 ГБ RAID 1, RAID-контроллер с кэшем, 4 × 1,92 ТБ SSD в RAID 10 (пул под файлы убран 29.09.2026: файловой ВМ нет), 2 × 10/25 GbE, 2 БП */
   vs: {
+    dur: 10, // seconds of the build in the gallery
     zoom: 0.84,
     build({ part, box }, X) {
       const T = { pcb: X.pcb('2S  DDR5  SERVER BOARD', 'LGA4677'), cpu: X.cpu('XEON GOLD', '6544Y', '3.60 GHz  16C/32T', 'LGA4677', 300, 420), dimm: X.dimm('16GB DDR5 RDIMM'),
@@ -1119,6 +1222,7 @@ const SCENES = {
      Стойка 42U, ИБП онлайн 6 кВА, 2 сервера Hyper-V, NAS 2U 6 × 8 ТБ RAID 6, 2 коммутатора L3 10 GbE, межсетевой экран, 50 ПК.
      Высота устройств в юнитах условная: в КП её нет. */
   rk: {
+    dur: 11, // seconds of the build in the gallery
     shadow: [-3.2, 3.2, -4, 4],
     grid: { x: [-15, 24], z: [-9, 9], step: 1.5, a: 0.09 },
     build({ part, box }, X) {
@@ -1218,6 +1322,7 @@ const SCENES = {
 
   /* Видеонаблюдение под ключ: условный объект (офис, склад, двор, парковка), 8 камер. Без марок и цифр до ответов Антона */
   cv: {
+    dur: 9, // seconds of the build in the gallery
     shadow: null,
     grid: { x: [-12, 17], z: [-9, 13], step: 1, a: 0.08 },
     build({ part, box, quad }, X) {
@@ -1308,7 +1413,6 @@ const SCENES = {
 
 function serverScene(card, def) {
   const { V, euler, ap } = K3;
-  const spacer = card.nextElementSibling;
   const cv = card.querySelector('canvas'), ctx = cv.getContext('2d');
   const M = K3.model(); def.build(M, TX.X);
   const parts = M.parts;
@@ -1319,7 +1423,7 @@ function serverScene(card, def) {
   const BT = def.boot, CAM = def.cam;
   const lerp3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
   const LIGHT = V.norm([-0.35, 1, 0.55]);
-  let W = 0, H = 0, DPR = 1, cur = 0, last = -1, stickTop = 80, headBottom = 0, visible = false, shownLines = -1, lastState = null;
+  let W = 0, H = 0, DPR = 1, cur = 0, last = -1, headBottom = 0, visible = false, shownLines = -1, lastState = null;
 
   function resize() {
     W = cv.clientWidth; H = cv.clientHeight;
@@ -1327,10 +1431,9 @@ function serverScene(card, def) {
     // Full-card canvas at DPR 2 on a desktop is ~3M pixels per frame; 1.5 looks the same on these scenes.
     DPR = Math.min(devicePixelRatio || 1, W * H > 600000 ? 1.5 : 2);
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
-    stickTop = parseFloat(getComputedStyle(card).top) || 0;
     headBottom = side.offsetTop + head.offsetTop + head.offsetHeight;
     last = -1;
-    if (REDUCE) frame(1); else kick();
+    frame(REDUCE ? 1 : cur); last = cur;
   }
   function camAt(p) { let i = 0; while (i < CAM.length - 2 && p > CAM[i + 1][0]) i++; const [p0, a0, t0] = CAM[i], [p1, a1, t1] = CAM[i + 1], t = eIO(seg(p, p0, p1)); return [lerp3(a0, a1, t), lerp3(t0, t1, t)]; }
   function ledCol(key, p, power) {
@@ -1483,67 +1586,264 @@ function serverScene(card, def) {
       bootState.textContent = state[2]; bootState.className = 'bootState' + (state[3] === 'warn' ? ' warn' : '');
     }
   }
-  function target() {
-    const top = spacer.getBoundingClientRect().top;
-    return clamp((stickTop + card.offsetHeight - top) / Math.max(1, spacer.offsetHeight));
+  // Playback (галерея, 10.10.2026): the build runs by itself in def.dur seconds while the card is the open slide
+  // and at least half on screen. Pauses when either stops being true, resumes where it was.
+  const DUR = (def.dur || 10) * 1000;
+  let active = false, playing = false, tPrev = 0;
+  function step(now) {
+    if (!playing) return false;
+    const dt = tPrev ? Math.min(64, now - tPrev) : 0; tPrev = now;
+    cur = Math.min(1, cur + dt / DUR);
+    if (Math.abs(cur - last) > 1e-4 || (cur >= 1 && last < 1)) { frame(cur); last = cur; }
+    if (cur >= 1) { playing = false; card.classList.add('built'); card.dispatchEvent(new Event('built', { bubbles: true })); return false; }
   }
-  // Runs only while the scene is catching up with the scroll position, then drops out of the ticker.
-  function step() {
-    const t = target();
-    cur = Math.abs(t - cur) < 5e-4 ? t : lerp(cur, t, 0.12);
-    if (Math.abs(cur - last) > 1e-4) { frame(cur); last = cur; }
-    return cur !== t;
+  function update() {
+    const go = active && visible && !REDUCE && cur < 1 && !document.hidden;
+    if (go === playing) return;
+    playing = go; tPrev = 0;
+    if (go) ticker.add(step); else ticker.remove(step);
   }
-  function kick() { if (visible && !REDUCE) ticker.add(step); }
-  function redraw() { headBottom = side.offsetTop + head.offsetTop + head.offsetHeight; last = -1; if (REDUCE) frame(1); else { frame(cur); last = cur; } }
+  function seek(p) { cur = clamp(p); card.classList.toggle('built', cur >= 1); frame(cur); last = cur; update(); }
+  function redraw() { headBottom = side.offsetTop + head.offsetTop + head.offsetHeight; last = -1; frame(REDUCE ? 1 : cur); last = cur; }
 
   new ResizeObserver(resize).observe(cv);
-  new IntersectionObserver(es => { visible = es[es.length - 1].isIntersecting; if (visible) kick(); else ticker.remove(step); }).observe(card);
-  if (!REDUCE) addEventListener('scroll', kick, { passive: true });
-  if (REDUCE) spacer.style.height = '0px';
-  return { redraw };
+  new IntersectionObserver(es => { visible = es[es.length - 1].intersectionRatio >= 0.45; update(); }, { threshold: [0, 0.45, 0.6] }).observe(card);
+  document.addEventListener('visibilitychange', update);
+  // A click on a step jumps the build to it.
+  if (!REDUCE) STEPS.forEach(st => st.el.addEventListener('click', () => { if (active) seek(Math.max(0, st.t[0] - 0.03)); }));
+  return { redraw, seek, setActive(on) { active = on; update(); }, get done() { return cur >= 1; } };
+}
+
+/* ============ 3b. Galleries: configurations and turnkey objects ============ */
+/* Slides side by side, the next one peeks in from the right. Tabs (built from data-tab, data-short on phones),
+   arrows, swipe and the keyboard switch them; «Заново» replays the open build. When a build is done, the arrow
+   to the next slide pulses. Off-screen slides are inert. An anchor with data-slide (#video) opens its slide. */
+const ARROW = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+function gallery(root) {
+  const view = root.querySelector('.gal-view'), track = root.querySelector('.gal-track');
+  const cards = [...track.children];
+  const scenes = cards.map(c => serverScene(c, SCENES[c.dataset.scene]));
+  const name = root.getAttribute('aria-label');
+  root.setAttribute('role', 'region'); root.setAttribute('aria-roledescription', 'галерея');
+
+  const bar = document.createElement('div'); bar.className = 'gal-bar';
+  const tabsEl = document.createElement('div'); tabsEl.className = 'gal-tabs'; tabsEl.setAttribute('role', 'tablist'); tabsEl.setAttribute('aria-label', name);
+  const tabs = cards.map((c, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'gal-tab'; b.id = c.id + '-tab';
+    b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', c.id);
+    b.innerHTML = `<span class="full">${c.dataset.tab}</span><span class="short" aria-hidden="true">${c.dataset.short}</span>`;
+    b.addEventListener('click', () => show(i));
+    c.setAttribute('role', 'tabpanel');
+    tabsEl.appendChild(b); return b;
+  });
+  const mk = (cls, label, html) => { const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.setAttribute('aria-label', label); b.innerHTML = html; return b; };
+  const replay = mk('gal-replay', 'Собрать заново', '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8A5.5 5.5 0 1 1 11.9 4.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M12.6 1.6v3.2H9.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Заново</span>');
+  const prev = mk('gal-arrow gal-prev', 'Предыдущая', ARROW), next = mk('gal-arrow gal-next', 'Следующая', ARROW);
+  const ctl = document.createElement('div'); ctl.className = 'gal-ctl'; ctl.append(replay, prev, next);
+  bar.append(tabsEl, ctl);
+  root.insertBefore(bar, view);
+  // Phones: arrows sit on the card edges instead of the bar
+  const sPrev = mk('gal-side gal-prev', 'Предыдущая', ARROW), sNext = mk('gal-side gal-next', 'Следующая', ARROW);
+  view.append(sPrev, sNext);
+
+  let idx = -1, offset = 0;
+  function place(dx) {
+    const w = cards[0].offsetWidth + parseFloat(getComputedStyle(track).columnGap || 0);
+    const max = Math.max(0, track.scrollWidth - view.clientWidth);
+    offset = Math.min(idx * w, max);
+    track.style.transform = `translateX(${-offset + (dx || 0)}px)`;
+  }
+  function show(i, focusTab) {
+    i = clamp(i, 0, cards.length - 1);
+    if (i === idx) return;
+    idx = i;
+    cards.forEach((c, j) => {
+      const on = j === i;
+      c.inert = !on; c.classList.toggle('cur', on);
+      tabs[j].setAttribute('aria-selected', on ? 'true' : 'false'); tabs[j].tabIndex = on ? 0 : -1;
+      scenes[j].setActive(on);
+    });
+    for (const b of [prev, sPrev]) b.disabled = i === 0;
+    for (const b of [next, sNext]) b.disabled = i === cards.length - 1;
+    nudge();
+    if (focusTab) tabs[i].focus();
+    place();
+  }
+  const nudge = () => { const on = scenes[idx].done && idx < cards.length - 1; next.classList.toggle('nudge', on); sNext.classList.toggle('nudge', on); };
+  root.addEventListener('built', nudge);
+  for (const b of [prev, sPrev]) b.addEventListener('click', () => show(idx - 1));
+  for (const b of [next, sNext]) b.addEventListener('click', () => show(idx + 1));
+  replay.addEventListener('click', () => { scenes[idx].seek(0); nudge(); });
+  tabsEl.addEventListener('keydown', e => {
+    const k = { ArrowRight: idx + 1, ArrowLeft: idx - 1, Home: 0, End: cards.length - 1 }[e.key];
+    if (k === undefined) return;
+    e.preventDefault(); show(k, true);
+  });
+  // A click on the peeking neighbour opens it (inert cards get no events, so find it by position).
+  track.addEventListener('click', e => {
+    const j = cards.findIndex(c => { const r = c.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right; });
+    if (j >= 0 && j !== idx) show(j);
+  });
+  // Swipe: the track follows the finger, a long enough move switches the slide. Vertical moves stay page scroll (touch-action: pan-y).
+  let sx = 0, sy = 0, drag = 0, pid = null;
+  view.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') return; pid = e.pointerId; sx = e.clientX; sy = e.clientY; drag = 0; });
+  view.addEventListener('pointermove', e => {
+    if (e.pointerId !== pid) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (!drag && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { drag = 1; track.classList.add('drag'); }
+    if (drag) { const edge = (idx === 0 && dx > 0) || (idx === cards.length - 1 && dx < 0); place(edge ? dx * 0.3 : dx); }
+  });
+  const end = e => {
+    if (e.pointerId !== pid) return;
+    pid = null;
+    if (!drag) return;
+    track.classList.remove('drag');
+    const dx = e.clientX - sx;
+    if (e.type === 'pointerup' && Math.abs(dx) > Math.min(90, view.clientWidth * 0.18)) show(idx + (dx < 0 ? 1 : -1)); else place();
+  };
+  view.addEventListener('pointerup', end); view.addEventListener('pointercancel', end);
+  // Anchors and focus must never scroll the clipped viewport sideways.
+  view.addEventListener('scroll', () => { view.scrollLeft = 0; });
+  new ResizeObserver(() => place()).observe(view);
+  show(0);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { TX.redraw(); scenes.forEach(s => s.redraw()); });
+  return { show, has: id => cards.findIndex(c => c.id === id) };
 }
 
 (function () {
-  const scenes = [...document.querySelectorAll('.stack .sc')].map(card => serverScene(card, SCENES[card.dataset.scene]));
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { TX.redraw(); scenes.forEach(s => s.redraw()); });
+  const gals = [...document.querySelectorAll('.gal')].map(gallery);
+  // #video and other anchors with data-slide: scroll as usual, then open the slide
+  function fromHash() {
+    const a = location.hash && document.getElementById(location.hash.slice(1));
+    const id = a && a.dataset.slide; if (!id) return;
+    for (const g of gals) { const j = g.has(id); if (j >= 0) g.show(j); }
+  }
+  addEventListener('hashchange', fromHash);
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', () => { if (a.getAttribute('href') === location.hash) fromHash(); }));
+  fromHash();
 })();
 
-/* ============ 3b. Stacking cards: tilt the card being covered ============ */
-document.querySelectorAll('.stack').forEach(stack => {
-  if (REDUCE) return;
-  const cards = [...stack.querySelectorAll('.stack-card')];
-  const prev = cards.map(() => -1);
-  function upd() {
-    const vh = innerHeight, top = parseFloat(getComputedStyle(cards[0]).top) || 0;
-    for (let i = 0; i < cards.length - 1; i++) {
-      const nt = cards[i + 1].getBoundingClientRect().top;
-      const cov = clamp((vh - nt) / Math.max(1, vh - top));
-      if (Math.abs(cov - prev[i]) < 0.002) continue; prev[i] = cov;
-      cards[i].style.transform = cov > 0 ? `perspective(1400px) rotateX(${(-10 * cov).toFixed(2)}deg) translateZ(${(-70 * cov).toFixed(1)}px)` : '';
-      cards[i].style.setProperty('--cov', cov.toFixed(3));
-    }
-    return false;
-  }
-  let near = false;
-  new IntersectionObserver(es => { near = es[es.length - 1].isIntersecting; if (near) ticker.add(upd); }, { rootMargin: '100% 0px' }).observe(stack);
-  addEventListener('scroll', () => { if (near) ticker.add(upd); }, { passive: true });
-  addEventListener('resize', () => ticker.add(upd));
-});
+/* ============ 5. Projects: a deck of pictures ============ */
+/* The next picture slides in from the right over the current one, which sinks back. Flips by itself every
+   AUTO ms while at least half on screen and not hovered; the first click, swipe or key makes it manual. */
+(function () {
+  const root = document.getElementById('deck');
+  if (!root) return;
+  const AUTO = 6000;
+  const stage = root.querySelector('.deck-stage'), cards = [...stage.children];
+  root.setAttribute('role', 'region'); root.setAttribute('aria-roledescription', 'галерея');
+  const mk = (cls, label, html) => { const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.setAttribute('aria-label', label); b.innerHTML = html; return b; };
+  const prev = mk('gal-arrow gal-prev', 'Предыдущий проект', ARROW), next = mk('gal-arrow gal-next', 'Следующий проект', ARROW);
+  const dotsEl = document.createElement('div'); dotsEl.className = 'deck-dots';
+  const dots = cards.map((c, i) => { const b = mk('deck-dot', `Проект ${i + 1} из ${cards.length}`, '<i></i>'); b.addEventListener('click', () => go(i, true)); dotsEl.appendChild(b); return b; });
+  const bar = document.createElement('div'); bar.className = 'deck-bar'; bar.append(prev, dotsEl, next);
+  const live = document.createElement('p'); live.className = 'sr-only'; live.setAttribute('aria-live', 'polite');
+  root.append(bar, live);
 
-/* ============ Submission stub ============ */
-// TODO: подключить реальную отправку (email/Telegram/CRM) - обсудить с Антоном.
-// Сейчас данные никуда не уходят: пишутся только в localStorage браузера посетителя. С этой заглушкой сайт не публиковать.
-function sendStub(kind, data) {
-  return new Promise((resolve, reject) => {
-    try {
-      const key = 'sarmat-stub-' + kind;
-      const list = JSON.parse(localStorage.getItem(key) || '[]');
-      list.push(Object.assign({ at: new Date().toISOString() }, data));
-      localStorage.setItem(key, JSON.stringify(list));
-      setTimeout(resolve, 300);
-    } catch (e) { reject(e); }
+  let idx = 0, elapsed = 0, tPrev = 0, visible = false, hover = false, manual = REDUCE;
+  if (manual) root.classList.add('manual');
+  const running = () => visible && !hover && !manual && !document.hidden;
+  function go(i, user) {
+    if (user && !manual) { manual = true; root.classList.add('manual'); }
+    idx = (i + cards.length) % cards.length;
+    cards.forEach((c, j) => {
+      c.style.zIndex = j; c.inert = j !== idx;
+      c.classList.toggle('cur', j === idx); c.classList.toggle('under', j === idx - 1); c.classList.toggle('gone', j < idx - 1);
+    });
+    dots.forEach((d, j) => { d.setAttribute('aria-current', j === idx ? 'true' : 'false'); d.style.setProperty('--p', 0); });
+    if (user) live.textContent = `${idx + 1} из ${cards.length}: ${cards[idx].querySelector('b').textContent}`;
+    elapsed = 0; kick();
+  }
+  function tick(now) {
+    if (!running()) { tPrev = 0; return false; }
+    const dt = tPrev ? Math.min(64, now - tPrev) : 0; tPrev = now;
+    elapsed += dt;
+    dots[idx].style.setProperty('--p', Math.min(1, elapsed / AUTO).toFixed(3));
+    if (elapsed >= AUTO) go(idx + 1);
+  }
+  const kick = () => { if (running()) ticker.add(tick); };
+  prev.addEventListener('click', () => go(idx - 1, true));
+  next.addEventListener('click', () => go(idx + 1, true));
+  root.addEventListener('keydown', e => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d && !e.target.closest('input, textarea')) { e.preventDefault(); go(idx + d, true); } });
+  root.addEventListener('mouseenter', () => { hover = true; });
+  root.addEventListener('mouseleave', () => { hover = false; kick(); });
+  let sx = 0, sy = 0, pid = null;
+  stage.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') { pid = e.pointerId; sx = e.clientX; sy = e.clientY; } });
+  stage.addEventListener('pointerup', e => {
+    if (e.pointerId !== pid) return; pid = null;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) go(idx + (dx < 0 ? 1 : -1), true);
   });
+  stage.addEventListener('pointercancel', () => { pid = null; });
+  new IntersectionObserver(es => { visible = es[es.length - 1].intersectionRatio >= 0.5; kick(); }, { threshold: [0, 0.5] }).observe(stage);
+  document.addEventListener('visibilitychange', kick);
+  go(0);
+})();
+
+/* ============ 6. Values: reveal once in view ============ */
+(function () {
+  const v = document.getElementById('vals');
+  if (!v) return;
+  new IntersectionObserver((es, io) => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    v.classList.add('in'); io.disconnect();
+    setTimeout(() => v.classList.add('settled'), 2200); // drop the stagger so hover reacts at once
+  }), { threshold: .3 }).observe(v);
+})();
+
+/* ============ Submission ============ */
+// Отправка на обработчик api/send.php (PHP на хостинге). Он ещё раз проверяет поля и шлёт письмо с ящика site@sarmat-it.ru.
+const SEND_URL = 'api/send.php';
+const FILE_MAX = 10 * 1024 * 1024;
+const FILE_EXT = /\.(doc|docx|xls|xlsx|pdf)$/i;
+const FILE_TYPE_BAD = 'Такой файл не подойдёт. Нужен Word (.doc, .docx), Excel (.xls, .xlsx) или PDF.';
+const FILE_SIZE_BAD = 'Файл больше 10 МБ. Сожмите его или пришлите на sarmat-it@ya.ru.';
+function send(kind, form) {
+  const fd = new FormData(form);
+  fd.set('kind', kind);
+  fd.set('page', location.href);
+  return fetch(SEND_URL, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } })
+    .then(r => r.json().catch(() => ({})).then(j => { if (!r.ok || !j.ok) throw new Error(j.error || ('HTTP ' + r.status)); return j; }));
+}
+// Проверка файла до отправки: тип по расширению и размер. Возвращает текст ошибки или пустую строку.
+function fileProblem(input) {
+  const f = input.files && input.files[0];
+  if (!f) return '';
+  if (!FILE_EXT.test(f.name)) return FILE_TYPE_BAD;
+  if (f.size > FILE_MAX) return FILE_SIZE_BAD;
+  return '';
+}
+// Телефон и почта: те же правила в api/send.php. Возвращают текст ошибки или пустую строку.
+// Телефон: цифры, пробелы, скобки, дефисы, точки, плюс только первым. С +7 ровно 11 цифр,
+// с другим кодом страны 10-15 цифр, без плюса 10 цифр или 11, если первая 7 или 8.
+// Пример склеен неразрывными пробелами и дефисами, чтобы не переносился по частям.
+const PHONE_BAD = 'Проверьте номер. Пример:\u00a0+7\u00a0999\u00a0123\u201145\u201167.';
+const EMAIL_BAD = 'Проверьте адрес. Пример:\u00a0name@company.ru.';
+function phoneProblem(v) {
+  v = v.trim();
+  if (!v) return 'Укажите телефон.';
+  const d = v.replace(/\D/g, '');
+  const ok = /^\+?[\d\s().-]+$/.test(v) && (v[0] === '+'
+    ? (d[0] === '7' ? d.length === 11 : d.length >= 10 && d.length <= 15)
+    : d.length === 10 || (d.length === 11 && /^[78]/.test(d)));
+  return ok ? '' : PHONE_BAD;
+}
+function emailProblem(v) {
+  v = v.trim();
+  if (!v) return 'Укажите e-mail.';
+  return v.length <= 254 && /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[^\s@.]{2,}$/.test(v) ? '' : EMAIL_BAD;
+}
+// Показать или убрать ошибку под полем. Возвращает true, если ошибка есть.
+function fieldMsg(input, el, msg) {
+  el.textContent = msg || el.textContent; el.hidden = !msg;
+  input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  return !!msg;
+}
+// Проверка поля, когда из него ушли (если что-то введено), и снятие ошибки, как только значение стало верным.
+function liveCheck(input, el, problem) {
+  input.addEventListener('blur', () => { if (input.value.trim()) fieldMsg(input, el, problem(input.value)); });
+  input.addEventListener('input', () => { if (input.getAttribute('aria-invalid') === 'true' && !problem(input.value)) fieldMsg(input, el, ''); });
 }
 
 /* ============ Card buttons prefill the form ============ */
@@ -1570,20 +1870,41 @@ document.querySelectorAll('.js-pick').forEach(b => b.addEventListener('click', (
   })).observe(document.getElementById('firstScreenEnd'));
   new IntersectionObserver(es => es.forEach(e => a.classList.toggle('at-form', e.isIntersecting)), { threshold: .2 }).observe(document.getElementById('request'));
   new IntersectionObserver(es => es.forEach(e => a.classList.toggle('in-hero', e.isIntersecting))).observe(document.getElementById('hero'));
-  const inStack = new Set();
-  const stackIO = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? inStack.add(e.target) : inStack.delete(e.target)); a.classList.toggle('in-stack', inStack.size > 0); }, { rootMargin: '-20% 0px -20% 0px' });
-  document.querySelectorAll('.stack').forEach(st => stackIO.observe(st));
+  const inGal = new Set();
+  const galIO = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? inGal.add(e.target) : inGal.delete(e.target)); a.classList.toggle('in-gal', inGal.size > 0); }, { rootMargin: '-20% 0px -20% 0px' });
+  document.querySelectorAll('.gal-view, .deck').forEach(g => galIO.observe(g)); // phones: the button would cover the arrows
   bubble.addEventListener('click', open);
   fab.addEventListener('click', () => panel.hidden ? open() : close());
   document.getElementById('asstClose').addEventListener('click', close);
   panel.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  const contact = document.getElementById('asstContact'), contactErr = document.getElementById('asstContactErr'), qErr = document.getElementById('asstQErr');
+  const consent = document.getElementById('asstConsent'), consentErr = document.getElementById('asstConsentErr'), aErr = document.getElementById('asstErr');
+  // Почта, если есть @, иначе телефон.
+  const contactProblem = v => !v.trim() ? 'Укажите телефон или почту, иначе мы не сможем ответить.'
+    : /@/.test(v) ? emailProblem(v) : (phoneProblem(v) && 'Проверьте телефон или адрес почты.');
+  const qProblem = v => v.trim() ? '' : 'Напишите вопрос.';
+  liveCheck(contact, contactErr, contactProblem);
+  q.addEventListener('input', () => { if (!qProblem(q.value)) fieldMsg(q, qErr, ''); });
+  const showConsent = bad => { consentErr.hidden = !bad; if (bad) consent.closest('.check').setAttribute('data-invalid', 'true'); else consent.closest('.check').removeAttribute('data-invalid'); };
+  consent.addEventListener('change', () => { if (consent.checked) showConsent(false); });
   form.addEventListener('submit', e => {
     e.preventDefault();
-    const text = q.value.trim(); if (!text) { q.focus(); return; }
-    const btn = form.querySelector('button'); btn.disabled = true;
-    sendStub('question', { question: text })
+    aErr.hidden = true;
+    const bad = [
+      fieldMsg(q, qErr, qProblem(q.value)) && q,
+      fieldMsg(contact, contactErr, contactProblem(contact.value)) && contact,
+      (showConsent(!consent.checked), !consent.checked && consent),
+    ].filter(Boolean);
+    if (bad.length) { bad[0].focus(); return; }
+    const btn = form.querySelector('button[type="submit"]'); btn.disabled = true;
+    send('question', form)
       .then(() => { form.hidden = true; done.hidden = false; done.focus(); })
-      .catch(() => { btn.disabled = false; });
+      .catch(e => {
+        btn.disabled = false;
+        if (e.message === 'contact') { fieldMsg(contact, contactErr, 'Проверьте телефон или адрес почты.'); contact.focus(); }
+        else if (e.message === 'question') { fieldMsg(q, qErr, qProblem('')); q.focus(); }
+        else aErr.hidden = false;
+      });
   });
 })();
 
@@ -1591,21 +1912,40 @@ document.querySelectorAll('.js-pick').forEach(b => b.addEventListener('click', (
 (function () {
   const f = document.getElementById('reqForm'), ok = document.getElementById('msgOk'), err = document.getElementById('msgErr');
   const phone = document.getElementById('f-phone'), phoneErr = document.getElementById('f-phone-err');
+  const email = document.getElementById('f-email'), emailErr = document.getElementById('f-email-err');
   const btn = f.querySelector('button[type="submit"]');
-  const phoneOk = () => { const n = phone.value.replace(/\D/g, '').length; return n >= 10 && n <= 15; };
-  const showPhone = bad => { phone.setAttribute('aria-invalid', bad ? 'true' : 'false'); phoneErr.hidden = !bad; };
-  phone.addEventListener('blur', () => { if (phone.value.trim()) showPhone(!phoneOk()); });
-  phone.addEventListener('input', () => { if (phone.getAttribute('aria-invalid') === 'true' && phoneOk()) showPhone(false); });
+  liveCheck(phone, phoneErr, phoneProblem);
+  liveCheck(email, emailErr, emailProblem);
+  const file = document.getElementById('f-file'), fileErr = document.getElementById('f-file-err');
+  const consent = document.getElementById('f-consent'), consentErr = document.getElementById('f-consent-err'), consentWrap = consent.closest('.field-check');
+  const showFile = msg => { fileErr.textContent = msg; fileErr.hidden = !msg; file.setAttribute('aria-invalid', msg ? 'true' : 'false'); };
+  const showConsent = bad => { consentErr.hidden = !bad; if (bad) consentWrap.setAttribute('data-invalid', 'true'); else consentWrap.removeAttribute('data-invalid'); };
+  file.addEventListener('change', () => { const m = fileProblem(file); showFile(m); if (m) file.value = ''; });
+  consent.addEventListener('change', () => { if (consent.checked) showConsent(false); });
   f.addEventListener('submit', e => {
     e.preventDefault();
     ok.hidden = true; err.hidden = true;
-    if (!phoneOk()) { showPhone(true); phone.focus(); return; }
-    showPhone(false);
+    // Все ошибки сразу, фокус на первую.
+    const fm = fileProblem(file);
+    const bad = [
+      fieldMsg(phone, phoneErr, phoneProblem(phone.value)) && phone,
+      fieldMsg(email, emailErr, emailProblem(email.value)) && email,
+      (showFile(fm), fm && file),
+      (showConsent(!consent.checked), !consent.checked && consent),
+    ].filter(Boolean);
+    if (bad.length) { bad[0].focus(); return; }
     btn.disabled = true;
-    const data = Object.fromEntries(new FormData(f));
-    sendStub('lead', data)
-      .then(() => { ok.hidden = false; f.reset(); })
-      .catch(() => { err.hidden = false; })
+    send('lead', f)
+      .then(() => { f.reset(); showConsent(false); showFile(''); ok.hidden = false; ok.focus(); })
+      .catch(e => {
+        // Сервер проверяет те же поля; его отказ показываем у поля, остальное общим сообщением.
+        const m = e.message;
+        if (m === 'phone') { fieldMsg(phone, phoneErr, PHONE_BAD); phone.focus(); }
+        else if (m === 'email') { fieldMsg(email, emailErr, EMAIL_BAD); email.focus(); }
+        else if (m === 'file_type' || m === 'file_size') { showFile(m === 'file_size' ? FILE_SIZE_BAD : FILE_TYPE_BAD); file.focus(); }
+        else if (m === 'consent') { showConsent(true); consent.focus(); }
+        else err.hidden = false;
+      })
       .finally(() => { btn.disabled = false; });
   });
 })();

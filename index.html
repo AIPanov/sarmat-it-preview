@@ -3,15 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Сармат-ИТ: сборка и интеграция серверов, сетей и видеонаблюдения</title>
-<meta name="description" content="Сборка и интеграция серверов, сетей и видеонаблюдения под вашу задачу: конфигурация, закупка, сборка и тест, монтаж серверной и камер. Доставка и монтаж по всей России.">
+<title>Сармат-ИТ: поставка серверного и сетевого оборудования</title>
+<meta name="description" content="Поставка серверного и сетевого оборудования под вашу задачу: подбор, проверка совместимости, доставка до объекта по всей России, закрывающие документы.">
 <meta name="theme-color" content="#03050b">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%2303050b'/%3E%3Cpath d='M20 3 37 34H3Z' fill='none' stroke='%23e8eef7' stroke-width='1.6'/%3E%3Ccircle cx='20' cy='24' r='10.5' fill='%2303050b' stroke='%23e8eef7' stroke-width='1.8'/%3E%3Ccircle cx='20' cy='24' r='4.2' fill='%235fb0e8'/%3E%3C/svg%3E">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="favicon.png" type="image/png" sizes="120x120">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css">
-<script src="main.js" defer></script>
+<link rel="stylesheet" href="styles.css?v=fd7723a6">
+<script src="cookie.js?v=7b3fe5ad" defer></script>
+<script src="main.js?v=5be87a3e" defer></script>
 </head>
 <body>
 
@@ -20,13 +23,14 @@
 <header class="hdr" id="hdr">
   <div class="hdr-in">
     <a class="brand" href="#hero" aria-label="Сармат-ИТ, в начало">
-      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 37 34H3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="20" cy="24" r="10.5" fill="#03050b" stroke="currentColor" stroke-width="1.8"/><circle cx="20" cy="24" r="4.2" fill="#5fb0e8"/></svg>
+      <img src="img/logo.png?v=09bfd983" width="48" height="40" alt="" decoding="async">
       <span>САРМАТ-ИТ</span>
     </a>
     <nav class="nav" aria-label="Разделы">
       <a href="#catalog">Конфигурации</a>
       <a href="#turnkey">Серверная</a>
       <a href="#video">Видеонаблюдение</a>
+      <a href="#projects">Проекты</a>
       <a href="#request">Заявка</a>
     </nav>
     <a class="hdr-phone" href="tel:+74994606265" aria-label="Позвонить: 8 (499) 460-62-65">
@@ -45,13 +49,18 @@
         <!-- Спуск: после сборки логотипа камера влетает в глобус эмблемы и садится на Землю, в Москве -->
         <canvas class="ds-cv" aria-hidden="true"></canvas>
         <div class="si-logo" aria-hidden="true"></div>
-        <div class="hero-foot"><h1 class="hero-line">Сборка и интеграция серверов, сетей и видеонаблюдения под вашу задачу</h1></div>
+        <div class="hero-foot"><h1 class="hero-line">Поставка серверного и сетевого оборудования под вашу задачу</h1></div>
         <div class="ds-caps" aria-hidden="true">
-          <p class="ds-cap"><span class="ds-eyebrow">География</span><span class="ds-line">Доставка и монтаж по всей России</span></p>
+          <p class="ds-cap"><span class="ds-eyebrow">География</span><span class="ds-line">Доставка до объекта по всей России</span></p>
           <p class="ds-cap"><span class="ds-eyebrow">55°45′ с. ш., 37°37′ в. д.</span><span class="ds-line">Москва</span></p>
           <p class="ds-cap ds-cap-land"><span class="ds-eyebrow">Посадка</span><span class="ds-line">Ближе к делу</span></p>
         </div>
-        <div class="si-hint" aria-hidden="true"><span>Прокрутите</span><i></i></div>
+        <!-- Подсказка появляется, когда логотип собрался. Жест или нажатие проигрывает главу до «Как мы работаем» (main.js, hero) -->
+        <button class="si-hint" type="button" aria-label="Дальше: как мы работаем">
+          <span class="si-hint-ico" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="si-hint-txt t-touch" aria-hidden="true">Проведите снизу вверх</span>
+          <span class="si-hint-txt t-mouse" aria-hidden="true">Листайте вниз</span>
+        </button>
         <div class="si-bar" aria-hidden="true"></div>
       </div>
     </div>
@@ -64,13 +73,13 @@
       <div class="eyebrow" aria-hidden="true">01</div>
       <h2 class="h2" id="process-title">Как мы работаем</h2>
       <ol class="steps4" id="steps4">
-        <li class="st"><div class="num" aria-hidden="true">01</div><h3>Конфигурация</h3><p>Разбираем задачу и нагрузку, подбираем конфигурацию, проверяем совместимость до заказа.</p></li>
-        <li class="st"><div class="num" aria-hidden="true">02</div><h3>Закупка</h3><p>Находим и закупаем комплектующие у поставщиков.</p></li>
-        <li class="st"><div class="num" aria-hidden="true">03</div><h3>Сборка и тест</h3><p>Собираем сервер и тестируем до отправки.</p></li>
-        <li class="st"><div class="num" aria-hidden="true">04</div><h3>Монтаж</h3><p>Устанавливаем в стойку на месте, по всей России.</p></li>
+        <li class="st"><div class="num" aria-hidden="true">01</div><h3>Подбор</h3><p>Разбираем задачу и нагрузку, подбираем оборудование, проверяем совместимость до заказа.</p></li>
+        <li class="st"><div class="num" aria-hidden="true">02</div><h3>Расчёт</h3><p>Находим оборудование у поставщиков. В КП точная модель и цена по каждой строке.</p></li>
+        <li class="st"><div class="num" aria-hidden="true">03</div><h3>Проверка</h3><p>Сверяем оборудование со спецификацией. Серверы собираем и тестируем до отправки.</p></li>
+        <li class="st"><div class="num" aria-hidden="true">04</div><h3>Поставка</h3><p>Доставляем до объекта по всей России. Передаём закрывающие документы.</p></li>
       </ol>
       <div class="deliv">
-        <p>Доставку по всей России берём на себя. Если проект не нужен, просто привезём готовое оборудование под ваш запрос.</p>
+        <p>Если подбор не нужен, привезём оборудование по вашему списку. Монтаж на объекте по запросу.</p>
         <a class="btn btn-primary" href="#request">Рассчитать конфигурацию <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
       </div>
     </div>
@@ -83,13 +92,15 @@
       <h2 class="h2" id="catalog-title">Готовые конфигурации</h2>
       <p class="lede">Три типовые сборки. Состав примерный: точную конфигурацию, срок и цену считаем под вашу задачу.</p>
 
-      <!-- Все три карточки: одна и та же 3D-сцена (main.js, serverScene), модели и тайминги в SCENES.
-           Шаги ниже видны и без JS. Источники характеристик: mockups/configurations.md -->
-      <div class="stack" id="stack">
+      <!-- Галерея: вкладки и стрелки строит main.js (gallery). Все карточки: одна и та же 3D-сцена (serverScene), модели и тайминги в SCENES.
+           Сборка идёт сама, когда карточка открыта и на экране. Без JS карточки стоят списком, шаги видны.
+           Источники характеристик: mockups/configurations.md -->
+      <div class="gal" id="gal1" aria-label="Готовые конфигурации">
+        <div class="gal-view"><div class="gal-track">
         <!-- card 1. Конфигурация от Антона 29.09.2026: 8-12 ядер от 3,0 ГГц, 64 ГБ ECC (до 128), 2 × NVMe под базы, SSD под ОС, опционально SATA под копии, 2 × 1 GbE.
              Процессор для модели: Xeon E-2488 (intel.com: 8/16, 3,2-5,6 ГГц, 24 МБ, 95 Вт, LGA1700, DDR5-4800 ECC, до 128 ГБ). Корпус 1U условный -->
-        <article class="stack-card sc" id="card1" data-scene="c1" aria-labelledby="card1-title">
-          <canvas role="img" aria-label="Трёхмерная модель сервера для 1С: детали встают на места при прокрутке"></canvas>
+        <article class="gal-card sc" id="card1" data-tab="Сервер для 1С" data-short="1С" data-scene="c1" aria-labelledby="card1-title">
+          <canvas role="img" aria-label="Трёхмерная модель сервера для 1С: детали встают на места по шагам"></canvas>
           <div class="bar" aria-hidden="true"></div>
           <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
           <div class="sc-side">
@@ -102,7 +113,7 @@
             <div class="build">
               <h4 class="build-title">Сборка</h4>
               <ol class="steps">
-                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>LGA1700, DDR5 ECC, 2 × 1 GbE</span></div><small>Основа сервера. По заказу ставим сетевую карту 10 GbE.</small></li>
+                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>Сокет LGA1700, DDR5 ECC, 2 × 1 GbE</span></div><small>Основа сервера. По заказу ставим сетевую карту 10 GbE.</small></li>
                 <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор</b><span>Intel Xeon E-2488, 8 ядер</span></div><small>8 ядер, 16 потоков, 3,2-5,6 ГГц. Под задачу подойдёт и Xeon Silver или Gold на 8-12 ядер от 3 ГГц.</small></li>
                 <li class="step" data-key="cooler"><div class="dot" aria-hidden="true"></div><div><b>Радиатор</b><span>обдув вентиляторами корпуса</span></div><small>Держит высокую частоту процессора под нагрузкой 1С.</small></li>
                 <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>64 GB DDR5 ECC, 2 × 32 ГБ</span></div><small>ECC исправляет ошибки памяти на лету. Расширяется до 128 ГБ.</small></li>
@@ -122,11 +133,10 @@
             <ul class="bootList"></ul>
           </div>
         </article>
-        <div class="spacer" aria-hidden="true" style="--scroll: 400vh"></div>
 
         <!-- card 2. Примерная конфигурация под сайт, 28.09.2026. E-2336: intel.com. RAID 10 вместо RAID 5: правка Антона 29.09.2026. Открыто: ОС -->
-        <article class="stack-card sc" id="card2" data-scene="fs" aria-labelledby="card2-title">
-          <canvas role="img" aria-label="Трёхмерная модель файлового сервера: детали встают на места при прокрутке, в конце показан отказ и замена диска"></canvas>
+        <article class="gal-card sc" id="card2" data-tab="Файловый сервер" data-short="Файловый" data-scene="fs" aria-labelledby="card2-title">
+          <canvas role="img" aria-label="Трёхмерная модель файлового сервера: детали встают на места по шагам, в конце показан отказ и замена диска"></canvas>
           <div class="bar" aria-hidden="true"></div>
           <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
           <div class="sc-side">
@@ -139,7 +149,7 @@
             <div class="build">
               <h4 class="build-title">Сборка</h4>
               <ol class="steps">
-                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>C252, LGA1200, 2 канала DDR4</span></div><small>Основа сервера в корпусе 2U на 8 дисков.</small></li>
+                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>Чипсет C252, сокет LGA1200, 2 канала DDR4</span></div><small>Основа сервера в корпусе 2U на 8 дисков.</small></li>
                 <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор и радиатор</b><span>Intel Xeon E-2336, 6 ядер</span></div><small>6 ядер, 12 потоков, 2,9-4,8 ГГц. Поддерживает память ECC.</small></li>
                 <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>32 GB DDR4 ECC, 2 × 16 ГБ</span></div><small>По модулю на каждый из двух каналов процессора, без потери пропускной способности.</small></li>
                 <li class="step" data-key="raid"><div class="dot" aria-hidden="true"></div><div><b>RAID-контроллер</b><span>Аппаратный, с кэшем</span></div><small>Собирает диски в массив без нагрузки на процессор. Кэш защищён от отключения питания.</small></li>
@@ -160,10 +170,9 @@
             <ul class="bootList"></ul>
           </div>
         </article>
-        <div class="spacer" aria-hidden="true" style="--scroll: 440vh"></div>
 
         <!-- card 3. Основа: узел Hyper-V из нашей сделки 09.2026 (docs/03-deals/.../конфигурация.md). Память и ВМ по расчёту Антона 29.09.2026: 8 + 32 + 48 = 88 ГБ, с запасом 128 ГБ. Имя заказчика на сайт не выносим -->
-        <article class="stack-card sc" id="card3" data-scene="vs" aria-labelledby="card3-title">
+        <article class="gal-card sc" id="card3" data-tab="Сервер виртуализации" data-short="Виртуализация" data-scene="vs" aria-labelledby="card3-title">
           <canvas role="img" aria-label="Трёхмерная модель сервера виртуализации: детали встают на места, в конце над сервером появляются виртуальные машины"></canvas>
           <div class="bar" aria-hidden="true"></div>
           <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
@@ -198,7 +207,7 @@
             <ul class="bootList"></ul>
           </div>
         </article>
-        <div class="spacer" aria-hidden="true" style="--scroll: 440vh"></div>
+        </div></div>
       </div>
     </div>
   </section>
@@ -210,11 +219,14 @@
       <h2 class="h2" id="turnkey-title">Объекты под ключ</h2>
       <p class="lede">Серверная и видеонаблюдение целиком: от обследования до сдачи с документами.</p>
 
-      <div class="stack" id="stack2">
+      <!-- #video из меню открывает вторую карточку (main.js, gallery) -->
+      <div class="anchor" id="video" data-slide="card5" aria-hidden="true"></div>
+      <div class="gal" id="gal2" aria-label="Объекты под ключ">
+        <div class="gal-view"><div class="gal-track">
         <!-- card 4. Объект из нашего КП по ТЗ (сделка 2026-09, КП v3, схема «Архитектура» и таблица отказов). Заказчика, цены и даты на сайт не выносим.
              Факты: стойка 42U, ИБП онлайн 6 кВА, 2 сервера Hyper-V (16 ядер, 256 ГБ), NAS 2U 6 × 8 ТБ RAID 6 (32 ТБ, рост до 80), 2 коммутатора L3 10 GbE,
              межсетевой экран, 50 ПК. ВМ: DC01/DC02, APP01 (1С и файлы, Hyper-V Replica 5 мин), DB01/DB02 (PostgreSQL на Linux, потоковая реплика), MON01. Переключение при отказе вручную -->
-        <article class="stack-card sc" id="card4" data-scene="rk" aria-labelledby="card4-title">
+        <article class="gal-card sc" id="card4" data-tab="Серверная" data-short="Серверная" data-scene="rk" aria-labelledby="card4-title">
           <canvas role="img" aria-label="Трёхмерная модель серверной: стойка заполняется оборудованием, подключаются рабочие места, в конце отказ одного сервера и запуск копии на втором"></canvas>
           <div class="bar" aria-hidden="true"></div>
           <p class="model-note">Модель условная: пропорции и внешний вид оборудования нарисованы, состав как в КП.</p>
@@ -247,12 +259,10 @@
             <ul class="bootList"></ul>
           </div>
         </article>
-        <div class="spacer" aria-hidden="true" style="--scroll: 420vh"></div>
 
         <!-- card 5. Видеонаблюдение: объект условный, без марок и цифр (решение Антона 28.09.2026).
              TODO: состав услуги (IP или аналог, регистратор или сервер с ПО), свой монтаж или партнёр, марки, реальные объекты. PoE в шаге «кабель» подтвердить -->
-        <div class="anchor" id="video" aria-hidden="true"></div>
-        <article class="stack-card sc" id="card5" data-scene="cv" aria-labelledby="card5-title">
+        <article class="gal-card sc" id="card5" data-tab="Видеонаблюдение" data-short="Видеонаблюдение" data-scene="cv" aria-labelledby="card5-title">
           <canvas role="img" aria-label="Трёхмерный план объекта: расстановка камер с секторами обзора, прокладка кабеля к шкафу, запуск записи"></canvas>
           <div class="bar" aria-hidden="true"></div>
           <p class="model-note">Объект на схеме условный: планировка и число камер для примера.</p>
@@ -283,16 +293,86 @@
             <ul class="bootList"></ul>
           </div>
         </article>
-        <div class="spacer" aria-hidden="true" style="--scroll: 360vh"></div>
+        </div></div>
       </div>
     </div>
   </section>
 
-  <!-- 5. REQUEST FORM -->
+  <!-- 5. PROJECTS. Реальные фото объектов под NDA, на сайт не выкладываем (Антон, 10.10.2026).
+       Здесь иллюстрации, сгенерированные по мотивам наших фото: img/projects/<data-key>.jpg, 2400 × 1600.
+       Пока картинок нет, вместо них заглушки .deck-ph; блок не выкладывать, пока заглушки не заменены. Колода: main.js, deck -->
+  <section class="sec" id="projects" aria-labelledby="projects-title">
+    <div class="wrap">
+      <div class="eyebrow" aria-hidden="true">04</div>
+      <h2 class="h2" id="projects-title">Наши проекты</h2>
+      <p class="lede">Иллюстрации по мотивам наших объектов. Реальные фото не публикуем: с заказчиками работаем по NDA.</p>
+      <div class="deck" id="deck" aria-label="Наши проекты">
+        <div class="deck-stage">
+          <figure class="deck-card" data-key="hall">
+            <div class="deck-ph" role="img" aria-label="Зал совещаний: длинный стол с экранами и микрофонами, на стене видеостена"><span>Иллюстрация готовится</span></div>
+            <figcaption><span class="deck-n">01</span><b>Зал совещаний под ключ</b><span>Видеостена, экраны в столах, микрофон на каждом месте</span></figcaption>
+          </figure>
+          <figure class="deck-card" data-key="wall">
+            <div class="deck-ph" role="img" aria-label="Видеостена из нескольких панелей на стене зала"><span>Иллюстрация готовится</span></div>
+            <figcaption><span class="deck-n">02</span><b>Видеостена</b><span>Панели на стене зала, настройка изображения</span></figcaption>
+          </figure>
+          <figure class="deck-card" data-key="install">
+            <div class="deck-ph" role="img" aria-label="Монтаж: видеостена на стене, мониторы и микрофоны в столах"><span>Иллюстрация готовится</span></div>
+            <figcaption><span class="deck-n">03</span><b>Монтаж зала</b><span>Видеостена и мониторы в столах до отделки</span></figcaption>
+          </figure>
+          <figure class="deck-card" data-key="rack">
+            <div class="deck-ph" role="img" aria-label="Настенный шкаф с усилителем, матричным коммутатором и аппаратурой для передачи видео"><span>Иллюстрация готовится</span></div>
+            <figcaption><span class="deck-n">04</span><b>Шкаф с оборудованием зала</b><span>Звук, коммутация видео, передача HDMI</span></figcaption>
+          </figure>
+          <figure class="deck-card" data-key="server">
+            <div class="deck-ph" role="img" aria-label="Стоечный сервер высотой 1U с четырьмя NVMe-дисками на передней панели"><span>Иллюстрация готовится</span></div>
+            <figcaption><span class="deck-n">05</span><b>Сервер 1U</b><span>Четыре NVMe-диска, проверка перед отправкой</span></figcaption>
+          </figure>
+          <figure class="deck-card" data-key="cpu">
+            <div class="deck-ph" role="img" aria-label="Процессор в сокете серверной платы и ряд модулей памяти"><span>Иллюстрация готовится</span></div>
+            <figcaption><span class="deck-n">06</span><b>Сборка сервера</b><span>Процессор и модули памяти на плате</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. VALUES. Ценности и их смысл: голосовое Антона 10.10.2026. «Оснащение залов совещаний» по фото проектов, подтвердить у Антона -->
+  <section class="sec" id="why" aria-labelledby="why-title">
+    <div class="wrap">
+      <div class="eyebrow" aria-hidden="true">05</div>
+      <h2 class="h2" id="why-title">Почему выбирают нас</h2>
+      <p class="lede">Четыре правила, по которым ведём каждый проект.</p>
+      <ol class="vals" id="vals">
+        <li class="val">
+          <div class="val-top"><span class="val-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.3-2.9 8-7 9.5-4.1-1.5-7-5.2-7-9.5V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span><span class="val-n" aria-hidden="true">01</span></div>
+          <h3>Ответственность</h3>
+          <p>Каждую задачу прорабатываем внимательно и профессионально. Разбираем нагрузку и проверяем совместимость оборудования ещё до заказа.</p>
+        </li>
+        <li class="val">
+          <div class="val-top"><span class="val-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9.5 12h6M9.5 15.5h6M9.5 8.5h2.5"/></svg></span><span class="val-n" aria-hidden="true">02</span></div>
+          <h3>Доверие</h3>
+          <p>Работаем по NDA: объекты заказчиков не публикуем. По каждому проекту ведём документацию: спецификация, схемы, закрывающие документы.</p>
+        </li>
+        <li class="val">
+          <div class="val-top"><span class="val-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span><span class="val-n" aria-hidden="true">03</span></div>
+          <h3>Пунктуальность</h3>
+          <p>Внимательно следим за сроками на каждом этапе: заказ, приёмка, сборка, доставка до объекта.</p>
+        </li>
+        <li class="val">
+          <div class="val-top"><span class="val-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5l8.5 4.5-8.5 4.5L3.5 8z"/><path d="M3.5 12.5L12 17l8.5-4.5"/><path d="M3.5 16.5L12 21l8.5-4.5"/></svg></span><span class="val-n" aria-hidden="true">04</span></div>
+          <h3>Опыт</h3>
+          <p>Большой опыт поставок и проектов разного масштаба: серверы, серверные под ключ, видеонаблюдение, оснащение залов совещаний.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 7. REQUEST FORM -->
   <section class="sec" id="request" aria-labelledby="request-title">
     <div class="wrap req">
       <div>
-        <div class="eyebrow" aria-hidden="true">04</div>
+        <div class="eyebrow" aria-hidden="true">06</div>
         <h2 class="h2" id="request-title">Заявка на расчёт</h2>
         <p class="lede">Опишите задачу. Подберём конфигурацию и свяжемся с вами, чтобы уточнить детали.</p>
         <ul class="contacts">
@@ -301,14 +381,19 @@
           <li><span class="k">Адрес</span><span class="v">г. Москва, Карамышевская наб., д. 48, корп. 3</span></li>
         </ul>
       </div>
-      <form class="form" id="reqForm" method="post" novalidate>
+      <form class="form" id="reqForm" method="post" action="api/send.php" enctype="multipart/form-data" novalidate>
         <noscript><p class="form-noscript">Форма работает с включённым JavaScript. Позвоните по номеру 8 (499) 460-62-65 или напишите на sarmat-it@ya.ru.</p></noscript>
+        <div class="field"><label for="f-name">Имя</label><input class="input" id="f-name" name="name" placeholder="Как к вам обращаться" autocomplete="name" maxlength="200"></div>
         <div class="row2">
-          <div class="field"><label for="f-name">Имя</label><input class="input" id="f-name" name="name" placeholder="Как к вам обращаться" autocomplete="name"></div>
           <div class="field">
             <label for="f-phone">Телефон <span class="req-mark" aria-hidden="true">*</span></label>
-            <input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" placeholder="+7" autocomplete="tel" required aria-describedby="f-phone-err">
-            <p class="field-err" id="f-phone-err" hidden>Укажите телефон: не меньше 10 цифр.</p>
+            <input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" placeholder="+7 999 123-45-67" autocomplete="tel" maxlength="40" required aria-describedby="f-phone-err">
+            <p class="field-err" id="f-phone-err" hidden>Укажите телефон.</p>
+          </div>
+          <div class="field">
+            <label for="f-email">E-mail <span class="req-mark" aria-hidden="true">*</span></label>
+            <input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required aria-describedby="f-email-err">
+            <p class="field-err" id="f-email-err" hidden>Укажите e-mail.</p>
           </div>
         </div>
         <div class="field"><label for="f-pos">Интересующая позиция</label>
@@ -317,10 +402,23 @@
           </select>
         </div>
         <div class="field"><label for="f-msg">Комментарий</label><textarea class="input" id="f-msg" name="msg" placeholder="Задача, число пользователей, сроки"></textarea></div>
+        <div class="field">
+          <label for="f-file">Файл с задачей или спецификацией</label>
+          <input class="input input-file" id="f-file" name="file" type="file" accept=".doc,.docx,.xls,.xlsx,.pdf" aria-describedby="f-file-hint f-file-err">
+          <p class="field-hint" id="f-file-hint">Word, Excel или PDF, до 10 МБ.</p>
+          <p class="field-err" id="f-file-err" hidden></p>
+        </div>
+        <div class="field field-check">
+          <label class="check" for="f-consent">
+            <input id="f-consent" name="consent" type="checkbox" value="yes" required aria-describedby="f-consent-err">
+            <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике обработки персональных данных</a> <span class="req-mark" aria-hidden="true">*</span></span>
+          </label>
+          <p class="field-err" id="f-consent-err" hidden>Без согласия на обработку данных заявку отправить нельзя.</p>
+        </div>
+        <div class="hp" aria-hidden="true"><label for="f-site">Сайт</label><input id="f-site" name="site" type="text" tabindex="-1" autocomplete="off"></div>
         <button class="btn btn-primary" type="submit">Отправить заявку</button>
-        <!-- TODO: согласие на обработку персональных данных (152-ФЗ). Чекбокс и текст не добавлены: текст согласия и ссылка на политику появятся после утверждения юристом, юрлицо пока не указано -->
         <div aria-live="polite">
-          <p class="form-msg ok" id="msgOk" hidden>Заявка отправлена. Мы свяжемся с вами по указанному телефону.</p>
+          <p class="form-msg ok" id="msgOk" tabindex="-1" hidden>Заявка принята. Мы свяжемся с вами по указанному телефону или почте.</p>
           <p class="form-msg err" id="msgErr" hidden>Не получилось отправить заявку. Попробуйте ещё раз или позвоните нам: <a href="tel:+74994606265">8 (499) 460-62-65</a>.</p>
         </div>
       </form>
@@ -332,16 +430,19 @@
   <div class="wrap ftr-in">
     <div class="ftr-brand">
       <a class="ftr-logo" href="#hero" aria-label="Сармат-ИТ, в начало">
-        <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 37 34H3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="20" cy="24" r="10.5" fill="#03050b" stroke="currentColor" stroke-width="1.8"/><circle cx="20" cy="24" r="4.2" fill="#5fb0e8"/></svg>
+        <img src="img/logo.png?v=09bfd983" width="57" height="48" alt="" decoding="async">
         <span>САРМАТ-ИТ</span>
       </a>
-      <p>Сборка и интеграция серверов, сетей и видеонаблюдения под вашу задачу. Доставка и монтаж по всей России.</p>
+      <p>Поставка серверного и сетевого оборудования под вашу задачу. Доставка до объекта по всей России.</p>
     </div>
     <nav class="ftr-nav" aria-label="Разделы (подвал)">
       <a href="#process">Как мы работаем</a>
       <a href="#catalog">Готовые конфигурации</a>
       <a href="#turnkey">Объекты под ключ</a>
+      <a href="#projects">Наши проекты</a>
+      <a href="#why">Почему выбирают нас</a>
       <a href="#request">Заявка на расчёт</a>
+      <a href="privacy.html">Политика обработки персональных данных</a>
     </nav>
     <address class="ftr-contacts">
       <a class="ftr-phone" href="tel:+74994606265">8 (499) 460-62-65</a>
@@ -349,16 +450,30 @@
       <span>г. Москва, Карамышевская наб., д. 48, корп. 3</span>
     </address>
   </div>
-  <!-- TODO: юрлицо и реквизиты (ИНН/ОГРН), ссылка на политику обработки персональных данных. Данных нет: юрлицо "уточнить" в CLAUDE.md, текст политики за юристом -->
+  <!-- TODO: юрлицо и реквизиты (ИНН/ОГРН). Данных нет: юрлицо "уточнить" в CLAUDE.md, вопрос Антону задан 05.10.2026 -->
 </footer>
 
 <!-- 4. ASSISTANT (appears after the first screen) -->
 <div class="asst" id="asst">
   <div class="asst-panel" id="asstPanel" role="dialog" aria-labelledby="asstTitle" hidden>
     <header><h3 id="asstTitle">Вопрос сотруднику</h3><button class="asst-x" id="asstClose" type="button" aria-label="Закрыть">&#x2715;</button></header>
-    <form class="asst-form" id="asstForm">
-      <textarea class="input" id="asstQ" name="question" placeholder="Опишите задачу или задайте вопрос" aria-label="Вопрос" required></textarea>
+    <form class="asst-form" id="asstForm" method="post" action="api/send.php" novalidate>
+      <div>
+        <textarea class="input" id="asstQ" name="question" placeholder="Опишите задачу или задайте вопрос" aria-label="Вопрос" maxlength="4000" required aria-describedby="asstQErr"></textarea>
+        <p class="field-err" id="asstQErr" hidden>Напишите вопрос.</p>
+      </div>
+      <div>
+        <input class="input" id="asstContact" name="contact" type="text" placeholder="Телефон или почта для ответа" aria-label="Телефон или почта для ответа" autocomplete="tel" maxlength="254" required aria-describedby="asstContactErr">
+        <p class="field-err" id="asstContactErr" hidden>Укажите телефон или почту, иначе мы не сможем ответить.</p>
+      </div>
+      <label class="check check-sm" for="asstConsent">
+        <input id="asstConsent" name="consent" type="checkbox" value="yes" required aria-describedby="asstConsentErr">
+        <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике</a></span>
+      </label>
+      <p class="field-err" id="asstConsentErr" hidden>Без согласия вопрос отправить нельзя.</p>
+      <div class="hp" aria-hidden="true"><label for="asstSite">Сайт</label><input id="asstSite" name="site" type="text" tabindex="-1" autocomplete="off"></div>
       <button class="btn btn-primary" type="submit">Спросить</button>
+      <p class="form-msg err" id="asstErr" hidden>Не получилось отправить вопрос. Попробуйте ещё раз или позвоните: <a href="tel:+74994606265">8 (499) 460-62-65</a>.</p>
     </form>
     <!-- TODO: часы работы помощника и срок ответа. Антон пока не назвал, конкретное время не пишем. Когда появится: "Вопрос получили. Ответим <когда>." -->
     <p class="asst-done" id="asstDone" role="status" hidden>Вопрос получили. Если вопрос срочный, позвоните: <a href="tel:+74994606265">8 (499) 460-62-65</a>.</p>
@@ -366,6 +481,13 @@
   <button class="asst-bubble" id="asstBubble" type="button">Вопрос по конфигурации? Напишите, ответит сотрудник.</button>
   <button class="asst-fab" id="asstFab" type="button" aria-label="Вопрос сотруднику" aria-expanded="false" aria-controls="asstPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></button>
 </div>
+
+<!-- Cookie notice: показывает cookie.js -->
+<div class="cookie" id="cookieNote" role="region" aria-label="Уведомление о cookie" hidden>
+  <p>Сайт использует cookie и Яндекс Метрику. Продолжая пользоваться сайтом, вы соглашаетесь с <a href="privacy.html">политикой обработки персональных данных</a>.</p>
+  <button class="btn btn-primary btn-sm" type="button">Понятно</button>
+</div>
+<!-- /Cookie notice -->
 
 </body>
 </html>
