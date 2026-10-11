@@ -12,13 +12,14 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=26373ab6">
+<link rel="stylesheet" href="styles.css?v=cd149292">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
-<script src="main.js?v=5be87a3e" defer></script>
+<script src="main.js?v=9f03667c" defer></script>
 </head>
 <body>
 
 <canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="board" aria-hidden="true"></canvas>
 
 <header class="hdr" id="hdr">
   <div class="hdr-in">
@@ -30,7 +31,6 @@
       <a href="#catalog">Конфигурации</a>
       <a href="#turnkey">Серверная</a>
       <a href="#video">Видеонаблюдение</a>
-      <a href="#projects">Проекты</a>
       <a href="#request">Заявка</a>
     </nav>
     <a class="hdr-phone" href="tel:+74994606265" aria-label="Позвонить: 8 (499) 460-62-65">
@@ -298,49 +298,12 @@
     </div>
   </section>
 
-  <!-- 5. PROJECTS. Реальные фото объектов под NDA, на сайт не выкладываем (Антон, 10.10.2026).
-       Здесь иллюстрации, сгенерированные по мотивам наших фото: img/projects/<data-key>.jpg, 2400 × 1600.
-       Пока картинок нет, вместо них заглушки .deck-ph; блок не выкладывать, пока заглушки не заменены. Колода: main.js, deck -->
-  <section class="sec" id="projects" aria-labelledby="projects-title">
-    <div class="wrap">
-      <div class="eyebrow" aria-hidden="true">04</div>
-      <h2 class="h2" id="projects-title">Наши проекты</h2>
-      <p class="lede">Иллюстрации по мотивам наших объектов. Реальные фото не публикуем: с заказчиками работаем по NDA.</p>
-      <div class="deck" id="deck" aria-label="Наши проекты">
-        <div class="deck-stage">
-          <figure class="deck-card" data-key="hall">
-            <div class="deck-ph" role="img" aria-label="Зал совещаний: длинный стол с экранами и микрофонами, на стене видеостена"><span>Иллюстрация готовится</span></div>
-            <figcaption><span class="deck-n">01</span><b>Зал совещаний под ключ</b><span>Видеостена, экраны в столах, микрофон на каждом месте</span></figcaption>
-          </figure>
-          <figure class="deck-card" data-key="wall">
-            <div class="deck-ph" role="img" aria-label="Видеостена из нескольких панелей на стене зала"><span>Иллюстрация готовится</span></div>
-            <figcaption><span class="deck-n">02</span><b>Видеостена</b><span>Панели на стене зала, настройка изображения</span></figcaption>
-          </figure>
-          <figure class="deck-card" data-key="install">
-            <div class="deck-ph" role="img" aria-label="Монтаж: видеостена на стене, мониторы и микрофоны в столах"><span>Иллюстрация готовится</span></div>
-            <figcaption><span class="deck-n">03</span><b>Монтаж зала</b><span>Видеостена и мониторы в столах до отделки</span></figcaption>
-          </figure>
-          <figure class="deck-card" data-key="rack">
-            <div class="deck-ph" role="img" aria-label="Настенный шкаф с усилителем, матричным коммутатором и аппаратурой для передачи видео"><span>Иллюстрация готовится</span></div>
-            <figcaption><span class="deck-n">04</span><b>Шкаф с оборудованием зала</b><span>Звук, коммутация видео, передача HDMI</span></figcaption>
-          </figure>
-          <figure class="deck-card" data-key="server">
-            <div class="deck-ph" role="img" aria-label="Стоечный сервер высотой 1U с четырьмя NVMe-дисками на передней панели"><span>Иллюстрация готовится</span></div>
-            <figcaption><span class="deck-n">05</span><b>Сервер 1U</b><span>Четыре NVMe-диска, проверка перед отправкой</span></figcaption>
-          </figure>
-          <figure class="deck-card" data-key="cpu">
-            <div class="deck-ph" role="img" aria-label="Процессор в сокете серверной платы и ряд модулей памяти"><span>Иллюстрация готовится</span></div>
-            <figcaption><span class="deck-n">06</span><b>Сборка сервера</b><span>Процессор и модули памяти на плате</span></figcaption>
-          </figure>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- 5. PROJECTS снят 11.10.2026 до живых фото (решение Антона), вернуть: см. README, «Наши проекты» -->
 
   <!-- 6. VALUES. Ценности и их смысл: голосовое Антона 10.10.2026. «Оснащение залов совещаний» по фото проектов, подтвердить у Антона -->
   <section class="sec" id="why" aria-labelledby="why-title">
     <div class="wrap">
-      <div class="eyebrow" aria-hidden="true">05</div>
+      <div class="eyebrow" aria-hidden="true">04</div>
       <h2 class="h2" id="why-title">Почему выбирают нас</h2>
       <p class="lede">Четыре правила, по которым ведём каждый проект.</p>
       <ol class="vals" id="vals">
@@ -372,7 +335,7 @@
   <section class="sec" id="request" aria-labelledby="request-title">
     <div class="wrap req">
       <div>
-        <div class="eyebrow" aria-hidden="true">06</div>
+        <div class="eyebrow" aria-hidden="true">05</div>
         <h2 class="h2" id="request-title">Заявка на расчёт</h2>
         <p class="lede">Опишите задачу. Подберём конфигурацию и свяжемся с вами, чтобы уточнить детали.</p>
         <ul class="contacts">
@@ -440,7 +403,6 @@
       <a href="#process">Как мы работаем</a>
       <a href="#catalog">Готовые конфигурации</a>
       <a href="#turnkey">Объекты под ключ</a>
-      <a href="#projects">Наши проекты</a>
       <a href="#why">Почему выбирают нас</a>
       <a href="#request">Заявка на расчёт</a>
       <a href="privacy.html">Политика обработки персональных данных</a>

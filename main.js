@@ -11,15 +11,24 @@ const eBack = t => { const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c 
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const bell = (v, a, b, c) => v <= b ? smooth(a, b, v) : 1 - smooth(b, c, v);
 
-/* Descent progress (0 before, 1 after landing). The hero writes it, the starfield reads it. */
-const heroState = { d: 0 };
+/* Descent progress d (0 before, 1 after landing) and the tilt k after it (the camera looks down at the board).
+   The hero writes them, the starfield and the board read them. */
+const heroState = { d: 0, k: 0 };
 
-/* One rAF loop for every scene. A task returning false is removed until someone adds it again. */
+/* Errors for the ?debug overlay at the end of the file. */
+const ERRS = [];
+addEventListener('error', e => ERRS.push(e.message));
+
+/* One rAF loop for every scene. A task returning false is removed until someone adds it again.
+   A task that throws is removed too, so one broken scene does not stop the others (and the hero ride). */
 const ticker = (() => {
   const tasks = new Set(); let id = 0;
   const run = t => {
     id = 0;
-    for (const fn of [...tasks]) if (fn(t) === false) tasks.delete(fn);
+    for (const fn of [...tasks]) {
+      let r; try { r = fn(t); } catch (e) { r = false; ERRS.push(String(e && e.message || e)); console.error(e); }
+      if (r === false) tasks.delete(fn);
+    }
     if (tasks.size) id = requestAnimationFrame(run);
   };
   return {
@@ -109,6 +118,406 @@ const heroView = (() => {
 })();
 
 
+/* ============ Board: the landed ground becomes a circuit board ============ */
+/* Variant 3 (Антон, 11.10.2026: анимация не должна обрываться между экранами). After the landing the hero camera
+   rises and looks straight down (tilt k, heroState.k) while the ground grid lights up with traces running out from
+   the landing point. Once the camera looks down, this fixed layer draws the same board in page coordinates, so it
+   scrolls with the page: the steps of «Как мы работаем» sit on it as chips joined by a bus, and the main trace
+   leads on to the server gallery (on phones to the «Рассчитать» box under the steps).
+   Page <-> world while the camera looks down: x = (PX - X) / S, z = (PY - Y) / S, where PX, PY is the landing
+   point in page coordinates (stage centre at the moment the stage unpins) and S = 128 px per world unit, so the
+   0.5-unit ground cell is 64 px, the same as the section grid. Both renderers use the same styles, which is why
+   the hand-over from the hero canvas to this layer is invisible. */
+const BOARD = (() => {
+  const cv = document.getElementById('board');
+  const BG = '#040d1c';
+  if (REDUCE || !cv) return { on: false, BG, persp() {}, kick() {} };
+  const S = 128, CELL = 16, GRID = [0.5, 2, 8, 32, 128];
+  const gridA = sp => 0.2 * smooth(12, 46, sp) * (1 - 0.6 * smooth(300, 900, sp)); // same as the hero ground
+  const g = cv.getContext('2d'), stepsEl = document.getElementById('steps4');
+  document.documentElement.classList.add('board-on');
+  let M = null, dirty = true, D = 1, VW = 0, VH = 0, tIn = 0, running = false, shown = false, rt = 0, lastY = -1, lastT = 0;
+
+  /* ---------- geometry ---------- */
+  const pg = q => [q.left, q.top + scrollY, q.right, q.bottom + scrollY];
+  const grow = (r, p) => [r[0] - p, r[1] - p, r[2] + p, r[3] + p];
+  const textBoxes = (el, p) => { if (!el) return []; const rg = document.createRange(); rg.selectNodeContents(el); return [...rg.getClientRects()].map(q => grow(pg(q), p)); };
+  const boxOf = (el, p) => el ? [grow(pg(el.getBoundingClientRect()), p)] : [];
+  function mkPoly(pts) {
+    const cum = [0]; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (let i = 0; i < pts.length; i++) {
+      if (i) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      x0 = Math.min(x0, pts[i][0]); y0 = Math.min(y0, pts[i][1]); x1 = Math.max(x1, pts[i][0]); y1 = Math.max(y1, pts[i][1]);
+    }
+    return { pts, cum, len: cum[cum.length - 1], bb: [x0 - 8, y0 - 8, x1 + 8, y1 + 8] };
+  }
+  function at(P, s) {
+    const { pts, cum } = P; s = clamp(s, 0, P.len);
+    let i = 1; while (i < cum.length - 1 && cum[i] < s) i++;
+    const k = (s - cum[i - 1]) / Math.max(1e-6, cum[i] - cum[i - 1]);
+    return [lerp(pts[i - 1][0], pts[i][0], k), lerp(pts[i - 1][1], pts[i][1], k)];
+  }
+  function sOf(P, q) { // arc length of the point of P nearest to q
+    let best = 1e9, bs = 0;
+    for (let i = 1; i < P.pts.length; i++) {
+      const a = P.pts[i - 1], b = P.pts[i], L = (P.cum[i] - P.cum[i - 1]) || 1e-6;
+      const u = clamp(((q[0] - a[0]) * (b[0] - a[0]) + (q[1] - a[1]) * (b[1] - a[1])) / (L * L));
+      const d = Math.hypot(a[0] + (b[0] - a[0]) * u - q[0], a[1] + (b[1] - a[1]) * u - q[1]);
+      if (d < best) { best = d; bs = P.cum[i - 1] + u * L; }
+    }
+    return bs;
+  }
+  function chamfer(wp, c) { // 45-degree corners, as traces on a board
+    const out = [wp[0]];
+    for (let i = 1; i < wp.length - 1; i++) {
+      const a = wp[i - 1], b = wp[i], n = wp[i + 1], d1 = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, d2 = Math.hypot(n[0] - b[0], n[1] - b[1]) || 1, r = Math.min(c, d1 / 2, d2 / 2);
+      out.push([b[0] - (b[0] - a[0]) / d1 * r, b[1] - (b[1] - a[1]) / d1 * r], [b[0] + (n[0] - b[0]) / d2 * r, b[1] + (n[1] - b[1]) / d2 * r]);
+    }
+    out.push(wp[wp.length - 1]);
+    return out;
+  }
+
+  /* ---------- the board model, rebuilt when the layout changes ---------- */
+  function build() {
+    dirty = false; M = null;
+    const q = s => document.querySelector(s), qa = s => [...document.querySelectorAll(s)];
+    const stage = q('.si-stage'), track = q('.si-track'), dv = q('#process .deliv');
+    const nums = qa('#steps4 .num').map(el => { const r = pg(el.getBoundingClientRect()); return [(r[0] + r[2]) / 2, (r[1] + r[3]) / 2]; });
+    if (!stage || !track || !dv || nums.length < 4) return;
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const W = stage.clientWidth, H = stage.clientHeight, Ty = track.getBoundingClientRect().bottom + scrollY - H;
+    const PX = W / 2, PY = Ty + H / 2;
+    const row = Math.abs(nums[0][1] - nums[1][1]) < 4, CS = row ? 64 : 56, hs = CS / 2;
+    const deliv = pg(dv.getBoundingClientRect());
+    const h2 = textBoxes(q('#process-title'), 0);
+    const h2R = Math.max(...h2.map(r => r[2])), h2B = Math.max(...h2.map(r => r[3]));
+
+    // Main trace: landing point, down past the heading, into chip 1, through the chips, then on.
+    const xv = Math.min(W - 24, Math.max(PX, h2R + 44)), ya = (h2B + nums[0][1] - hs) / 2;
+    const wp = [[PX, PY]];
+    if (xv - PX > 1) { const yj = ya - (xv - PX) - 60; wp.push([PX, yj], [xv, yj + (xv - PX)]); }
+    wp.push([xv, ya], [nums[0][0], ya], ...nums);
+    const card = q('#gal1 .gal-card'), bar = q('#gal1 .gal-bar'), view = q('#gal1 .gal-view');
+    let end, bottom;
+    if (row && card && bar && W - deliv[2] >= 28) {
+      // wide screens: along the right margin to the gallery, into the top edge of the server card
+      const cr = pg(card.getBoundingClientRect()), br = pg(bar.getBoundingClientRect());
+      const xr = (deliv[2] + W) / 2, yg = br[1] - 24, xe = cr[0] + (cr[2] - cr[0]) * 0.62;
+      wp.push([xr, nums[3][1]], [xr, yg], [xe, yg], end = [xe, cr[1]]);
+      bottom = cr[1] + 40;
+    } else {
+      // phones: down from the last chip into the «Рассчитать» box
+      wp.push(end = [nums[3][0], deliv[1]]);
+      bottom = deliv[3] + 160;
+    }
+    const route = mkPoly(chamfer(wp, 22));
+    const Ls = nums.map(n => sOf(route, n));
+    const bus = [];
+    for (let i = 0; i < 3; i++) for (const o of [-9, 9]) {
+      const a = nums[i], b = nums[i + 1];
+      bus.push(Object.assign(mkPoly(row ? [[a[0] + hs, a[1] + o], [b[0] - hs, b[1] + o]] : [[a[0] + o, a[1] + hs], [b[0] + o, b[1] - hs]]), { i }));
+    }
+
+    // Free cells for decorative traces: everything except text, chips, the boxes and the main trace.
+    const top = Ty - 2.5 * H, fade0 = bottom - (row ? 240 : 200);
+    const gx0 = PX - CELL * Math.ceil((PX + W) / CELL), gy0 = PY - CELL * Math.ceil((PY - top) / CELL);
+    const cols = Math.ceil((2 * W - gx0) / CELL), rows = Math.max(1, Math.ceil((fade0 + 80 - gy0) / CELL));
+    const occ = new Uint8Array(cols * rows);
+    const mark = r => {
+      const c0 = Math.max(0, Math.floor((r[0] - gx0) / CELL)), c1 = Math.min(cols - 1, Math.floor((r[2] - gx0) / CELL));
+      const r0 = Math.max(0, Math.floor((r[1] - gy0) / CELL)), r1 = Math.min(rows - 1, Math.floor((r[3] - gy0) / CELL));
+      for (let y = r0; y <= r1; y++) if (c0 <= c1) occ.fill(1, y * cols + c0, y * cols + c1 + 1);
+    };
+    const eyebrow = el => { if (!el) return []; const r = pg(el.getBoundingClientRect()); return [grow([r[0], r[1], r[0] + 110, r[3]], 14)]; };
+    [...textBoxes(q('#process-title'), 18), ...eyebrow(q('#process .eyebrow')), ...qa('#steps4 h3, #steps4 p').flatMap(e => textBoxes(e, 12)),
+      ...nums.map(n => [n[0] - hs - 16, n[1] - hs - 16, n[0] + hs + 16, n[1] + hs + 16]), grow(deliv, 16),
+      ...eyebrow(q('#catalog .eyebrow')), ...textBoxes(q('#catalog-title'), 18), ...textBoxes(q('#catalog .lede'), 14),
+      ...boxOf(bar, 12), ...boxOf(view, 0)].forEach(mark);
+    const markLine = (P, r) => { for (let s = 0; s <= P.len; s += 6) { const p = at(P, s); mark([p[0] - r, p[1] - r, p[0] + r, p[1] + r]); } };
+    markLine(route, 26); bus.forEach(b => markLine(b, 14));
+    mark([PX - 40, PY - 40, PX + 40, PY + 40]);
+
+    const DIRS = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]];
+    const freeAt = (c, r) => {
+      if (c < 1 || r < 1 || c >= cols - 1 || r >= rows - 1) return false;
+      for (let y = r - 1; y <= r + 1; y++) for (let x = c - 1; x <= c + 1; x++) if (occ[y * cols + x]) return false;
+      return true;
+    };
+    const cxOf = c => gx0 + (c + 0.5) * CELL, cyOf = r => gy0 + (r + 0.5) * CELL;
+    const dist = (X, Y) => Math.hypot(X - PX, Y - PY);
+    const traces = [], comps = [];
+    // A trace walks straight, turning by 45 degrees, never more than 90 degrees off its first direction.
+    function walk(c, r, d, segs, minCells, lead) {
+      const pts = [[cxOf(c), cyOf(r)]], cells = [[c, r]]; let rel = 0;
+      for (let s = 0; s < segs; s++) {
+        const len = 3 + (rnd() * 10 | 0); let n = 0;
+        while (n < len) { const nc = c + DIRS[d][0], nr = r + DIRS[d][1]; if (!freeAt(nc, nr)) break; c = nc; r = nr; cells.push([c, r]); n++; }
+        if (!n) break;
+        pts.push([cxOf(c), cyOf(r)]);
+        const turn = rel <= -2 ? 1 : rel >= 2 ? -1 : rnd() < 0.5 ? 1 : -1; rel += turn; d = (d + turn + 8) % 8;
+      }
+      if (cells.length < minCells) return;
+      for (const [x, y] of cells) mark([cxOf(x) - CELL, cyOf(y) - CELL, cxOf(x) + CELL, cyOf(y) + CELL]);
+      let list = pts;
+      if (lead) list = [lead, ...pts];
+      else if (dist(...pts[pts.length - 1]) < dist(...pts[0])) list = pts.slice().reverse();
+      const P = mkPoly(list);
+      P.d0 = lead ? 0 : dist(...list[0]);
+      P.v0 = !lead && rnd() < 0.6; P.v1 = rnd() < 0.75;
+      P.sig = P.len > 150 && rnd() < 0.14 ? { v: 0.09 + rnd() * 0.1, ph: rnd() } : null;
+      traces.push(P);
+    }
+    // fan-out from the landing point, then the rest of the board
+    for (let i = 0; i < 8; i++) {
+      const n = Math.hypot(DIRS[i][0], DIRS[i][1]), ux = DIRS[i][0] / n, uy = DIRS[i][1] / n;
+      const c = Math.floor((PX + ux * 76 - gx0) / CELL), r = Math.floor((PY + uy * 76 - gy0) / CELL);
+      if (freeAt(c, r)) walk(c, r, i, 3, 4, [PX + ux * 10, PY + uy * 10]);
+    }
+    const tries = Math.round(cols * rows / 75);
+    for (let i = 0; i < tries; i++) {
+      const c = 1 + (rnd() * (cols - 2) | 0), r = 1 + (rnd() * (rows - 2) | 0);
+      if (!freeAt(c, r)) continue;
+      if (rnd() < 0.1) { // a small part: two pads and a body
+        const o = rnd() < 0.5 ? 0 : 1, c2 = c + (o ? 0 : 1), r2 = r + (o ? 1 : 0);
+        if (!freeAt(c2, r2)) continue;
+        const X = (cxOf(c) + cxOf(c2)) / 2, Y = (cyOf(r) + cyOf(r2)) / 2;
+        comps.push({ X, Y, o, d0: dist(X, Y) }); mark([X - 2 * CELL, Y - 2 * CELL, X + 2 * CELL, Y + 2 * CELL]);
+        continue;
+      }
+      walk(c, r, rnd() < 0.7 ? (rnd() * 4 | 0) * 2 : rnd() * 8 | 0, 2 + (rnd() * 4 | 0), 6);
+    }
+    M = { W, H, Ty, PX, PY, row, CS, nums, route, Ls, bus, end, traces, comps, top, bottom, fade0 };
+  }
+
+  /* ---------- timing: the bus lights chip by chip when the steps appear ---------- */
+  const HOP = 300, TAILMS = 1000;
+  function litLen(t) {
+    const L = M.Ls; if (!tIn) return L[0];
+    const e = t - tIn;
+    for (let i = 0; i < 3; i++) if (e < (i + 1) * HOP) return L[i] + (L[i + 1] - L[i]) * eIO(seg(e, i * HOP, (i + 1) * HOP));
+    return L[3] + (M.route.len - L[3]) * eIO(seg(e, 3 * HOP, 3 * HOP + TAILMS));
+  }
+  const busLit = (i, t) => tIn ? eIO(seg(t - tIn, i * HOP, (i + 1) * HOP)) : 0;
+  const chipOn = (i, t) => tIn ? eOut(seg(t - tIn, i * HOP - 60, i * HOP + 300)) : 0;
+  // signals on the main trace: one every GAP px at V px/ms
+  const V = 0.23, GAP = 420;
+  const mainSignals = (t, upto) => { const out = []; for (let s = (t * V) % GAP; s <= upto; s += GAP) out.push(s); return out; };
+  const decoSignal = (tr, t, upto) => { const s = (t * tr.sig.v + tr.sig.ph * (tr.len + 160)) % (tr.len + 160); return s <= Math.min(upto, tr.len) ? s : -1; };
+
+  /* ---------- drawing primitives shared by both renderers ---------- */
+  // pj(X, Y) -> [sx, sy, scale] or null behind the camera; path(pts, upto) adds the polyline to the current path.
+  const GLOW = (() => { // one glow sprite for every signal head
+    const c = document.createElement('canvas'), n = 54, x = c.getContext('2d'); c.width = c.height = n;
+    const gr = x.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2); gr.addColorStop(0, 'rgba(143,208,255,.55)'); gr.addColorStop(1, 'rgba(143,208,255,0)');
+    x.fillStyle = gr; x.fillRect(0, 0, n, n); return c;
+  })();
+  // Signals: [polyline, arc length, alpha]. Tails are batched by brightness, so many signals cost a few strokes.
+  function signals(ctx, list, pj) {
+    if (!list.length) return;
+    const pts = list.map(([P, s]) => { const out = []; for (let i = 0; i <= 5; i++) { const q = at(P, s - i * 7); out.push(pj(q[0], q[1])); } return out; });
+    ctx.lineCap = 'round';
+    for (const a of [1, 0.8]) for (let i = 1; i <= 5; i++) {
+      ctx.beginPath(); let w = 0;
+      list.forEach(([, , al], j) => { const A0 = pts[j][i - 1], A1 = pts[j][i]; if (al !== a || !A0 || !A1) return; ctx.moveTo(A0[0], A0[1]); ctx.lineTo(A1[0], A1[1]); w = 2 * pts[j][0][2]; });
+      if (w) { ctx.strokeStyle = `rgba(200,235,255,${((1 - i / 6) * 0.7 * a).toFixed(3)})`; ctx.lineWidth = w; ctx.stroke(); }
+    }
+    for (const a of [1, 0.8]) {
+      ctx.globalAlpha *= a; ctx.beginPath(); let any = false;
+      list.forEach(([, , al], j) => { const H0 = pts[j][0]; if (al !== a || !H0) return; const r = 9 * H0[2]; ctx.drawImage(GLOW, H0[0] - r, H0[1] - r, 2 * r, 2 * r); ctx.moveTo(H0[0] + 2.2 * H0[2], H0[1]); ctx.arc(H0[0], H0[1], 2.2 * H0[2], 0, 6.2832); any = true; });
+      if (any) { ctx.fillStyle = '#eaf6ff'; ctx.fill(); }
+      ctx.globalAlpha /= a;
+    }
+  }
+  function vias(ctx, list) { // [x, y] at scale 1, one path
+    if (!list.length) return;
+    ctx.beginPath(); for (const [x, y] of list) { ctx.moveTo(x + 3.2, y); ctx.arc(x, y, 3.2, 0, 6.2832); }
+    ctx.fillStyle = BG; ctx.fill(); ctx.strokeStyle = 'rgba(95,176,232,0.420)'; ctx.lineWidth = 1.2; ctx.stroke();
+  }
+  function via(ctx, x, y, s, a) {
+    ctx.beginPath(); ctx.arc(x, y, 3.2 * s, 0, 6.2832);
+    ctx.fillStyle = BG; ctx.fill();
+    ctx.strokeStyle = `rgba(95,176,232,${(0.42 * a).toFixed(3)})`; ctx.lineWidth = 1.2 * s; ctx.stroke();
+  }
+  function pad(ctx, x, y, s, a) { ctx.fillStyle = `rgba(95,176,232,${(0.34 * a).toFixed(3)})`; ctx.fillRect(x - 3 * s, y - 3 * s, 6 * s, 6 * s); }
+  function part(ctx, c, x, y, s, a) {
+    const v = c.o === 1;
+    ctx.fillStyle = `rgba(95,176,232,${(0.34 * a).toFixed(3)})`;
+    if (v) { ctx.fillRect(x - 3 * s, y - 8 * s, 6 * s, 4 * s); ctx.fillRect(x - 3 * s, y + 4 * s, 6 * s, 4 * s); }
+    else { ctx.fillRect(x - 8 * s, y - 3 * s, 4 * s, 6 * s); ctx.fillRect(x + 4 * s, y - 3 * s, 4 * s, 6 * s); }
+    ctx.fillStyle = `rgba(28,52,88,${a.toFixed(3)})`;
+    if (v) ctx.fillRect(x - 2.5 * s, y - 4 * s, 5 * s, 8 * s); else ctx.fillRect(x - 4 * s, y - 2.5 * s, 8 * s, 5 * s);
+  }
+  function marker(ctx, x, y) { // the landing point, as drawn by the hero
+    const gl = ctx.createRadialGradient(x, y, 0, x, y, 22); gl.addColorStop(0, 'rgba(143,208,255,.55)'); gl.addColorStop(1, 'rgba(143,208,255,0)');
+    ctx.fillStyle = gl; ctx.fillRect(x - 22, y - 22, 44, 44);
+    ctx.fillStyle = '#e8f2ff'; ctx.beginPath(); ctx.arc(x, y, 2.6, 0, 6.2832); ctx.fill();
+  }
+  function routeStroke(ctx, s, a) {
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = `rgba(95,176,232,${(0.13 * a).toFixed(3)})`; ctx.lineWidth = 7 * s; ctx.stroke();
+    ctx.strokeStyle = `rgba(143,208,255,${(0.62 * a).toFixed(3)})`; ctx.lineWidth = 2.2 * s; ctx.stroke();
+  }
+
+  /* ---------- hero renderer: the board in the camera's perspective during the tilt ---------- */
+  function persp(ctx, cam, FL, cx, cy, k, t, A) {
+    if (dirty) build();
+    if (!M) return;
+    const NEAR = 0.05, rw = k >= 0.62 ? 1e9 : 3400 * eOut(seg(k, 0.03, 0.62));
+    const C = (X, Y) => cam((M.PX - X) / S, 0, (M.PY - Y) / S);
+    const pj = (X, Y) => { const c = C(X, Y); return c[2] < NEAR ? null : [cx + c[0] / c[2] * FL, cy - c[1] / c[2] * FL, FL / (c[2] * S), c[2]]; };
+    function path(pts, upto) {
+      let acc = 0, pen = false;
+      for (let i = 1; i < pts.length && acc < upto; i++) {
+        const a0 = pts[i - 1], b0 = pts[i], L = Math.hypot(b0[0] - a0[0], b0[1] - a0[1]) || 1e-6, f = Math.min(1, (upto - acc) / L); acc += L;
+        let a = C(a0[0], a0[1]), b = C(lerp(a0[0], b0[0], f), lerp(a0[1], b0[1], f)), cut = false;
+        if (a[2] < NEAR && b[2] < NEAR) { pen = false; continue; }
+        if (a[2] < NEAR) { const u = (NEAR - a[2]) / (b[2] - a[2]); a = [lerp(a[0], b[0], u), lerp(a[1], b[1], u), NEAR]; pen = false; }
+        if (b[2] < NEAR) { const u = (NEAR - b[2]) / (a[2] - b[2]); b = [lerp(b[0], a[0], u), lerp(b[1], a[1], u), NEAR]; cut = true; }
+        if (!pen) ctx.moveTo(cx + a[0] / a[2] * FL, cy - a[1] / a[2] * FL);
+        ctx.lineTo(cx + b[0] / b[2] * FL, cy - b[1] / b[2] * FL); pen = !cut;
+      }
+    }
+    ctx.globalAlpha = A; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const ends = [];
+    for (const tr of M.traces) {
+      const lit = Math.min(tr.len, rw - tr.d0); if (lit <= 0) continue;
+      const c0 = C(tr.pts[0][0], tr.pts[0][1]), c1 = C(tr.pts[tr.pts.length - 1][0], tr.pts[tr.pts.length - 1][1]);
+      const dep = c0[2] >= NEAR ? c0[2] : c1[2]; if (dep < NEAR) continue;
+      const fog = 1 - smooth(25, 70, dep); if (fog <= 0.01) continue;
+      const s = FL / (dep * S);
+      ctx.beginPath(); path(tr.pts, lit);
+      ctx.strokeStyle = `rgba(95,176,232,${(0.26 * fog).toFixed(3)})`; ctx.lineWidth = clamp(1.4 * s, 0.3, 3.2); ctx.stroke();
+      ends.push([tr, lit, fog]);
+    }
+    for (const [tr, lit, fog] of ends) {
+      if (tr.v0) { const p = pj(tr.pts[0][0], tr.pts[0][1]); if (p && p[2] > 0.15) via(ctx, p[0], p[1], p[2], fog); }
+      if (lit >= tr.len) { const e = tr.pts[tr.pts.length - 1], p = pj(e[0], e[1]); if (p && p[2] > 0.15) (tr.v1 ? via : pad)(ctx, p[0], p[1], p[2], fog); }
+    }
+    for (const c of M.comps) { if (rw < c.d0) continue; const p = pj(c.X, c.Y); if (p && p[2] > 0.15) part(ctx, c, p[0], p[1], p[2], 1 - smooth(25, 70, p[3])); }
+    const lit = Math.min(rw, M.Ls[0]), p0 = pj(M.PX, M.PY), s0 = p0 ? p0[2] : 1;
+    ctx.beginPath(); path(M.route.pts, lit); routeStroke(ctx, s0, 1);
+    if (k >= 0.62) {
+      const list = mainSignals(t, lit).map(s => [M.route, s, 1]);
+      for (const tr of M.traces) if (tr.sig) { const s = decoSignal(tr, t, tr.len); if (s >= 0) list.push([tr, s, 0.8]); }
+      signals(ctx, list, pj);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- page renderer: this fixed layer, after the camera looks down ---------- */
+  function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  function chip(X, Y, s, pw, row) { // pins on the sides that face traces, none towards the step text
+    const n = 5, step = s / (n + 1), pl = 5, pwid = 3;
+    if (pw > 0) {
+      const hg = g.createRadialGradient(X, Y, s * 0.3, X, Y, s * 1.15);
+      hg.addColorStop(0, `rgba(95,176,232,${(0.24 * pw).toFixed(3)})`); hg.addColorStop(1, 'rgba(95,176,232,0)');
+      g.fillStyle = hg; g.fillRect(X - s * 1.15, Y - s * 1.15, s * 2.3, s * 2.3);
+    }
+    g.fillStyle = `rgba(${pw > 0.5 ? '170,222,255' : '95,176,232'},${(0.35 + 0.6 * pw).toFixed(3)})`;
+    for (let i = 1; i <= n; i++) {
+      const o = -s / 2 + i * step - pwid / 2;
+      g.fillRect(X + o, Y - s / 2 - pl, pwid, pl); g.fillRect(X - s / 2 - pl, Y + o, pl, pwid);
+      if (row) g.fillRect(X + s / 2, Y + o, pl, pwid); else g.fillRect(X + o, Y + s / 2, pwid, pl);
+    }
+    rrect(g, X - s / 2, Y - s / 2, s, s, 6);
+    g.fillStyle = '#081528'; g.fill();
+    g.strokeStyle = `rgba(143,208,255,${(0.22 + 0.45 * pw).toFixed(3)})`; g.lineWidth = 1; g.stroke();
+    g.fillStyle = `rgba(143,208,255,${(0.3 + 0.5 * pw).toFixed(3)})`; g.beginPath(); g.arc(X - s / 2 + 8, Y - s / 2 + 8, 2, 0, 6.2832); g.fill();
+  }
+  function draw(t) {
+    const Y0 = Math.max(scrollY, M.Ty), vw = VW, vh = VH;
+    const pj = (X, Y) => [X, Y - Y0, 1];
+    const path = (pts, upto) => {
+      let acc = 0; g.moveTo(pts[0][0], pts[0][1] - Y0);
+      for (let i = 1; i < pts.length && acc < upto; i++) {
+        const a = pts[i - 1], b = pts[i], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1e-6, f = Math.min(1, (upto - acc) / L); acc += L;
+        g.lineTo(lerp(a[0], b[0], f), lerp(a[1], b[1], f) - Y0);
+      }
+    };
+    const inView = bb => bb[3] >= Y0 && bb[1] <= Y0 + vh && bb[2] >= 0 && bb[0] <= vw;
+    g.setTransform(D, 0, 0, D, 0, 0); g.clearRect(0, 0, vw, vh);
+    const yTop = Math.max(0, M.top - Y0), yBot = Math.min(vh, M.bottom - Y0);
+    if (yBot <= yTop) return;
+    g.fillStyle = BG; g.fillRect(0, yTop, vw, yBot - yTop);
+    for (const gs of GRID) {
+      const a = gridA(gs * S), step = gs * S; if (a <= 0.004) continue;
+      g.beginPath();
+      for (let X = M.PX - Math.floor(M.PX / step) * step; X <= vw; X += step) { g.moveTo(X, yTop); g.lineTo(X, yBot); }
+      const r0 = M.PY - Y0; for (let Y = r0 - Math.floor((r0 - yTop) / step) * step; Y <= yBot; Y += step) { g.moveTo(0, Y); g.lineTo(vw, Y); }
+      g.strokeStyle = `rgba(95,176,232,${a.toFixed(3)})`; g.lineWidth = 1; g.stroke();
+    }
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    g.beginPath();
+    for (const tr of M.traces) if (inView(tr.bb)) path(tr.pts, tr.len);
+    g.strokeStyle = 'rgba(95,176,232,0.260)'; g.lineWidth = 1.4; g.stroke();
+    const vl = [];
+    for (const tr of M.traces) {
+      if (!inView(tr.bb)) continue;
+      if (tr.v0) vl.push([tr.pts[0][0], tr.pts[0][1] - Y0]);
+      const e = tr.pts[tr.pts.length - 1]; if (tr.v1) vl.push([e[0], e[1] - Y0]); else pad(g, e[0], e[1] - Y0, 1, 1);
+    }
+    vias(g, vl);
+    for (const c of M.comps) if (c.Y > Y0 - 20 && c.Y < Y0 + vh + 20) part(g, c, c.X, c.Y - Y0, 1, 1);
+    // bus between the chips and the main trace, as far as they are lit
+    for (const b of M.bus) { const f = busLit(b.i, t); if (f > 0 && inView(b.bb)) { g.beginPath(); path(b.pts, b.len * f); g.strokeStyle = 'rgba(95,176,232,.42)'; g.lineWidth = 1.4; g.stroke(); } }
+    const lit = litLen(t);
+    g.beginPath(); path(M.route.pts, lit); routeStroke(g, 1, 1);
+    M.nums.forEach((n, i) => { if (n[1] > Y0 - 80 && n[1] < Y0 + vh + 80) chip(n[0], n[1] - Y0, M.CS, chipOn(i, t), M.row); });
+    if (M.PY - Y0 > -30) marker(g, M.PX, M.PY - Y0);
+    const sl = mainSignals(t, lit).map(s => [M.route, s, 1]);
+    for (const tr of M.traces) if (tr.sig && inView(tr.bb)) { const s = decoSignal(tr, t, tr.len); if (s >= 0) sl.push([tr, s, 0.8]); }
+    signals(g, sl, pj);
+    // the end of the main trace: a connector that flashes when a signal arrives
+    if (lit >= M.route.len - 1) {
+      const [ex, ey] = M.end, y = ey - Y0;
+      if (y > -40 && y < vh + 40) {
+        g.fillStyle = 'rgba(143,208,255,.85)';
+        for (let i = -2; i <= 2; i++) g.fillRect(ex + i * 7 - 1.5, y - 13, 3, 9);
+        const ph = ((t * V - (M.route.len % GAP)) % GAP + GAP) % GAP / GAP;
+        g.strokeStyle = `rgba(143,208,255,${((1 - ph) * 0.8).toFixed(3)})`; g.lineWidth = 1.5;
+        g.beginPath(); g.arc(ex, y - 8, 8 + ph * 30, 0, 6.2832); g.stroke();
+      }
+    }
+    // the board melts into the page above the gallery
+    const f0 = M.fade0 - Y0;
+    if (f0 < vh) {
+      g.globalCompositeOperation = 'destination-out';
+      const gr = g.createLinearGradient(0, f0, 0, M.bottom - Y0); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
+      g.fillStyle = gr; g.fillRect(0, Math.max(0, f0), vw, vh - Math.max(0, f0));
+      g.globalCompositeOperation = 'source-over';
+    }
+  }
+
+  /* ---------- loop: runs while the board or the landing is on screen ---------- */
+  function size() {
+    const st = document.querySelector('.si-stage');
+    VW = cv.clientWidth; VH = cv.clientHeight;
+    D = Math.min(devicePixelRatio || 1, st && st.clientWidth * st.clientHeight > 1.1e6 ? 1 : 1.5);
+    cv.width = Math.round(VW * D); cv.height = Math.round(VH * D); shown = true;
+  }
+  function frame(t) {
+    if (dirty) build();
+    if (!M) { running = false; return false; }
+    if (!tIn && stepsEl && stepsEl.classList.contains('in')) tIn = t;
+    const near = scrollY + VH > M.Ty - VH && scrollY < M.bottom;
+    const on = near && (heroView.on ? heroState.k >= 0.86 : true);
+    // While the page stands still only the signals move: 30 frames a second are enough for them.
+    const Y0 = Math.max(scrollY, M.Ty);
+    if (on && (Y0 !== lastY || !shown || t - lastT > 30)) { draw(t); shown = true; lastY = Y0; lastT = t; }
+    else if (!on && shown) { g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); shown = false; }
+    if (!on && !(heroView.on && heroState.k > 0)) { running = false; return false; }
+  }
+  function kick() { if (!running) { running = true; ticker.add(frame); } }
+  const later = () => { clearTimeout(rt); rt = setTimeout(() => { dirty = true; kick(); }, 200); };
+  size();
+  addEventListener('scroll', kick, { passive: true });
+  addEventListener('resize', () => { size(); later(); kick(); });
+  new ResizeObserver(later).observe(document.body);
+  heroView.sub(kick);
+  kick();
+  return { on: true, BG, persp, kick };
+})();
+
 /* ============ 1. Hero: logo assembly, then descent to Earth ============ */
 /* One sticky stage. Progress P: the logo assembles in [0, L_END], holds with the headline,
    then the camera flies into the globe of the emblem, turns to Russia, dives onto Moscow,
@@ -121,7 +530,8 @@ const heroView = (() => {
   const logo = R.querySelector('.si-logo'), stage = R.querySelector('.si-stage'), track = R.querySelector('.si-track');
   const hint = R.querySelector('.si-hint'), bar = R.querySelector('.si-bar'), line = R.querySelector('.hero-line');
   const caps = [...R.querySelectorAll('.ds-cap')];
-  const L_END = 0.40, D0 = 0.46, D1 = 0.965;
+  const L_END = 0.40, D0 = 0.46, D1 = 0.875;
+  const K0 = 0.885, K1 = 0.99; // after landing the camera rises and looks straight down at the board (BOARD)
   const OX = 190, OY = 270, GY = 580 - OY;
   const GLX = 495 - OX, GLY = 580 - OY; // globe centre inside the 620 x 690 logo box
   const NS = 'http://www.w3.org/2000/svg';
@@ -269,11 +679,13 @@ const heroView = (() => {
     if (!force && Math.abs(P - last) < 1e-5) return; last = P;
     const p = REDUCE ? 1 : clamp(P / L_END), d = REDUCE ? 0 : seg(P, D0, D1);
     heroState.d = d;
+    const tk = BOARD.on ? seg(P, K0, K1) : 0, land = 1 - seg(tk, 0.25, 0.5);
+    if (tk !== heroState.k) { heroState.k = tk; stage.style.setProperty('--land', tk.toFixed(3)); if (tk > 0) BOARD.kick(); }
     bar.style.transform = `scaleX(${REDUCE ? 1 : P})`;
     const hl = eOut(seg(p, 0.9, 1));
     line.style.opacity = hl * (1 - seg(d, 0, 0.05)); line.style.transform = `translateY(${lerp(14, 0, hl)}px)`;
     caps.forEach((c, i) => {
-      const [a, b, e, f] = CAPW[i], o = seg(d, a, b) * (1 - seg(d, e, f));
+      const [a, b, e, f] = CAPW[i], o = seg(d, a, b) * (1 - seg(d, e, f)) * land;
       c.style.opacity = o; c.style.visibility = o > 0.002 ? 'visible' : 'hidden';
       c.style.transform = `translateY(${lerp(18, 0, eOut(seg(d, a, b))) - 12 * seg(d, e, f)}px)`;
     });
@@ -491,11 +903,14 @@ const heroView = (() => {
       g.globalAlpha = 1;
     }
 
-    function ground(u, t, A) {
+    // k: after landing the camera rises over the landing point and looks straight down; at the end one 0.5 cell
+    // of the ground is 64 px on screen and the picture is the board that BOARD draws in page coordinates.
+    function ground(u, t, A, k = 0) {
       const fov = (W / H < 0.8 ? 76 : 60) * RAD, FL = (H / 2) / Math.tan(fov / 2);
-      const h = Math.exp(lerp(Math.log(46), Math.log(1.5), eOut(u)));
-      const th = lerp(-89, -12, eIO(seg(u, 0.1, 0.95))) * RAD, st = Math.sin(th), ct = Math.cos(th);
-      const dist = h / -st, tz = h * 1.6 * eIO(seg(u, 0.35, 1));
+      const kt = eIO(seg(k, 0, 0.85)), hEnd = 0.5 * FL / 64;
+      const h0 = Math.exp(lerp(Math.log(46), Math.log(1.5), eOut(u))), h = Math.exp(lerp(Math.log(h0), Math.log(hEnd), kt));
+      const th = lerp(lerp(-89, -12, eIO(seg(u, 0.1, 0.95))), -90, kt) * RAD, st = Math.sin(th), ct = Math.cos(th);
+      const dist = h / -st, tz = lerp(h0 * 1.6 * eIO(seg(u, 0.35, 1)), 0, kt);
       const C = [0, h, tz - dist * ct], f = [0, st, ct], rv = [-1, 0, 0], up = [0, ct, -st];
       const cx = W / 2, cy = H / 2;
       const cam = (x, y, z) => { const dx = x - C[0], dy = y - C[1], dz = z - C[2]; return [dx * rv[0] + dy * rv[1] + dz * rv[2], dx * up[0] + dy * up[1] + dz * up[2], dx * f[0] + dy * f[1] + dz * f[2]]; };
@@ -504,6 +919,7 @@ const heroView = (() => {
       const gg = g.createLinearGradient(0, Math.max(Yh, -H), 0, H);
       gg.addColorStop(0, '#0d2d5c'); gg.addColorStop(0.25, '#071a38'); gg.addColorStop(1, '#030b1a');
       g.fillStyle = gg; g.fillRect(0, top, W, H - top);
+      if (kt > 0) { g.globalAlpha = A * kt; g.fillStyle = BOARD.BG; g.fillRect(0, top, W, H - top); g.globalAlpha = A; }
       if (Yh > 0) {
         const sg = g.createLinearGradient(0, Yh, 0, Yh - H * 0.5);
         sg.addColorStop(0, 'rgba(70,150,225,.5)'); sg.addColorStop(0.3, 'rgba(30,80,160,.18)'); sg.addColorStop(1, 'rgba(10,30,70,0)');
@@ -526,12 +942,14 @@ const heroView = (() => {
         for (let i = -E; i <= E + 1e-6; i += gs) { seg3(i, -E, i, E); seg3(-E, i, E, i); }
         g.strokeStyle = `rgba(95,176,232,${a.toFixed(3)})`; g.lineWidth = 1; g.stroke();
       }
-      // city lights
-      for (const L of LIGHTS) {
+      if (k > 0) BOARD.persp(g, cam, FL, cx, cy, k, t, A);
+      // city lights, gone while the board lights up
+      const lk = 1 - seg(k, 0, 0.35);
+      if (lk > 0) for (const L of LIGHTS) {
         const c = cam(L.x, 0, L.z); if (c[2] < 0.1) continue;
         const X = cx + c[0] / c[2] * FL, Y = cy - c[1] / c[2] * FL;
         if (X < -4 || X > W + 4 || Y < -4 || Y > H + 4) continue;
-        const sz = clamp(0.14 * FL / c[2], 0.8, 3), fog = 1 - smooth(40, 160, c[2]);
+        const sz = clamp(0.14 * FL / c[2], 0.8, 3), fog = (1 - smooth(40, 160, c[2])) * lk;
         g.fillStyle = L.w ? `rgba(255,208,150,${(L.b * fog).toFixed(3)})` : `rgba(160,210,255,${(L.b * fog).toFixed(3)})`;
         g.fillRect(X - sz / 2, Y - sz / 2, sz, sz);
       }
@@ -545,19 +963,19 @@ const heroView = (() => {
       const M = cam(0, 0, 0);
       if (M[2] > 0.1) {
         const MX = cx + M[0] / M[2] * FL, MY = cy - M[1] / M[2] * FL;
-        for (let k = 0; k < 3; k++) {
-          const ph = (t * 0.00035 + k / 3) % 1, rr = 0.25 + ph * 3.2;
+        for (let j = 0; j < 3; j++) {
+          const ph = (t * 0.00035 + j / 3) % 1, rr = 0.25 + ph * 3.2;
           g.beginPath();
           for (let i = 0; i <= 48; i++) {
             const c = cam(Math.cos(i / 48 * 6.2832) * rr, 0, Math.sin(i / 48 * 6.2832) * rr); if (c[2] < NEAR) continue;
             const X = cx + c[0] / c[2] * FL, Y = cy - c[1] / c[2] * FL; i ? g.lineTo(X, Y) : g.moveTo(X, Y);
           }
-          g.strokeStyle = `rgba(143,208,255,${((1 - ph) * 0.75).toFixed(3)})`; g.lineWidth = 1.3; g.stroke();
+          g.strokeStyle = `rgba(143,208,255,${((1 - ph) * 0.75 * (1 - seg(k, 0.1, 0.45))).toFixed(3)})`; g.lineWidth = 1.3; g.stroke();
         }
         const T2 = cam(0, 5, 0);
-        if (T2[2] > NEAR) {
+        if (T2[2] > NEAR && k < 0.3) {
           const TX = cx + T2[0] / T2[2] * FL, TY = cy - T2[1] / T2[2] * FL, bm = g.createLinearGradient(MX, MY, TX, TY);
-          bm.addColorStop(0, 'rgba(143,208,255,.85)'); bm.addColorStop(1, 'rgba(143,208,255,0)');
+          bm.addColorStop(0, `rgba(143,208,255,${(0.85 * (1 - k / 0.3)).toFixed(3)})`); bm.addColorStop(1, 'rgba(143,208,255,0)');
           g.strokeStyle = bm; g.lineWidth = 2; g.beginPath(); g.moveTo(MX, MY); g.lineTo(TX, TY); g.stroke();
         }
         const gl = g.createRadialGradient(MX, MY, 0, MX, MY, 22); gl.addColorStop(0, 'rgba(143,208,255,.55)'); gl.addColorStop(1, 'rgba(143,208,255,0)');
@@ -583,14 +1001,15 @@ const heroView = (() => {
     }
 
     function draw(t) {
-      const d = heroState.d;
-      if (d < 0.05 || REDUCE) { if (drawn) { g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); drawn = false; } return; }
+      const d = heroState.d, k = heroState.k;
+      // from k 0.97 the board layer shows the same picture
+      if (d < 0.05 || REDUCE || k >= 0.97) { if (drawn) { g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); drawn = false; } return; }
       drawn = true;
       g.setTransform(D, 0, 0, D, 0, 0);
       g.clearRect(0, 0, W, H);
       const oA = seg(d, 0.05, 0.09) * (1 - seg(d, 0.64, 0.68)), gA = seg(d, 0.64, 0.68);
       if (oA > 0) orbit(d, t, oA, globeAt(d));
-      if (gA > 0) ground(seg(d, 0.66, 1), t, gA);
+      if (gA > 0) ground(seg(d, 0.66, 1), t, gA, k);
       clouds(d);
     }
     return { size, draw };
@@ -613,16 +1032,22 @@ const heroView = (() => {
      Down: the descent with its captions, then on to «Как мы работаем». Up: back to the assembled logo.
      The ride moves the real scroll position, so anchors, the scrollbar and the header keep working;
      while it runs, input in the same direction is swallowed, the opposite direction turns it around,
-     and any scroll from elsewhere (a header link, the scrollbar) cancels it. */
+     and a link, the scrollbar or Home/End cancels it. On touch screens the ride does not compare scrollY with
+     where it put the page: phones report the position late, and that check stopped every ride the moment
+     the finger left the screen (Anton's phones, all browsers, 11.10.2026). With a mouse it checks loosely:
+     a page far from all of the last few targets was moved by someone else (dragging the scrollbar). */
   const chapter = (() => {
     const proc = document.getElementById('process');
     const html = document.documentElement;
     // Seconds of the way down from the assembled logo, by descent progress d. Captions get time to read.
     const PLAN = [[0, 0.35], [0.24, 0.95], [0.47, 1.5], [0.64, 1.25], [0.86, 1.0], [1, 1.0]];
-    const TAIL = [0.25, 0.9]; // landed: stage unpins, then the page scrolls on to the process section
+    const TAIL = [1.8, 1.1]; // landed: the camera looks down at the board (stage still pinned), then the page scrolls on to the process section
     const UP = 0.4;           // the way up is the same path, faster
     const R_IN = 0.45, R_OUT = 0.7; // speed ramps at the start and the end, seconds
-    let run = null, touchY = null;
+    // native: the ride failed to move the page on this device, so scrolling is left to the browser
+    // (the hero still follows the scroll position, as a scrubbed animation).
+    let run = null, touchY = null, native = false, last = '';
+    const MOUSE = matchMedia('(hover: hover) and (pointer: fine)').matches;
     function path() {
       const top = track.getBoundingClientRect().top + scrollY, len = Math.max(1, track.offsetHeight - innerHeight);
       const yOf = d => top + len * (D0 + d * (D1 - D0) - L_END) / (1 - L_END);
@@ -641,21 +1066,27 @@ const heroView = (() => {
       const pts = path(), s0 = timeAt(pts, scrollY), S = dir > 0 ? pts[pts.length - 1][1] - s0 : s0;
       if (S < 0.02) return;
       const k = dir > 0 ? 1 : UP, T = S * k + (R_IN + R_OUT) / 2;
-      run = { dir, pts, s0, S: S * k, k, T, t0: performance.now(), y: scrollY };
+      const r = run = { dir, pts, s0, S: S * k, k, T, t0: performance.now(), y: scrollY, hist: [scrollY] };
       html.style.scrollBehavior = 'auto';
       ticker.add(step);
+      // Watchdog: a ride that should go far but has not moved the page in 1.2 s means scrolling from script
+      // does not work here (seen on a phone 11.10.2026). Never trap the visitor: hand scrolling back to the browser.
+      const y0 = scrollY;
+      if (Math.abs(yAt(pts, dir > 0 ? pts[pts.length - 1][1] : 0) - y0) > 60)
+        setTimeout(() => { if ((run === r || !run) && Math.abs(scrollY - y0) < 8) { if (run) stop('watchdog'); native = true; } }, 1200);
     }
-    function stop() { run = null; html.style.scrollBehavior = ''; ticker.remove(step); }
+    function stop(why) { run = null; last = why || ''; html.style.scrollBehavior = ''; ticker.remove(step); }
     function step(now) {
       if (!run) return false;
-      if (Math.abs(scrollY - run.y) > 3) { stop(); return false; } // someone else moved the page
+      if (MOUSE && (scrollY < Math.min(...run.hist) - 40 || scrollY > Math.max(...run.hist) + 40)) { stop('scroll'); return false; }
       const t = Math.min(run.T, (now - run.t0) / 1000), { T, S } = run;
       // distance along the plan with smooth speed-up and slow-down
       const s = t < R_IN ? t * t / (2 * R_IN) : t > T - R_OUT ? S - (T - t) * (T - t) / (2 * R_OUT) : R_IN / 2 + (t - R_IN);
       const pt = run.s0 + run.dir * clamp(s, 0, S) / run.k;
       run.y = Math.round(yAt(run.pts, pt));
+      run.hist.push(run.y); if (run.hist.length > 8) run.hist.shift();
       scrollTo(0, run.y);
-      if (t >= T) { stop(); return false; }
+      if (t >= T) { stop('done'); return false; }
     }
     function gesture(dir) {
       if (run && run.dir === dir) return;
@@ -665,30 +1096,44 @@ const heroView = (() => {
     const skip = el => el && el.closest && el.closest('.asst, .cookie, input, textarea, select');
     if (!REDUCE) {
       addEventListener('wheel', e => {
-        if (e.ctrlKey || !inZone() || skip(e.target) || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
+        if (native || e.ctrlKey || !inZone() || skip(e.target) || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
         e.preventDefault();
         if (Math.abs(e.deltaY) >= 1) gesture(e.deltaY > 0 ? 1 : -1);
       }, { passive: false });
       addEventListener('touchstart', e => { touchY = e.touches.length === 1 && !skip(e.target) ? e.touches[0].clientY : null; }, { passive: true });
       addEventListener('touchmove', e => {
-        if (touchY === null || e.touches.length > 1 || !inZone()) return;
+        if (native || touchY === null || e.touches.length > 1 || !inZone()) return;
         const dy = touchY - e.touches[0].clientY;
         if (scrollY <= 0 && dy <= 0 && !run) return; // at the very top a pull down stays the browser's (refresh)
         e.preventDefault();
         if (Math.abs(dy) > 12) { gesture(dy > 0 ? 1 : -1); touchY = e.touches[0].clientY; }
       }, { passive: false });
       addEventListener('keydown', e => {
-        if (e.altKey || e.ctrlKey || e.metaKey || !inZone() || skip(e.target)) return;
+        if (run && (e.key === 'Home' || e.key === 'End')) { stop('key'); return; }
+        if (native || e.altKey || e.ctrlKey || e.metaKey || !inZone() || skip(e.target)) return;
         const onCtl = e.target.closest && e.target.closest('a, button');
         const dir = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey && !onCtl) ? 1
           : e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey && !onCtl) ? -1 : 0;
         if (!dir) return;
         e.preventDefault(); gesture(dir);
       });
-      hint.addEventListener('click', () => gesture(1));
+      hint.addEventListener('click', () => native ? proc.scrollIntoView({ behavior: 'smooth' }) : gesture(1));
+      addEventListener('click', e => { if (run && e.target.closest && e.target.closest('a[href]')) stop('link'); }, true); // a link wins
+      addEventListener('mousedown', e => { if (run && e.clientX >= html.clientWidth) stop('scrollbar'); });
     }
-    return { running: () => !!run };
+    return { running: () => !!run, state: () => ({ ride: run ? run.dir : 0, native, last }) };
   })();
+
+  // ?debug: ride state, screen and errors in a strip at the top, to check a phone without devtools
+  if (/[?&]debug\b/.test(location.search)) {
+    const box = document.createElement('pre');
+    box.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:9999;margin:0;padding:6px 8px;font:11px/1.35 monospace;color:#cfe6fb;background:rgba(0,0,0,.82);white-space:pre-wrap;pointer-events:none';
+    document.body.appendChild(box);
+    setInterval(() => {
+      const s = chapter.state();
+      box.textContent = `${innerWidth}x${innerHeight} dpr ${devicePixelRatio} y ${Math.round(scrollY)} ride ${s.ride} native ${s.native} last ${s.last} reduce ${REDUCE}\n${navigator.userAgent}\n${ERRS.slice(-3).join('\n')}`;
+    }, 250);
+  }
 
   addEventListener('resize', fit); new ResizeObserver(fit).observe(stage);
   if (REDUCE) cur = L_END;
@@ -697,7 +1142,8 @@ const heroView = (() => {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildWords);
   spinGlobe(0);
   if (!REDUCE) {
-    const sync = on => on ? ticker.add(tick) : ticker.remove(tick);
+    // Back on screen: jump to the current scroll position instead of sliding there from a stale one.
+    const sync = on => { if (on) cur = progress(); on ? ticker.add(tick) : ticker.remove(tick); };
     heroView.sub(sync); sync(heroView.on);
   }
 })();
@@ -1551,6 +1997,7 @@ function serverScene(card, def) {
         if (Lb.a <= 0.01) continue;
         const q = proj(Lb.at); if (q[2] < 0.2) continue;
         const tw = ctx.measureText(Lb.text).width, bw = tw + 16, bx = q[0] - bw / 2, by = q[1] - 30;
+        if (W <= 860 && by < headBottom + 6) continue;   // narrow cards: not under the title and button
         ctx.globalAlpha = Lb.a;
         ctx.fillStyle = Lb.warn ? 'rgba(40,10,12,.9)' : 'rgba(7,12,24,.86)'; ctx.strokeStyle = Lb.warn ? 'rgba(255,138,122,.8)' : 'rgba(143,208,255,.55)'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.rect(bx, by, bw, 20); ctx.fill(); ctx.stroke();
@@ -1776,6 +2223,8 @@ function gallery(root) {
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) go(idx + (dx < 0 ? 1 : -1), true);
   });
   stage.addEventListener('pointercancel', () => { pid = null; });
+  // Pictures off to the right are lazy and would arrive empty: load the whole deck once it comes near.
+  new IntersectionObserver((es, io) => { if (es.some(e => e.isIntersecting)) { stage.querySelectorAll('img').forEach(i => { i.loading = 'eager'; }); io.disconnect(); } }, { rootMargin: '400px 0px' }).observe(stage);
   new IntersectionObserver(es => { visible = es[es.length - 1].intersectionRatio >= 0.5; kick(); }, { threshold: [0, 0.5] }).observe(stage);
   document.addEventListener('visibilitychange', kick);
   go(0);

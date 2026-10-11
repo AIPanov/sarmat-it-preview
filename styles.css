@@ -28,6 +28,8 @@ html { background: var(--space-0); scroll-behavior: smooth; scroll-padding-top: 
 body { margin: 0; background: var(--space-0); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 #sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
+/* The circuit board after the landing (main.js, BOARD): above the stars, under the sections */
+#board { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
 main, .ftr { position: relative; z-index: 1; }
 .wrap { max-width: var(--maxw); margin: 0 auto; padding-inline: var(--gutter); }
 a { color: inherit; }
@@ -72,12 +74,12 @@ a { color: inherit; }
 /* 1. Hero: logo assembly */
 .hero { position: relative; }
 .si-track { position: relative; height: 100vh; height: 100svh; }
-.js .si-track { height: 440vh; }
+.js .si-track { height: 500vh; }
 .si-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .si-logo { position: absolute; left: 0; top: 0; width: 620px; height: 690px; transform-origin: 0 0; z-index: 1; }
 .ds-cv { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 /* The landed ground melts into the page background when the stage scrolls away */
-.si-stage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 18%; z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgba(3,5,11,0), var(--space-0)); }
+.si-stage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 18%; z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgba(3,5,11,0), var(--space-0)); opacity: calc(1 - var(--land, 0)); }
 .ds-caps { position: absolute; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom, 0px)); padding-inline: var(--gutter); pointer-events: none; z-index: 2; }
 .ds-cap { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; display: grid; justify-items: center; gap: 10px; text-align: center; opacity: 0; padding-inline: var(--gutter); }
 .ds-eyebrow { font: 500 12px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2); }
@@ -116,7 +118,7 @@ html:not(.js) .ds-cv, html:not(.js) .ds-caps { display: none; }
 
 /* Sections */
 .sec { position: relative; isolation: isolate; padding-block: clamp(96px, 14vh, 160px); }
-.sec::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: linear-gradient(rgba(95,176,232,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(95,176,232,.05) 1px, transparent 1px); background-size: 64px 64px; background-position: 50% 0; -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent); }
+.sec::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: linear-gradient(rgba(95,176,232,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(95,176,232,.05) 1px, transparent 1px); background-size: 64px 64px; background-position: calc(50% + 32px) 0; -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent); }
 .sec-catalog { padding-bottom: 40px; }
 .eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 12px; }
 .eyebrow::after { content: ""; width: 48px; height: 1px; background: currentColor; opacity: .5; }
@@ -124,6 +126,8 @@ html:not(.js) .ds-cv, html:not(.js) .ds-caps { display: none; }
 .lede { color: var(--ink-2); font-size: clamp(16px, 1.4vw, 19px); max-width: 52ch; margin: 18px 0 0; }
 
 /* 2. Process */
+/* On the board the steps are chips joined by a bus: the section grid and the line between the steps are drawn there */
+.board-on #process::before, .board-on .steps4::before, .board-on .steps4::after { display: none; }
 .steps4 { list-style: none; margin: 64px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
 .steps4::before, .steps4::after { content: ""; position: absolute; left: 22px; right: 0; top: 22px; height: 1px; background: var(--line-2); }
 .steps4::after { background: linear-gradient(90deg, var(--accent), var(--accent-2)); transform: scaleX(0); transform-origin: 0 50%; transition: transform 1.6s var(--ease); box-shadow: 0 0 12px rgba(95,176,232,.6); }
@@ -264,17 +268,24 @@ html:not(.js) .sc .build-title { display: block; }
 
 /* 5. Projects: a deck of pictures, the next one slides in over the current (main.js, deck) */
 #projects { overflow: hidden; overflow: clip; }
-.deck { margin-top: 48px; }
+/* NDA: a visible promise, not a footnote */
+.nda { position: relative; margin-top: 32px; max-width: 880px; display: grid; grid-template-columns: auto 1fr; gap: 20px 24px; align-items: center; padding: 24px 28px; border: 1px solid rgba(95,176,232,.45); border-radius: var(--r-m); background: linear-gradient(120deg, rgba(95,176,232,.16), rgba(11,19,36,.7) 60%); box-shadow: 0 0 0 6px rgba(95,176,232,.06), 0 24px 60px -30px rgba(95,176,232,.45); }
+.nda-ico { position: relative; width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; background: rgba(95,176,232,.16); border: 1px solid rgba(143,208,255,.6); color: var(--accent-2); }
+.nda-ico::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--accent-2); animation: siRing 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+.nda-ico svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.nda h3 { margin: 0 0 8px; font: 600 clamp(19px, 2vw, 24px)/1.25 var(--sans); color: var(--ink); }
+.nda p { margin: 0; color: var(--ink-2); font-size: 16px; max-width: 62ch; }
+.deck-tag { position: absolute; left: 16px; top: 16px; z-index: 2; display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(143,208,255,.45); background: rgba(3,5,11,.66); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
+.deck-tag svg { width: 13px; height: 13px; color: var(--accent-2); }
+.deck { margin-top: 40px; }
 .deck-stage { position: relative; height: min(calc((min(100vw, var(--maxw)) - 2 * var(--gutter)) * 9 / 16), calc(100svh - 230px)); min-height: 360px; touch-action: pan-y; }
 .deck-card { position: absolute; inset: 0; margin: 0; border-radius: var(--r-l); overflow: hidden; background: var(--surface-2); border: 1px solid var(--line); box-shadow: 0 40px 80px -40px rgba(0,0,0,.95); transform: translateX(calc(100% + 10vw)) rotate(4deg); transition: transform 1s var(--ease), filter 1s var(--ease), opacity 1s var(--ease); will-change: transform; }
 .deck-card.cur { transform: none; }
 .deck-card.under { transform: scale(.92) translateY(-4%); filter: brightness(.4); }
 .deck-card.gone { transform: scale(.85) translateY(-8%); filter: brightness(.25); opacity: 0; }
-.deck-card img, .deck-ph { display: block; width: 100%; height: 100%; object-fit: cover; }
+.deck-card img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .deck-card.cur img { animation: deckZoom 10s ease-in-out infinite alternate; }
 @keyframes deckZoom { to { transform: scale(1.07) translate(-1%, -1%); } }
-.deck-ph { display: grid; place-items: center; background: radial-gradient(ellipse at 28% 18%, rgba(95,176,232,.22), transparent 60%), linear-gradient(135deg, #0e1c36, #060b16); }
-.deck-ph span { margin-bottom: 12%; padding: 10px 14px; border: 1px dashed var(--line-2); border-radius: 8px; font: 500 12px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
 .deck-card figcaption { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 6px; padding: 64px 28px 26px; background: linear-gradient(180deg, rgba(3,5,11,0), rgba(3,5,11,.88)); }
 .deck-card figcaption b { font: 400 clamp(24px, 2.6vw, 36px)/1.12 var(--serif); }
 .deck-card figcaption span { color: var(--ink-2); font-size: 15px; }
@@ -288,7 +299,10 @@ html:not(.js) .sc .build-title { display: block; }
 html:not(.js) .deck-stage { height: auto; display: grid; gap: 16px; }
 html:not(.js) .deck-card { position: relative; transform: none; aspect-ratio: 16 / 9; }
 @media (max-width: 860px) {
-  .deck { margin-top: 36px; }
+  .deck { margin-top: 28px; }
+  .nda { grid-template-columns: 1fr; padding: 20px; gap: 14px; }
+  .nda-ico { width: 56px; height: 56px; }
+  .nda p { font-size: 15px; }
   .deck-stage { height: min(calc((100vw - 2 * var(--gutter)) * 5 / 4), calc(100svh - 220px)); }
   .deck-card figcaption { padding: 48px 18px 18px; }
   .deck-card figcaption span { font-size: 14px; }
@@ -420,7 +434,7 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
   .gal-track, .gal-card, .btn, .brand, .asst { transition: none !important; }
   .gal-arrow.nudge, .gal-side.nudge { animation: none; }
   .deck-card, .val, .val::before, .val-ico svg * { transition: none !important; }
-  .deck-card.cur img { animation: none; }
+  .deck-card.cur img, .nda-ico::after { animation: none; }
   .js .val { opacity: 1; transform: none; }
   .js .val-ico svg * { stroke-dashoffset: 0; }
 }
