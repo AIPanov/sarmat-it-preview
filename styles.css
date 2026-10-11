@@ -263,6 +263,15 @@ html:not(.js) .gal-card { height: auto; min-height: 0; }
 .sc .boot .ready { color: var(--ok); }
 .sc .boot .warn { color: #f2b84b; }
 .sc .boot ul { margin: 6px 0 0; padding: 0; list-style: none; color: #b9cde3; }
+.sc .boot li i { font-style: normal; display: inline-block; width: 1.1em; color: var(--accent-2); }
+.sc .boot li.warn i { color: #f2b84b; }
+/* a new line slides in, its check lights a moment later; the final state glows once (phones build the panel line by line) */
+.sc .boot li.fresh { animation: bootLineIn .35s var(--ease) both; }
+.sc .boot li.fresh:not(.warn) i { animation: bootCheckOn .3s var(--ease) .35s both; }
+.sc .boot .bootText.ready { animation: bootReady .9s var(--ease) both; }
+@keyframes bootLineIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+@keyframes bootCheckOn { from { color: #3b4d68; } to { color: var(--accent-2); } }
+@keyframes bootReady { from { opacity: .35; text-shadow: none; } 40% { opacity: 1; text-shadow: 0 0 14px rgba(110,231,160,.6); } to { opacity: 1; text-shadow: none; } }
 .sc .model-note { position: absolute; right: 24px; top: 22px; margin: 0; z-index: 2; font: 11px/1.4 var(--mono); color: var(--ink-3); max-width: 30ch; text-align: right; }
 
 .sc .step { cursor: pointer; }
@@ -284,7 +293,7 @@ html:not(.js) .gal-card { height: auto; min-height: 0; }
   .sc .build-title { display: none; }
   .sc .step { display: none; border-top: 0; padding: 0; }
   .sc .step.active { display: grid; }
-  .sc .build.idle, .sc.booting .build { display: none; }
+  .sc .build { display: none; } /* phones: the result panel fills up instead of step texts (main.js, MOB) */
   .sc .boot { right: 12px; left: 12px; width: auto; bottom: 12px; padding: 12px 14px; font-size: 12px; line-height: 1.45; }
   .sc .boot .os { font-size: 15px; margin-bottom: 8px; }
   .sc .boot .pbar { margin-bottom: 8px; }
@@ -482,3 +491,42 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
 .doc .todo { color: var(--accent-2); border-bottom: 1px dashed var(--accent); }
 .doc-back { margin-top: 48px; }
 .doc-back a { color: var(--ink); }
+
+/* ============ Screens (Антон, 11.10.2026: «фиксация экрана»; галереи: «свайпать вправо… неудобно») ============
+   One gesture, one screen (main.js, SCREENS). Every screen takes the full height of the window; the galleries become a stack
+   of full-screen cards, one per screen, and their section intro lists the cards. The request form and the footer below it
+   scroll as usual. Without JS and with reduced motion none of this applies (the class .screens is set in the page head). */
+.screens { --scr: calc(100vh - var(--header-h)); --scr: calc(100svh - var(--header-h)); }
+.screens .sec { padding-block: 0; }
+.screens #process > .wrap, .screens .sec-intro, .screens #why > .wrap { box-sizing: border-box; min-height: 100vh; min-height: 100svh; padding-top: calc(var(--header-h) + 20px); padding-bottom: 24px; display: flex; flex-direction: column; justify-content: center; }
+.screens .sec-intro { justify-content: flex-end; padding-bottom: max(40px, 9vh); } /* the board and its station object above, the heading below */
+.screens .sec-toc { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 4px; }
+.screens .sec-toc button { all: unset; cursor: pointer; display: inline-flex; gap: 14px; align-items: baseline; padding: 6px 0; font: 500 17px/1.3 var(--sans); color: var(--ink); }
+.screens .sec-toc button span { font: 500 12px/1 var(--mono); letter-spacing: .12em; color: var(--accent-2); }
+.screens .sec-toc button:hover { color: var(--accent-2); }
+.screens .sec-toc button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.screens .gal { margin-top: 0; padding-bottom: 12px; }
+.screens .gal-bar, .screens .gal-side { display: none; }
+.screens .gal-view { overflow: visible; touch-action: auto; }
+.screens .gal-track { display: block; transform: none !important; }
+/* a card screen: header + 12 px, the card, 12 px; so the gap between cards is the header + 24 px */
+.screens .gal-card { width: auto; flex: none; min-height: 0; height: calc(var(--scr) - 24px); margin: calc(var(--header-h) + 12px) 0 0; scroll-margin-top: 12px; opacity: 1; } /* html already pads the header */
+.screens .gal-card + .gal-card, .screens .gal-track > .anchor + .gal-card { margin-top: calc(var(--header-h) + 24px); }
+.screens .gal-track > .anchor { display: block; height: 0; scroll-margin-top: calc(-1 * var(--header-h) - 12px); } /* #video, moved next to its card */
+.screens #request { padding-top: calc(var(--header-h) + 24px); padding-bottom: 72px; }
+@media (max-width: 860px) {
+  /* phones: «Как мы работаем» and «Почему выбирают нас» fit one screen */
+  .screens #process .steps4 { margin-top: 22px; gap: 14px; }
+  .screens #process .st h3 { font-size: 17px; margin: 6px 0 3px; }
+  .screens #process .st p { font-size: 13.5px; line-height: 1.45; }
+  .screens #process .deliv { margin-top: 20px; padding: 14px 16px; gap: 12px; }
+  .screens #process .deliv p { font-size: 14.5px; }
+  .screens .vals { grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+  .screens .val { padding: 14px 12px 14px; }
+  .screens .val-ico { width: 34px; height: 34px; }
+  .screens .val-ico svg { width: 18px; height: 18px; }
+  .screens .val-n { display: none; }
+  .screens .val h3 { font-size: 18px; margin: 10px 0 6px; }
+  .screens .val p { font-size: 12.5px; line-height: 1.42; }
+  .screens #why .lede { margin-top: 10px; }
+}

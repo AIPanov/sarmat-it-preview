@@ -2,6 +2,7 @@
 
 /* ============ shared helpers ============ */
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SCREENS_ON = document.documentElement.classList.contains('screens'); // one gesture, one screen (set in the page head; SCREENS below)
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const seg = (p, a, b) => clamp((p - a) / (b - a));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -356,7 +357,7 @@ const heroView = (() => {
 
   /* ---------- canvas: planet, clouds, ground ---------- */
   // Camera of the flight over the board (FLIGHT); the world drawing reads it once the flight is on
-  const FLY = { on: false, z: 0, h: 3.4, lit: [0, 0, 0, 0, 0], chips: [0, 0, 0, 0], sig: null, dimFast: 1 };
+  const FLY = { on: false, z: 0, h: 3.4, lit: [0, 0, 0, 0, 0], chips: [0, 0, 0, 0], sig: null, dimFast: 1, fast: false }; // fast: a screen change is running
   let flightKick = () => {};
   const planet = (() => {
     const cv = document.getElementById('world'), g = cv.getContext('2d');
@@ -1035,7 +1036,7 @@ const heroView = (() => {
       addEventListener('click', e => { if (run && e.target.closest && e.target.closest('a[href]')) stop('link'); }, true); // a link wins
       addEventListener('mousedown', e => { if (run && e.clientX >= html.clientWidth) stop('scrollbar'); });
     }
-    return { running: () => !!run, state: () => ({ ride: run ? run.dir : 0, native, last }) };
+    return { running: () => !!run, up: () => start(-1), state: () => ({ ride: run ? run.dir : 0, native, last }) };
   })();
 
   // ?debug: ride state, screen and errors in a strip at the top, to check a phone without devtools
@@ -1059,7 +1060,7 @@ const heroView = (() => {
     if (REDUCE) return { kick() {} };
     const STN = planet.STN;
     const secs = ['process', 'catalog', 'turnkey', 'why', 'request'].map(id => document.getElementById(id));
-    const steps = document.getElementById('steps4'), ftr = document.querySelector('.ftr');
+    const steps = document.getElementById('steps4'), ftr = document.querySelector('.ftr'), cards = [...document.querySelectorAll('.gal-card')];
     let tops = null, endY = 0, Ty = 0, running = false, z = null, last = 0, capT = 0, tIn = 0, sigT = 0, prevY = -1, drawnT = 0, movedT = 0;
     const arrived = [0, 0, 0, 0, 0];
     function layout() { tops = secs.map(e => e.getBoundingClientRect().top + scrollY); endY = ftr.getBoundingClientRect().top + scrollY; Ty = track.getBoundingClientRect().bottom + scrollY - stage.clientHeight; }
@@ -1076,7 +1077,7 @@ const heroView = (() => {
       if (heroState.k < 0.999) { running = false; FLY.on = false; last = 0; return false; }
       if (!tops) layout();
       const dt = last ? Math.min(100, t - last) : 16; last = t;
-      const tg = target(), vmax = (W / H < 0.8 ? 5 : 7) * dt / 1000;
+      const tg = target(), vmax = (FLY.fast ? 16 : W / H < 0.8 ? 5 : 7) * dt / 1000; // during a screen change the camera keeps up with it
       if (scrollY !== prevY) movedT = t;
       const gap = tg.z - z;
       if (z === null || Math.abs(gap) > 12) { // first frame or more than a station behind (a menu link): cut, no flight through half the board
@@ -1102,7 +1103,10 @@ const heroView = (() => {
       if (!FLY.sig && still && t - sigT > 5000) FLY.sig = { z0: z + 2, z1: STN.obj[Math.max(0, tg.i)] - 0.6, t0: t, v: 6 }; // a quiet signal every 5 s
       // Redraw only when something moves: the camera every frame, signals and lighting up at 30 frames a second, else nothing
       const busy = FLY.sig || arrived.some(a => a && t - a < 1300) || (tIn && t - tIn < 1300) || Math.abs(FLY.dimFast - (capT > 500 ? 0.6 : 1)) > 0.01;
-      if (!still || drawnT === 0 || (busy && t - drawnT > 32)) { planet.draw(t, true); drawnT = t; }
+      // a gallery card over most of the window hides the board: do not draw what nobody sees (the card's own 3D scene is busy)
+      const VH = innerHeight, hidden = cards.some(c => { const r = c.getBoundingClientRect(); return r.top <= VH * 0.12 && r.bottom >= VH * 0.88; });
+      if (!hidden && (!still || drawnT === 0 || (busy && t - drawnT > 32))) { planet.draw(t, true); drawnT = t; }
+      else if (hidden) drawnT = 0; // redraw as soon as the card moves away
       prevY = scrollY;
     }
     function kick(relayout) { if (relayout) { tops = null; drawnT = 0; } if (!running) { running = true; last = 0; drawnT = 0; ticker.add(frame); } }
@@ -1112,35 +1116,82 @@ const heroView = (() => {
   })();
   flightKick = FLIGHT.kick;
 
-  /* ---------- soft screens: released near the start of a section, the page settles on it ---------- */
-  /* Антон, 11.10.2026: «фиксированные переходы по экранам», variant 2. CSS scroll-snap (proximity) was tried first: in Chrome and
-     Safari it pulled small wheel steps back to the start of the section, the page felt sticky. Here the page settles only when it
-     has stopped (no scroll for 220 ms, no finger on the screen) and only in the direction of travel: on the start of a section
-     ahead within 30% of the screen. Never backwards, so a slow start from a section is not pulled back; long sections and the
-     form are never pulled. */
-  (function () {
-    if (REDUCE) return;
-    const secs = [...document.querySelectorAll('main .sec')], hdr = document.getElementById('hdr');
-    let lastY = scrollY, dir = 0, timer = 0, touching = false, until = 0;
-    function settle() {
-      timer = 0;
-      if (touching || chapter.running() || performance.now() < until) return;
-      const y = scrollY, VH = innerHeight, snaps = secs.map(e => Math.round(e.getBoundingClientRect().top + y - hdr.offsetHeight));
-      if (y < snaps[0] - VH * 0.3) return; // the first screen has its own ride
-      let to;
-      if (dir > 0) to = snaps.find(v => v > y + 2 && v - y < VH * 0.3);
-      else if (dir < 0) to = [...snaps].reverse().find(v => v < y - 2 && y - v < VH * 0.3);
-      if (to === undefined) return;
-      until = performance.now() + 1000; // our own smooth scroll: do not react to it
-      scrollTo({ top: to, behavior: 'smooth' });
+  /* ---------- screens: one gesture, one screen ---------- */
+  /* Антон, 11.10.2026: «надо пробовать делать, чтобы была фиксация экрана» (the soft version was inconvenient). Below the first
+     screen every wheel turn, swipe or arrow key moves the page to the next or previous screen: «Как мы работаем», the intro of
+     each gallery and every card of it, «Почему выбирают нас», the request form. A screen taller than the window (the form, a
+     small phone) scrolls as usual to its end first. The form and the footer below it scroll freely. The ride of the first screen
+     handles everything above «Как мы работаем»; an upward gesture on that screen goes back into it. */
+  const SCREENS = (() => {
+    if (!SCREENS_ON) return null;
+    const html = document.documentElement, hdr = document.getElementById('hdr');
+    let anchors = null, tw = null, wheelT = 0, burstMine = false, touchY = null, touchMine = null;
+    const skip = el => el && el.closest && el.closest('.asst, .cookie, input, textarea, select');
+    function layout() {
+      const y = scrollY, H = hdr.offsetHeight;
+      anchors = [...document.querySelectorAll('#process, .sec-intro, .gal-card, #why, #request')]
+        .map(e => Math.round(e.getBoundingClientRect().top + y - (e.classList.contains('gal-card') ? H + 12 : 0)));
     }
-    addEventListener('scroll', () => {
-      const y = scrollY; if (y !== lastY) dir = Math.sign(y - lastY); lastY = y;
-      clearTimeout(timer); if (!touching && performance.now() >= until) timer = setTimeout(settle, 220);
-    }, { passive: true });
-    addEventListener('touchstart', () => { touching = true; clearTimeout(timer); }, { passive: true });
-    const lift = e => { touching = e.touches.length > 0; if (!touching) { clearTimeout(timer); timer = setTimeout(settle, 220); } };
-    addEventListener('touchend', lift, { passive: true }); addEventListener('touchcancel', lift, { passive: true });
+    const at = y => { let c = -1; for (let i = 0; i < anchors.length; i++) if (anchors[i] <= y + 3) c = i; return c; };
+    // what a gesture would do: a screen index to go to, 'native' (scroll inside a tall screen or below the form) or 'hero'
+    function plan(dir) {
+      if (!anchors) layout();
+      if (tw) return dir === tw.dir ? tw.i : tw.i - dir;
+      const y = scrollY, c = at(y), VH = innerHeight, last = anchors.length - 1;
+      if (c < 0) return 'none';
+      if (dir > 0) {
+        if (c === last) return 'native';
+        return y + VH < anchors[c + 1] - 3 ? 'native' : c + 1; // more of this screen below the window: scroll it first
+      }
+      if (y > anchors[c] + 6) return 'native'; // back to the top of this screen first
+      return c === 0 ? 'hero' : c - 1;
+    }
+    function go(i, dir) {
+      i = clamp(i, 0, anchors.length - 1);
+      const from = scrollY, to = anchors[i], d = to - from;
+      if (Math.abs(d) < 2) return;
+      const T = clamp(Math.abs(d) / 1400, 0.7, 1.1) * 1000, t0 = performance.now(), me = { i, dir };
+      tw = me; FLY.fast = true; html.style.scrollBehavior = 'auto';
+      ticker.add(now => {
+        if (tw !== me) return false;
+        const u = Math.min(1, (now - t0) / T);
+        scrollTo(0, Math.round(from + d * eIO(u)));
+        if (u >= 1) { tw = null; FLY.fast = false; html.style.scrollBehavior = ''; return false; }
+      });
+    }
+    function gesture(dir) { // true: the screens took it
+      const r = plan(dir);
+      if (r === 'none' || r === 'native') return false;
+      if (r === 'hero') { chapter.up(); return true; }
+      if (!tw || tw.i !== r) go(r, dir);
+      return true;
+    }
+    addEventListener('wheel', e => {
+      if (e.ctrlKey || skip(e.target) || Math.abs(e.deltaY) < Math.abs(e.deltaX) || chapter.running()) return;
+      const now = performance.now(), burst = now - wheelT > 220; wheelT = now;
+      if (burst) burstMine = gesture(Math.sign(e.deltaY)); // the inertia tail of a trackpad swipe is part of the same gesture
+      if (burstMine) e.preventDefault();
+    }, { passive: false });
+    addEventListener('touchstart', e => { touchY = e.touches.length === 1 && !skip(e.target) ? e.touches[0].clientY : null; touchMine = null; }, { passive: true });
+    addEventListener('touchmove', e => {
+      if (touchY === null || e.touches.length > 1 || chapter.running()) return;
+      const dy = touchY - e.touches[0].clientY;
+      if (touchMine === null) { if (!dy) return; const r = plan(dy > 0 ? 1 : -1); touchMine = r !== 'none' && r !== 'native'; } // decided on the first move: the browser cannot get a touch back
+      if (!touchMine) return;
+      e.preventDefault();
+      if (Math.abs(dy) > 12) { gesture(dy > 0 ? 1 : -1); touchY = e.touches[0].clientY; }
+    }, { passive: false });
+    addEventListener('keydown', e => {
+      if (e.altKey || e.ctrlKey || e.metaKey || skip(e.target) || chapter.running()) return;
+      const onCtl = e.target.closest && e.target.closest('a, button');
+      const dir = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey && !onCtl) ? 1
+        : e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey && !onCtl) ? -1 : 0;
+      if (dir && gesture(dir)) e.preventDefault();
+    });
+    addEventListener('click', e => { if (tw && e.target.closest && e.target.closest('a[href]')) { tw = null; FLY.fast = false; html.style.scrollBehavior = ''; } }, true); // a link wins
+    addEventListener('resize', () => { anchors = null; });
+    new ResizeObserver(() => { anchors = null; }).observe(document.querySelector('main'));
+    return { busy: () => !!tw };
   })();
 
   addEventListener('resize', fit); new ResizeObserver(fit).observe(stage);
@@ -1890,6 +1941,17 @@ function serverScene(card, def) {
   const boot = card.querySelector('.boot'), pbar = card.querySelector('.pbar i'), bootText = card.querySelector('.bootText'), bootState = card.querySelector('.bootState'), bootList = card.querySelector('.bootList');
   const STEPS = [...card.querySelectorAll('.step')].map(li => Object.assign({ key: li.dataset.key, el: li }, def.steps[li.dataset.key]));
   const BT = def.boot, CAM = def.cam;
+  // Phones (Антон, 11.10.2026: тексты шагов «перебираются один за одним, очень мелькают»): no step texts; the result panel is
+  // there from the start and fills up line by line as the build goes, each check lighting a moment after its line, and the final
+  // state lights up at the end. Lines up to a failure demo are spread over the build; the failure demo keeps its own time.
+  const NARROW = matchMedia('(max-width: 860px)');
+  const MOB = (() => {
+    const w = BT.lines.findIndex(l => l[2] === 'warn'), k = w < 0 ? BT.lines.length : w;
+    const tA = (STEPS[1] || STEPS[0]).t[1], tB = k ? BT.lines[k - 1][0] : BT.show[1];
+    return { lines: BT.lines.map((l, i) => i < k ? [k > 1 ? lerp(tA, tB, i / (k - 1)) : tB, l[1], l[2]] : l),
+      endT: BT.states[BT.states.length - 1][0], first: [0, card.closest('#turnkey') ? 'Монтаж' : 'Сборка', 'идёт'] };
+  })();
+  const bootLi = (l, fresh) => `<li class="${(l[2] || '') + (fresh ? ' fresh' : '')}"><i>${l[2] === 'warn' ? '!' : '✓'}</i> ${l[1]}</li>`;
   const lerp3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
   const LIGHT = V.norm([-0.35, 1, 0.55]);
   let W = 0, H = 0, DPR = 1, cur = 0, last = -1, headBottom = 0, visible = false, shownLines = -1, lastState = null;
@@ -2057,12 +2119,19 @@ function serverScene(card, def) {
       const clear = W > 860 ? q[1] > 40 : q[1] - 40 > headBottom + 6;
       tagEl.style.opacity = (q[0] > 0 && q[0] < W - 60 && clear) ? 1 : 0;
     } else tagEl.style.opacity = 0;
-    const bs = seg(p, BT.show[0], BT.show[1]);
+    const mob = NARROW.matches, LINES = mob ? MOB.lines : BT.lines;
+    const bs = mob ? seg(p, 0.004, 0.04) : seg(p, BT.show[0], BT.show[1]);
     boot.style.opacity = bs; boot.style.transform = `translateY(${lerp(12, 0, bs)}px)`;
-    pbar.style.transform = `scaleX(${seg(p, BT.bar[0], BT.bar[1])})`;
-    let n = 0; while (n < BT.lines.length && p >= BT.lines[n][0]) n++;
-    if (n !== shownLines) { shownLines = n; bootList.innerHTML = BT.lines.slice(0, n).map(l => `<li${l[2] ? ` class="${l[2]}"` : ''}>${l[2] === 'warn' ? '!' : '✓'} ${l[1]}</li>`).join(''); }
-    let state = BT.states[0]; for (const s of BT.states) if (p >= s[0]) state = s;
+    pbar.style.transform = `scaleX(${mob ? seg(p, 0.01, MOB.endT) : seg(p, BT.bar[0], BT.bar[1])})`;
+    let n = 0; while (n < LINES.length && p >= LINES[n][0]) n++;
+    if (n !== shownLines) {
+      // new lines are added, not redrawn: only they animate in (CSS .fresh)
+      if (n > shownLines && shownLines >= 0 && bootList.children.length === shownLines) for (let i = shownLines; i < n; i++) bootList.insertAdjacentHTML('beforeend', bootLi(LINES[i], true));
+      else bootList.innerHTML = LINES.slice(0, n).map(l => bootLi(l, false)).join('');
+      shownLines = n;
+    }
+    let state = mob && p < BT.show[0] ? MOB.first : BT.states[0];
+    if (!(mob && p < BT.show[0])) for (const s of BT.states) if (p >= s[0]) state = s;
     if (state !== lastState) {
       lastState = state;
       bootText.textContent = state[1]; bootText.className = 'bootText' + (state[3] ? ' ' + state[3] : '');
@@ -2107,6 +2176,21 @@ function gallery(root) {
   const cards = [...track.children];
   const scenes = cards.map(c => serverScene(c, SCENES[c.dataset.scene]));
   const name = root.getAttribute('aria-label');
+  if (SCREENS_ON) {
+    // Screens (Антон, 11.10.2026: «свайпать вправо… неудобно»): the cards stand one under another, a screen each, and every
+    // build plays when its card is on screen. Instead of tabs the section intro lists the cards; a tap scrolls to the card.
+    const intro = root.closest('.sec').querySelector('.sec-intro');
+    const to = c => c.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (intro) {
+      const toc = document.createElement('ol'); toc.className = 'sec-toc'; toc.setAttribute('aria-label', name);
+      cards.forEach((c, i) => { const li = document.createElement('li'), b = document.createElement('button'); b.type = 'button'; b.innerHTML = `<span>${String(i + 1).padStart(2, '0')}</span>${c.dataset.tab}`; b.addEventListener('click', () => to(c)); li.appendChild(b); toc.appendChild(li); });
+      intro.appendChild(toc);
+    }
+    cards.forEach((c, j) => { c.inert = false; c.classList.add('cur'); scenes[j].setActive(true); });
+    document.querySelectorAll('.anchor[data-slide]').forEach(an => { const c = cards.find(k => k.id === an.dataset.slide); if (c) c.before(an); }); // #video lands right on its card
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { TX.redraw(); scenes.forEach(s => s.redraw()); });
+    return { show: j => cards[j] && to(cards[j]), has: id => cards.findIndex(c => c.id === id) };
+  }
   root.setAttribute('role', 'region'); root.setAttribute('aria-roledescription', 'галерея');
 
   const bar = document.createElement('div'); bar.className = 'gal-bar';

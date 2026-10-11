@@ -9,12 +9,12 @@
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="favicon.png" type="image/png" sizes="120x120">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<script>document.documentElement.classList.add('js')</script>
+<script>document.documentElement.classList.add('js'); if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('screens')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=7c5d46fa">
+<link rel="stylesheet" href="styles.css?v=f366c763">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
-<script src="main.js?v=31cc8bac" defer></script>
+<script src="main.js?v=3e45369a" defer></script>
 </head>
 <body>
 
@@ -87,9 +87,11 @@
   <!-- 3. CATALOG -->
   <section class="sec sec-catalog" id="catalog" aria-labelledby="catalog-title">
     <div class="wrap">
-      <div class="eyebrow" aria-hidden="true">02</div>
-      <h2 class="h2" id="catalog-title">Готовые конфигурации</h2>
-      <p class="lede">Три типовые сборки. Состав примерный: точную конфигурацию, срок и цену считаем под вашу задачу.</p>
+      <div class="sec-intro">
+        <div class="eyebrow" aria-hidden="true">02</div>
+        <h2 class="h2" id="catalog-title">Готовые конфигурации</h2>
+        <p class="lede">Три типовые сборки. Состав примерный: точную конфигурацию, срок и цену считаем под вашу задачу.</p>
+      </div>
 
       <!-- Галерея: вкладки и стрелки строит main.js (gallery). Все карточки: одна и та же 3D-сцена (serverScene), модели и тайминги в SCENES.
            Сборка идёт сама, когда карточка открыта и на экране. Без JS карточки стоят списком, шаги видны.
@@ -214,9 +216,11 @@
   <!-- 4. TURNKEY: server room from our proposal + video surveillance -->
   <section class="sec sec-catalog" id="turnkey" aria-labelledby="turnkey-title">
     <div class="wrap">
-      <div class="eyebrow" aria-hidden="true">03</div>
-      <h2 class="h2" id="turnkey-title">Объекты под ключ</h2>
-      <p class="lede">Серверная и видеонаблюдение целиком: от обследования до сдачи с документами.</p>
+      <div class="sec-intro">
+        <div class="eyebrow" aria-hidden="true">03</div>
+        <h2 class="h2" id="turnkey-title">Объекты под ключ</h2>
+        <p class="lede">Серверная и видеонаблюдение целиком: от обследования до сдачи с документами.</p>
+      </div>
 
       <!-- #video из меню открывает вторую карточку (main.js, gallery) -->
       <div class="anchor" id="video" data-slide="card5" aria-hidden="true"></div>
