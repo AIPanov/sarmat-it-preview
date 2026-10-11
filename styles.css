@@ -27,9 +27,11 @@
 html { background: var(--space-0); scroll-behavior: smooth; scroll-padding-top: var(--header-h); }
 body { margin: 0; background: var(--space-0); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
-/* The circuit board after the landing (main.js, BOARD): above the stars, under the sections */
-#board { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
+/* Fixed layers take the large viewport height, so the phone address bar does not resize them */
+#sky { position: fixed; left: 0; top: 0; width: 100%; height: 100vh; height: 100lvh; z-index: 0; pointer-events: none; display: block; }
+/* The world: planet, landing, the Earth that turns into a circuit board (main.js, planet). Above the stars, under the sections;
+   after the first screen it stays as the background of the page */
+#world { position: fixed; left: 0; top: 0; width: 100%; height: 100vh; height: 100lvh; z-index: 0; pointer-events: none; display: block; }
 main, .ftr { position: relative; z-index: 1; }
 .wrap { max-width: var(--maxw); margin: 0 auto; padding-inline: var(--gutter); }
 a { color: inherit; }
@@ -74,10 +76,9 @@ a { color: inherit; }
 /* 1. Hero: logo assembly */
 .hero { position: relative; }
 .si-track { position: relative; height: 100vh; height: 100svh; }
-.js .si-track { height: 500vh; }
+.js .si-track { height: 540vh; }
 .si-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .si-logo { position: absolute; left: 0; top: 0; width: 620px; height: 690px; transform-origin: 0 0; z-index: 1; }
-.ds-cv { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 /* The landed ground melts into the page background when the stage scrolls away */
 .si-stage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 18%; z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgba(3,5,11,0), var(--space-0)); opacity: calc(1 - var(--land, 0)); }
 .ds-caps { position: absolute; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom, 0px)); padding-inline: var(--gutter); pointer-events: none; z-index: 2; }
@@ -85,7 +86,7 @@ a { color: inherit; }
 .ds-eyebrow { font: 500 12px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2); }
 .ds-line { font: 400 clamp(26px, 3.4vw, 44px)/1.1 var(--serif); color: var(--ink); text-wrap: balance; text-shadow: 0 2px 24px rgba(3,5,11,.8); }
 .ds-cap-land .ds-line { font-size: clamp(40px, 6vw, 84px); }
-html:not(.js) .ds-cv, html:not(.js) .ds-caps { display: none; }
+html:not(.js) #world, html:not(.js) .ds-caps { display: none; }
 .si-logo > * { position: absolute; left: 0; top: 0; }
 .si-svg { width: 620px; height: 690px; overflow: visible; }
 .si-3d { width: 620px; height: 690px; perspective: 1500px; perspective-origin: 305px 310px; pointer-events: none; }
@@ -126,8 +127,8 @@ html:not(.js) .ds-cv, html:not(.js) .ds-caps { display: none; }
 .lede { color: var(--ink-2); font-size: clamp(16px, 1.4vw, 19px); max-width: 52ch; margin: 18px 0 0; }
 
 /* 2. Process */
-/* On the board the steps are chips joined by a bus: the section grid and the line between the steps are drawn there */
-.board-on #process::before, .board-on .steps4::before, .board-on .steps4::after { display: none; }
+/* With the world as the page background the flat section grid would double its grid */
+.world-on .sec::before { display: none; }
 .steps4 { list-style: none; margin: 64px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
 .steps4::before, .steps4::after { content: ""; position: absolute; left: 22px; right: 0; top: 22px; height: 1px; background: var(--line-2); }
 .steps4::after { background: linear-gradient(90deg, var(--accent), var(--accent-2)); transform: scaleX(0); transform-origin: 0 50%; transition: transform 1.6s var(--ease); box-shadow: 0 0 12px rgba(95,176,232,.6); }
@@ -427,7 +428,7 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
 @media (prefers-reduced-motion: reduce) {
   .si-glow, .si-hint-ico i, .si-hint-ico::before, .si-hint-ico::after { animation: none !important; }
   .js .si-hint { display: none; }
-  .ds-cv, .ds-caps { display: none; }
+  #world, .ds-caps { display: none; }
   .js .st { opacity: 1; transform: none; transition: none; }
   .js .si-track { height: 100svh; }
   .js .spacer { height: 0; }
