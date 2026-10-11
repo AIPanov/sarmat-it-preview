@@ -266,7 +266,7 @@ const heroView = (() => {
     gy0 = top + 279 * s + Math.max(0, room - 649 * s) / 2;
     planet.size(W, H);
     render(true);
-    if (!heroView.on) planet.draw(performance.now()); // resized while below the first screen: redraw the background
+    flightKick(true); // the flight relayouts its stations and redraws
   }
 
   let cur = 0, last = -1, logoOn = true, phase = 0, prevT = 0;
@@ -287,7 +287,7 @@ const heroView = (() => {
     const p = REDUCE ? 1 : clamp(P / L_END), d = REDUCE ? 0 : seg(P, D0, D1);
     heroState.d = d;
     const tk = REDUCE ? 0 : seg(P, K0, K1), land = 1 - seg(tk, 0.74, 0.84); // «Ближе к делу» stays through the wave
-    if (tk !== heroState.k) { heroState.k = tk; stage.style.setProperty('--land', tk.toFixed(3)); }
+    if (tk !== heroState.k) { heroState.k = tk; stage.style.setProperty('--land', tk.toFixed(3)); if (tk >= 0.999) flightKick(); }
     bar.style.transform = `scaleX(${REDUCE ? 1 : P})`;
     const hl = eOut(seg(p, 0.9, 1));
     line.style.opacity = hl * (1 - seg(d, 0, 0.05)); line.style.transform = `translateY(${lerp(14, 0, hl)}px)`;
@@ -355,6 +355,9 @@ const heroView = (() => {
   }
 
   /* ---------- canvas: planet, clouds, ground ---------- */
+  // Camera of the flight over the board (FLIGHT); the world drawing reads it once the flight is on
+  const FLY = { on: false, z: 0, h: 3.4, lit: [0, 0, 0, 0, 0], chips: [0, 0, 0, 0], sig: null, dimFast: 1 };
+  let flightKick = () => {};
   const planet = (() => {
     const cv = document.getElementById('world'), g = cv.getContext('2d');
     const RAD = Math.PI / 180;
@@ -395,8 +398,17 @@ const heroView = (() => {
        landing a wave from the landing point moves each one from the first to the second: avenues become straight
        traces, rings octagons, lights pads, districts chips, the core the central chip with the emblem. One model,
        so nothing is swapped: it changes in place. Units: world units on the ground, landing point at the origin. */
+    /* The flight (FLIGHT below): after take-off the camera flies along the main bus (+z) and stops at one station per
+       section. Each station has an object on the board, 16 units ahead of the camera, to the right of the bus (x < 0 is
+       on the right of the screen). The board ends at ZE: an edge connector, then nothing but stars. */
+    const ZE = 70, STN = { cam: [6, 18, 30, 42, 54], obj: [22, 34, 46, 58, ZE] };
+    const RESERVED = [[-8, 21, -1.4, 23], [-8.4, 31.8, -1.2, 36.4], [-13.4, 42.6, -1.2, 51.2]]; // x0, z0, x1, z1 of the station objects
     const CITY = (() => {
       const roads = [], lights = [], blocks = [], parts = [], core = [];
+      const inRes = (x, z, pad) => RESERVED.some(r => x > r[0] - pad && x < r[2] + pad && z > r[1] - pad && z < r[3] + pad) || z > ZE - 1.2 - pad;
+      // a start point: two thirds in the city disk round the landing point, a third in the corridor along the bus
+      const where = pw => { if (rnd() < 0.66) { const a = rnd() * 6.2832, r = 2.8 + 48 * Math.pow(rnd(), pw); return [Math.sin(a) * r, Math.cos(a) * r, a, r]; }
+        const x = (rnd() - 0.5) * 52, z = 8 + rnd() * (ZE - 9); return [x, z, Math.atan2(x, z), Math.hypot(x, z)]; };
       const G = 0.25, snapG = v => Math.round(v / G) * G;
       const angOff = a => { const q = ((a % (Math.PI / 4)) + Math.PI / 4) % (Math.PI / 4); return Math.min(q, Math.PI / 4 - q); }; // to the nearest avenue
       // avenues: 0 runs to the horizon (+z) and becomes the main bus, 4 runs towards the viewer
@@ -404,7 +416,7 @@ const heroView = (() => {
         const a = i * Math.PI / 4, ux = Math.sin(a), uz = Math.cos(a), px = uz, pz = -ux;
         const org = [], snap = [], dist = [];
         let w = 0, dw = 0;
-        for (let r = 0.32; r <= 64; r += 1) {
+        for (let r = 0.32; r <= (i === 0 ? ZE - 0.8 : 64); r += 1) {
           dw = clamp(dw + (rnd() - 0.5) * 0.12, -0.08, 0.08); w = clamp(w + dw, -0.9, 0.9);
           const ww = w * Math.min(1, r / 3);
           snap.push(ux * r, uz * r); org.push(ux * r + px * ww, uz * r + pz * ww); dist.push(r);
@@ -422,10 +434,10 @@ const heroView = (() => {
         roads.push({ org, snap, dist, ring: true });
       }
       // districts: chip footprints between the avenues; their lights gather on the edges and become pins
-      for (let i = 0, tries = 0; i < 46 && tries < 400; tries++) {
-        const a = rnd() * 6.2832, r = 3 + 45 * Math.pow(rnd(), 0.9), w = snapG(0.7 + 1.5 * rnd()), hh = snapG(0.5 + 1.0 * rnd());
-        const x = snapG(Math.sin(a) * r), z = snapG(Math.cos(a) * r), hd = Math.hypot(w, hh) / 2;
-        if (r * Math.sin(angOff(a)) < hd + 0.45 || Math.abs(r - 10) < hd + 0.6 || Math.abs(r - 22) < hd + 0.6) continue;
+      for (let i = 0, tries = 0; i < 70 && tries < 700; tries++) {
+        const [x0, z0, a, r] = where(0.9), w = snapG(0.7 + 1.5 * rnd()), hh = snapG(0.5 + 1.0 * rnd());
+        const x = snapG(x0), z = snapG(z0), hd = Math.hypot(w, hh) / 2;
+        if (r < 3 || (r < 66 && r * Math.sin(angOff(a)) < hd + 0.45) || Math.abs(x) < hd + 0.6 || Math.abs(r - 10) < hd + 0.6 || Math.abs(r - 22) < hd + 0.6 || inRes(x, z, hd + 0.4)) continue;
         if (blocks.some(b => Math.abs(b.x - x) < (b.w + w) / 2 + 0.5 && Math.abs(b.z - z) < (b.h + hh) / 2 + 0.5)) continue;
         const b = { x, z, w, h: hh, d: r, pins: [] };
         const n = 5 + (w * hh * 5 | 0);
@@ -441,17 +453,19 @@ const heroView = (() => {
       }
       // streets between the avenues: short walks on a 0.25 grid, turning by 45 degrees, never crossing; in the city they
       // bend a little and carry a row of lights, on the board they are the dense thin traces
-      const GC = 0.25, GN = 448, off = GN / 2, occ = new Uint8Array(GN * GN);
+      const GC = 0.25, GN = 592, off = GN / 2, occ = new Uint8Array(GN * GN);
       const cellOf = v => Math.floor(v / GC) + off, cen = c => (c - off + 0.5) * GC;
       const markR = (x, z, rad) => { const c = cellOf(x), r = cellOf(z), q = Math.ceil(rad / GC); for (let y = Math.max(0, r - q); y <= Math.min(GN - 1, r + q); y++) for (let xx = Math.max(0, c - q); xx <= Math.min(GN - 1, c + q); xx++) occ[y * GN + xx] = 1; };
       for (const rd of roads) for (let j = 0; j + 3 < rd.snap.length; j += 2) for (let u = 0; u < 1; u += 0.25) markR(lerp(rd.snap[j], rd.snap[j + 2], u), lerp(rd.snap[j + 1], rd.snap[j + 3], u), 0.4);
       for (const bk of blocks) for (let x = bk.x - bk.w / 2; x <= bk.x + bk.w / 2 + 1e-6; x += GC) for (let z = bk.z - bk.h / 2; z <= bk.z + bk.h / 2 + 1e-6; z += GC) markR(x, z, 0.3);
       markR(0, 0, 2.6);
+      for (const [x0, z0, x1, z1] of RESERVED) for (let x = x0; x <= x1; x += GC) for (let z = z0; z <= z1; z += GC) markR(x, z, 0.3);
+      for (let x = -40; x <= 40; x += GC) for (let z = ZE - 1.2; z <= ZE + 4; z += GC) markR(x, z, 0); // nothing on the board past its edge
       const DIR = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]];
       const freeC = (c, r) => { if (c < 1 || r < 1 || c >= GN - 1 || r >= GN - 1) return false; for (let y = r - 1; y <= r + 1; y++) for (let x = c - 1; x <= c + 1; x++) if (occ[y * GN + x]) return false; return true; };
-      for (let i = 0; i < 2400; i++) {
-        const a0 = rnd() * 6.2832, r0 = 2.8 + 48 * Math.pow(rnd(), 1.7); // denser near the landing point, where the camera is
-        let c = cellOf(Math.sin(a0) * r0), r = cellOf(Math.cos(a0) * r0); if (!freeC(c, r)) continue;
+      for (let i = 0; i < 3400; i++) {
+        const [sx0, sz0] = where(1.7); // denser near the landing point, where the camera is
+        let c = cellOf(sx0), r = cellOf(sz0); if (!freeC(c, r)) continue;
         let d = rnd() < 0.6 ? (rnd() * 4 | 0) * 2 : rnd() * 8 | 0, rel = 0;
         const cells = [[c, r]], verts = [[c, r]], segs = 2 + (rnd() * 4 | 0);
         for (let sg = 0; sg < segs; sg++) {
@@ -475,11 +489,11 @@ const heroView = (() => {
         roads.push({ org, snap, dist, street: true });
       }
       // scattered lights: most become pads, some pairs small parts, a few go out
-      const nearRoad = (r, a) => r * Math.sin(angOff(a)) < 0.35 || Math.abs(r - 10) < 0.5 || Math.abs(r - 22) < 0.5;
+      const nearRoad = (r, a) => (r < 66 && r * Math.sin(angOff(a)) < 0.35) || Math.abs(r * Math.sin(a)) < 0.35 || Math.abs(r - 10) < 0.5 || Math.abs(r - 22) < 0.5;
       const inBlock = (x, z) => blocks.some(b => Math.abs(b.x - x) < b.w / 2 + 0.25 && Math.abs(b.z - z) < b.h / 2 + 0.25);
-      for (let i = 0; i < 520; i++) {
-        const a = rnd() * 6.2832, r = 1.6 + 54 * Math.pow(rnd(), 1.4), x = Math.sin(a) * r, z = Math.cos(a) * r;
-        if (nearRoad(r, a) || inBlock(x, z)) continue;
+      for (let i = 0; i < 760; i++) {
+        const [x, z, a, r] = where(1.4);
+        if (r < 1.6 || nearRoad(r, a) || inBlock(x, z) || inRes(x, z, 0.3)) continue;
         const q = rnd(), sx = snapG(x), sz = snapG(z);
         if (q < 0.2) { const o = rnd() < 0.5; parts.push({ x: sx, z: sz, o, d: r, a: { ox: x, oz: z, b: 0.5 + 0.5 * rnd() }, c: { ox: x + (o ? 0.22 : 0) + (rnd() - 0.5) * 0.1, oz: z + (o ? 0 : 0.22) + (rnd() - 0.5) * 0.1, b: 0.5 + 0.5 * rnd() } }); }
         else lights.push({ ox: x, oz: z, sx, sz, d: r, out: q > 0.9, b: 0.35 + 0.65 * rnd() });
@@ -490,7 +504,10 @@ const heroView = (() => {
         const side = Math.abs(ox) > Math.abs(oz), t = clamp(Math.round((side ? oz : ox) / 0.08) * 0.08, -0.2, 0.2);
         core.push({ ox, oz, sx: side ? Math.sign(ox) * 0.3 : t, sz: side ? t : Math.sign(oz) * 0.3, b: 0.5 + 0.5 * rnd() });
       }
-      for (const rd of roads) { rd.cur = new Float32Array(rd.org.length); rd.m = new Float32Array(rd.dist.length); }
+      for (const rd of roads) {
+        rd.cur = new Float32Array(rd.org.length); rd.m = new Float32Array(rd.dist.length); rd.zmin = 1e9; rd.zmax = -1e9;
+        for (let j = 1; j < rd.org.length; j += 2) { rd.zmin = Math.min(rd.zmin, rd.org[j], rd.snap[j]); rd.zmax = Math.max(rd.zmax, rd.org[j], rd.snap[j]); }
+      }
       // lights along the roads (zigzag on both sides of the avenues, about one per unit on the streets);
       // they ride on the road and fade as it becomes a trace
       roads.forEach((rd, ri) => {
@@ -632,12 +649,12 @@ const heroView = (() => {
       const narrow = W / H < 0.8, fov = (narrow ? 76 : 60) * RAD, FL = (H / 2) / Math.tan(fov / 2), HH = Math.max(H, Hc);
       const h0 = Math.exp(lerp(Math.log(46), Math.log(1.5), eOut(u))), th0 = lerp(-89, -12, eIO(seg(u, 0.1, 0.95)));
       let h = h0, thd = th0, Cx = 0, Cz = h0 * 1.6 * eIO(seg(u, 0.35, 1)) - h0 / Math.tan(-th0 * RAD);
-      if (k > 0) {
-        const e1 = eIO(seg(k, 0.05, 0.63)), e2 = eIO(seg(k, 0.78, 1)), thF = narrow ? -27 : -20, hF = 3.4;
-        // flight pose: higher; the central chip at 88% of the height, on phones just below the bottom edge (it would sit under the text)
-        const CzF = -hF / Math.tan(-thF * RAD + Math.atan((narrow ? 0.56 : 0.38) * H / FL));
-        h = lerp(lerp(1.5, 2.4, e1), hF, e2); thd = lerp(lerp(-12, -18, e1), thF, e2);
-        Cz = lerp(Cz, CzF, e2); Cx = (narrow ? 0.5 : 1.0) * e2; // the bus comes in from the lower right, not through the middle of the text
+      const thF = narrow ? -27 : -20, CxF = narrow ? 0.5 : 1.0; // flight pose; the bus comes in from the lower right, not through the middle of the text
+      if (FLY.on) { h = FLY.h; thd = thF; Cx = CxF; Cz = FLY.z; k = 1; }
+      else if (k > 0) {
+        const e1 = eIO(seg(k, 0.05, 0.63)), e2 = eIO(seg(k, 0.78, 1));
+        h = lerp(lerp(1.5, 2.4, e1), 3.4, e2); thd = lerp(lerp(-12, -18, e1), thF, e2);
+        Cz = lerp(Cz, flightZ0(), e2); Cx = CxF * e2;
       }
       const th = thd * RAD, st = Math.sin(th), ct = Math.cos(th), dist = h / -st;
       const C = [Cx, h, Cz], f = [0, st, ct], rv = [-1, 0, 0], up = [0, ct, -st];
@@ -646,8 +663,11 @@ const heroView = (() => {
       const NEAR = 0.05;
       const P = (x, z) => { const c = cam(x, 0, z); return c[2] < NEAR ? null : [cx + c[0] / c[2] * FL, cy - c[1] / c[2] * FL, c[2]]; };
       const snap = eOut(seg(k, 0.02, 0.11)), w = seg(k, 0.11, 0.63), ew = eOut(seg(w, 0, 0.45)), R = w > 0 ? 2.5 + 68 * Math.pow(w, 1.6) : 0;
-      const dim = lerp(1, 0.45, eIO(seg(k, 0.8, 1))); // after take-off the board is background, the bus and the chip stay lit
-      const mAt = d => R > 0 ? smooth(0, 1, (R - d) / 4) : 0;
+      const dim = lerp(1, 0.45, eIO(seg(k, 0.8, 1))) * (FLY.on ? FLY.dimFast : 1); // after take-off the board is background, the bus stays lit
+      // beyond the city disk (the corridor along the bus) there is no city: that part of the board appears at the end of the wave
+      const mAt = d => R > 0 ? Math.max(smooth(0, 1, (R - d) / 4), d > 62 ? smooth(0.75, 1, w) : 0) : 0;
+      const zLo = Cz - 1, zHi = Cz + 100; // what the camera can see along the bus
+      const voidA = FLY.on ? smooth(STN.cam[2], STN.cam[3], Cz) : 0; // the edge of the board and the stars past it, near the end of the flight
       const fogD = z => 1 - smooth(30, 90, z);
       g.globalAlpha = A;
       const Yh = cy + st / ct * FL, top = Math.max(0, Yh);
@@ -655,7 +675,7 @@ const heroView = (() => {
       gg.addColorStop(0, '#0d2d5c'); gg.addColorStop(0.25, '#071a38'); gg.addColorStop(1, '#030b1a');
       g.fillStyle = gg; g.fillRect(0, top, W, HH - top);
       if (w > 0) { g.globalAlpha = A * 0.7 * ew; g.fillStyle = BG; g.fillRect(0, top, W, HH - top); g.globalAlpha = A; }
-      const hzA = lerp(1, 0.5, ew);
+      const hzA = lerp(1, 0.5, ew) * (1 - voidA);
       if (Yh > 0) {
         const sg = g.createLinearGradient(0, Yh, 0, Yh - H * 0.5);
         sg.addColorStop(0, `rgba(70,150,225,${(0.5 * hzA).toFixed(3)})`); sg.addColorStop(0.3, `rgba(30,80,160,${(0.18 * hzA).toFixed(3)})`); sg.addColorStop(1, 'rgba(10,30,70,0)');
@@ -669,7 +689,15 @@ const heroView = (() => {
         if (b[2] < NEAR) { const q = (NEAR - b[2]) / (a[2] - b[2]); b = [b[0] + (a[0] - b[0]) * q, b[1] + (a[1] - b[1]) * q, NEAR]; }
         g.moveTo(cx + a[0] / a[2] * FL, cy - a[1] / a[2] * FL); g.lineTo(cx + b[0] / b[2] * FL, cy - b[1] / b[2] * FL);
       };
-      for (const gs of [0.5, 2, 8, 32, 128]) {
+      if (ew >= 0.999) for (const [d0, d1, ga] of [[0, 18, 0.05], [18, 42, 0.025]]) {
+        const za = Math.ceil((Cz + 0.5 + d0) * 2) / 2, zb = Math.min(Cz + d1, ZE);
+        if (zb <= za) continue;
+        g.beginPath();
+        for (let x = Math.floor((Cx - 30) * 2) / 2; x <= Cx + 30; x += 0.5) seg3(x, za, x, zb);
+        for (let z = za; z <= zb; z += 0.5) seg3(Cx - 30, z, Cx + 30, z);
+        g.strokeStyle = `rgba(95,176,232,${ga})`; g.lineWidth = 1; g.stroke();
+      }
+      else for (const gs of [0.5, 2, 8, 32, 128]) {
         const sp = gs * FL / dist;
         const a = 0.2 * smooth(12, 46, sp) * (1 - 0.6 * smooth(300, 900, sp)) * (gs === 0.5 ? lerp(1, 0.25, ew) : 1 - ew);
         if (a <= 0.004) continue;
@@ -687,6 +715,7 @@ const heroView = (() => {
       // roads: organic until the front passes, then straight traces (avenues) and octagons (rings)
       const traceB = new Map();
       for (const rd of CITY.roads) {
+        rd.vis = rd.zmax > zLo && rd.zmin < zHi; if (!rd.vis) continue;
         const n = rd.dist.length, cur = rd.cur, mm = rd.m;
         for (let j = 0; j < n; j++) { const m = mAt(rd.dist[j]); mm[j] = m; cur[2 * j] = lerp(rd.org[2 * j], rd.snap[2 * j], m); cur[2 * j + 1] = lerp(rd.org[2 * j + 1], rd.snap[2 * j + 1], m); }
         if (R <= 0) continue;
@@ -709,13 +738,13 @@ const heroView = (() => {
       // districts become chips: a dark body with a thin outline appears as their lights gather on the edges
       const quad = (x0, z0, x1, z1) => { const a = P(x0, z0), b = P(x1, z0), c = P(x1, z1), d = P(x0, z1); if (!a || !b || !c || !d) return false; g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.lineTo(c[0], c[1]); g.lineTo(d[0], d[1]); g.closePath(); return true; };
       for (const bk of CITY.blocks) {
-        const m = mAt(bk.d); bk.mm = m; if (m <= 0.02) continue;
+        const m = mAt(bk.d); bk.mm = m; bk.vis = bk.z > zLo && bk.z < zHi; if (m <= 0.02 || !bk.vis) continue;
         g.beginPath(); if (!quad(bk.x - bk.w / 2, bk.z - bk.h / 2, bk.x + bk.w / 2, bk.z + bk.h / 2)) continue;
         g.fillStyle = `rgba(8,21,40,${(0.92 * m).toFixed(3)})`; g.fill();
         g.strokeStyle = `rgba(143,208,255,${(0.4 * m * dim * fogD(bk.d)).toFixed(3)})`; g.lineWidth = 1; g.stroke();
       }
       for (const pt of CITY.parts) { // pairs of lights become small parts: two pads and a body
-        const m = mAt(pt.d); pt.mm = m; if (m <= 0.05) continue;
+        const m = mAt(pt.d); pt.mm = m; pt.vis = pt.z > zLo && pt.z < zHi; if (m <= 0.05 || !pt.vis) continue;
         const bx = pt.x + (pt.o ? 0.125 : 0), bz = pt.z + (pt.o ? 0 : 0.125);
         g.beginPath(); if (quad(bx - (pt.o ? 0.07 : 0.045), bz - (pt.o ? 0.045 : 0.07), bx + (pt.o ? 0.07 : 0.045), bz + (pt.o ? 0.045 : 0.07))) { g.fillStyle = `rgba(28,52,88,${(m * dim).toFixed(3)})`; g.fill(); }
       }
@@ -729,13 +758,14 @@ const heroView = (() => {
       };
       for (const L of CITY.lights) {
         if (L.road !== undefined) {
-          const rd = CITY.roads[L.road], j = L.j, m = rd.m[j]; if (m > 0.98) continue;
+          const rd = CITY.roads[L.road], j = L.j, m = rd.m[j]; if (!rd.vis || m > 0.98 || rd.dist[j] > 62) continue;
           const ax = rd.cur[2 * j], az = rd.cur[2 * j + 1], bx = rd.cur[2 * j + 2], bz = rd.cur[2 * j + 3], ln = Math.hypot(bx - ax, bz - az) || 1;
           put(lerp(ax, bx, L.t) + (bz - az) / ln * L.off, lerp(az, bz, L.t) - (bx - ax) / ln * L.off, L.b * (1 - m), 0);
-        } else { const m = mAt(L.d); put(lerp(L.ox, L.sx, m), lerp(L.oz, L.sz, m), L.b * (1 - m), L.out ? 0 : 0.75 * m * dim); }
+        } else { if (L.oz < zLo || L.oz > zHi) continue; const m = mAt(L.d); put(lerp(L.ox, L.sx, m), lerp(L.oz, L.sz, m), L.d > 62 ? 0 : L.b * (1 - m), L.out ? 0 : 0.75 * m * dim); }
       }
-      for (const bk of CITY.blocks) { const m = bk.mm || 0; for (const q of bk.pins) put(lerp(q.ox, q.sx, m), lerp(q.oz, q.sz, m), q.b * (1 - m), 0.7 * m * dim); }
+      for (const bk of CITY.blocks) { if (!bk.vis) continue; const m = bk.mm || 0; for (const q of bk.pins) put(lerp(q.ox, q.sx, m), lerp(q.oz, q.sz, m), bk.d > 62 ? 0 : q.b * (1 - m), 0.7 * m * dim); }
       for (const pt of CITY.parts) {
+        if (!pt.vis) continue;
         const m = pt.mm || 0, x2 = pt.x + (pt.o ? 0.25 : 0), z2 = pt.z + (pt.o ? 0 : 0.25);
         put(lerp(pt.a.ox, pt.x, m), lerp(pt.a.oz, pt.z, m), pt.a.b * (1 - m), 0.6 * m * dim); put(lerp(pt.c.ox, x2, m), lerp(pt.c.oz, z2, m), pt.c.b * (1 - m), 0.6 * m * dim);
       }
@@ -743,6 +773,66 @@ const heroView = (() => {
       for (let i = 0; i < 9; i++) {
         if (warm[i].length) { g.fillStyle = `rgba(255,208,150,${(i / 8).toFixed(3)})`; const L = warm[i]; for (let j = 0; j < L.length; j += 3) g.fillRect(L[j] - L[j + 2] / 2, L[j + 1] - L[j + 2] / 2, L[j + 2], L[j + 2]); }
         if (blue[i].length) { g.fillStyle = `rgba(143,208,255,${(i / 8).toFixed(3)})`; const L = blue[i]; for (let j = 0; j < L.length; j += 3) g.fillRect(L[j] - L[j + 2] / 2, L[j + 1] - L[j + 2] / 2, L[j + 2], L[j + 2]); }
+      }
+      // stations of the flight: an object for every section, at board level until the camera arrives (FLY.lit), then lit
+      if (zHi > STN.obj[0] - 3) {
+        const pk = (i, base) => Math.min(1, base + (FLY.lit[i] || 0));
+        const stroke = (a, lw) => { g.strokeStyle = `rgba(143,208,255,${a.toFixed(3)})`; g.lineWidth = lw; g.stroke(); };
+        const lwAt = z => clamp(0.045 * FL / Math.max(0.5, z - Cz), 0.6, 2.2);
+        const dot = (x, z, k0, max) => { const q = P(x, z); if (q) { const sz = clamp(k0 * FL / q[2], 0.8, max); g.fillRect(q[0] - sz / 2, q[1] - sz / 2, sz, sz); } };
+        const body = (x0, z0, x1, z1, a, lw = 1.2) => { g.beginPath(); if (quad(x0, z0, x1, z1)) { g.fillStyle = 'rgba(8,21,40,.95)'; g.fill(); stroke(a, lw); } };
+        const glowAt = (x, z, rr, a) => { const q = P(x, z); if (q && a > 0) { const r = clamp(rr * FL / q[2], 10, 80); g.globalAlpha = A * a; g.drawImage(GLOW, q[0] - r, q[1] - r, 2 * r, 2 * r); g.globalAlpha = A; } };
+        // 1. «Как мы работаем»: four chips in a row across the bus, fed by a branch; they power up with the steps on the page
+        { const z = STN.obj[0], a = pk(0, 0.3 * dim);
+          g.beginPath(); seg3(0, z, -1.75, z); for (let c = 0; c < 3; c++) seg3(-2.85 - c * 1.6, z, -3.35 - c * 1.6, z); stroke(a, lwAt(z));
+          for (let c = 0; c < 4; c++) {
+            const x = -2.3 - c * 1.6, pw = FLY.chips[c] || 0;
+            glowAt(x, z, 1.6, 0.5 * pw);
+            body(x - 0.55, z - 0.55, x + 0.55, z + 0.55, 0.25 + 0.55 * Math.max(pw, a));
+            g.fillStyle = `rgba(143,208,255,${(0.3 + 0.65 * Math.max(pw, a * 0.5)).toFixed(3)})`;
+            for (let j = 0; j < 5; j++) { const o = -0.4 + j * 0.2; dot(x + o, z - 0.66, 0.07, 3.2); dot(x + o, z + 0.66, 0.07, 3.2); dot(x - 0.66, z + o, 0.07, 3.2); dot(x + 0.66, z + o, 0.07, 3.2); }
+          } }
+        // 2. «Готовые конфигурации»: a processor socket with two memory slots on each side
+        { const z = STN.obj[1], x = -4.4, a = pk(1, 0.3 * dim);
+          g.beginPath(); seg3(0, z, -1.6, z); stroke(a, lwAt(z));
+          glowAt(x, z, 2.4, 0.45 * (FLY.lit[1] || 0));
+          body(x - 1.2, z - 1.2, x + 1.2, z + 1.2, 0.25 + 0.5 * a);
+          g.beginPath(); if (quad(x - 0.92, z - 0.92, x + 0.92, z + 0.92)) stroke(0.18 + 0.4 * a, 1);
+          g.fillStyle = `rgba(143,208,255,${(0.22 + 0.5 * a).toFixed(3)})`;
+          for (let i = 0; i < 7; i++) for (let j = 0; j < 7; j++) dot(x - 0.72 + i * 0.24, z - 0.72 + j * 0.24, 0.05, 2.6);
+          for (const sx of [-1.75, -2.1, -6.7, -7.05]) body(sx - 0.1, z - 1.5, sx + 0.1, z + 1.5, 0.2 + 0.45 * a, 1); }
+        // 3. «Объекты под ключ»: a network node with two rows of ports and a fan of traces to workplaces and cameras
+        { const z = STN.obj[2], a = pk(2, 0.3 * dim);
+          g.beginPath(); seg3(0, z, -3.1, z);
+          const ends = [];
+          for (let j = 0; j < 14; j++) {
+            const zp = z - 0.36 + (j % 7) * 0.12, zt = z + (j - 6.5) * 0.62, xt = -8.6 - (j % 3) * 1.5, xb = -5.4 - (j % 2) * 0.2, dz = Math.abs(zt - zp);
+            seg3(-4.9, zp, xb, zp); seg3(xb, zp, xb - dz, zt); seg3(xb - dz, zt, xt, zt); ends.push([xt, zt]);
+          }
+          stroke(0.25 + 0.5 * a, lwAt(z) * 0.8);
+          glowAt(-4, z, 1.8, 0.45 * (FLY.lit[2] || 0));
+          body(-4.9, z - 0.45, -3.1, z + 0.45, 0.25 + 0.5 * a);
+          g.fillStyle = `rgba(143,208,255,${(0.3 + 0.55 * a).toFixed(3)})`;
+          for (let i = 0; i < 8; i++) { dot(-4.72 + i * 0.2, z - 0.18, 0.08, 3); dot(-4.72 + i * 0.2, z + 0.18, 0.08, 3); }
+          for (const [x2, z2] of ends) dot(x2, z2, 0.12, 4); }
+        // 4. «Почему выбирают нас»: four checkpoints on a calm stretch of the bus
+        { const a = pk(3, 0.35 * dim);
+          for (let j = 0; j < 4; j++) { const q = P(0, STN.obj[3] - 1.5 + j); if (!q) continue; const r = clamp(0.22 * FL / q[2], 2, 10); g.beginPath(); g.ellipse(q[0], q[1], r, r * 0.45, 0, 0, 6.2832); g.fillStyle = BG; g.fill(); stroke(0.3 + 0.6 * a, 1.2); } }
+        // 5. «Заявка»: the board ends with an edge connector; past the edge there is no board, only the stars
+        if (voidA > 0) {
+          const qe = P(Cx, ZE);
+          if (qe && qe[1] > Yh) {
+            g.globalCompositeOperation = 'destination-out'; g.globalAlpha = voidA;
+            const y0 = Yh - H * 0.5, gr = g.createLinearGradient(0, qe[1] - 8, 0, qe[1]); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+            g.fillStyle = '#000'; g.fillRect(0, y0, W, qe[1] - 8 - y0); g.fillStyle = gr; g.fillRect(0, qe[1] - 8, W, 8);
+            g.globalCompositeOperation = 'source-over'; g.globalAlpha = A;
+          }
+        }
+        { const a = pk(4, 0.35 * dim);
+          g.beginPath(); seg3(-40, ZE, 40, ZE); stroke((0.15 + 0.35 * a) * Math.max(voidA, 0.4), 1);
+          glowAt(0, ZE - 0.4, 2, 0.45 * (FLY.lit[4] || 0));
+          g.fillStyle = `rgba(143,208,255,${(0.35 + 0.5 * a).toFixed(3)})`;
+          for (let j = 0; j < 14; j++) { const x = -1.95 + j * 0.3; g.beginPath(); if (quad(x - 0.08, ZE - 0.75, x + 0.08, ZE - 0.15)) g.fill(); } }
       }
       // glow of the landing point; it stays faint round the chip
       const M0 = cam(0, 0, 0);
@@ -797,7 +887,8 @@ const heroView = (() => {
         const s = clamp(0.12 * FL / q[2], 5, 18); g.globalAlpha = A * a; g.drawImage(GLOW, q[0] - s, q[1] - s, 2 * s, 2 * s);
         g.fillStyle = '#eaf6ff'; g.beginPath(); g.arc(q[0], q[1], clamp(0.012 * FL / q[2], 1.2, 2.6), 0, 6.2832); g.fill(); g.globalAlpha = A;
       };
-      if (k > 0.63 && k < 0.78) { const sp = seg(k, 0.63, 0.78), fa = 1 - smooth(0.8, 1, sp); for (const ai of [0, 1, 7]) sig(ai, 0.4 + sp * 40, fa); sig(4, 0.4 + sp * 8, fa); }
+      if (FLY.on) { const q = FLY.sig; if (q) { const zz = q.z0 + (t - q.t0) / 1000 * q.v; if (zz < q.z1) sig(0, zz, 1 - smooth(q.z1 - 1.5, q.z1, zz)); } } // one signal on the bus, to the next station
+      else if (k > 0.63 && k < 0.78) { const sp = seg(k, 0.63, 0.78), fa = 1 - smooth(0.8, 1, sp); for (const ai of [0, 1, 7]) sig(ai, 0.4 + sp * 40, fa); sig(4, 0.4 + sp * 8, fa); }
       else if (k >= 0.78) { const r = 0.4 + ((t / 1000) % 4) * 9; sig(0, r, 1 - smooth(26, 36, r)); }
       g.globalAlpha = 1;
     }
@@ -817,7 +908,13 @@ const heroView = (() => {
       if (hz > 0.004) { g.fillStyle = `rgba(92,132,186,${hz.toFixed(3)})`; g.fillRect(0, 0, W, H); }
     }
 
-    function draw(t) {
+    // camera z of the flight pose right after take-off: the central chip at 88% of the height (on phones just below the edge)
+    function flightZ0() {
+      const narrow = W / H < 0.8, FL = (H / 2) / Math.tan((narrow ? 76 : 60) * RAD / 2), thF = narrow ? -27 : -20;
+      return -3.4 / Math.tan(-thF * RAD + Math.atan((narrow ? 0.56 : 0.38) * H / FL));
+    }
+    function draw(t, fromFlight) {
+      if (FLY.on && !fromFlight) return; // after take-off the flight draws the world
       const d = heroState.d, k = heroState.k;
       if (d < 0.05 || REDUCE) { if (drawn) { g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); drawn = false; } return; }
       drawn = true;
@@ -828,7 +925,7 @@ const heroView = (() => {
       if (gA > 0) ground(seg(d, 0.66, 1), t, gA, k);
       clouds(d);
     }
-    return { size, draw };
+    return { size, draw, flightZ0, STN };
   })();
 
   let hintOn = false, tickT = 0;
@@ -952,6 +1049,69 @@ const heroView = (() => {
     }, 250);
   }
 
+  /* ---------- the flight over the board, section by section ---------- */
+  /* After take-off (heroState.k = 1) this loop owns the world canvas. The camera flies along the main bus and has one
+     station per section (STN.cam). While a section is read the camera stands and only sinks a little (the ground moves
+     up with the text); it flies on to the next station while the next section comes in, with a speed limit, so a fast
+     flick never makes the board race. A jump from the menu cuts to the station. On arrival the object on the board and
+     its twin on the page light up together (class .arrived on the section). Designer and front-end review, 11.10.2026. */
+  const FLIGHT = (() => {
+    if (REDUCE) return { kick() {} };
+    const STN = planet.STN;
+    const secs = ['process', 'catalog', 'turnkey', 'why', 'request'].map(id => document.getElementById(id));
+    const steps = document.getElementById('steps4'), ftr = document.querySelector('.ftr');
+    let tops = null, endY = 0, Ty = 0, running = false, z = null, last = 0, capT = 0, tIn = 0, sigT = 0, prevY = -1, drawnT = 0, movedT = 0;
+    const arrived = [0, 0, 0, 0, 0];
+    function layout() { tops = secs.map(e => e.getBoundingClientRect().top + scrollY); endY = ftr.getBoundingClientRect().top + scrollY; Ty = track.getBoundingClientRect().bottom + scrollY - stage.clientHeight; }
+    function target() {
+      const VH = innerHeight, y = scrollY + VH * 0.4, S = STN.cam;
+      if (y < tops[0]) return { z: lerp(planet.flightZ0(), S[0], smooth(0, 1, (scrollY - Ty) / Math.max(1, tops[0] - VH * 0.4 - Ty))), h: 3.4, i: -1 };
+      let i = 0; while (i < 4 && y >= tops[i + 1]) i++;
+      const f = clamp((y - tops[i]) / Math.max(1, (i < 4 ? tops[i + 1] : endY) - tops[i]));
+      if (i === 4) return { z: S[4], h: 3.4, i };
+      return { z: lerp(S[i], S[i + 1], smooth(0.55, 1, f)), h: 3.4, i }; // stands while the section is read: nothing moves under the text
+    }
+    function arrive(i, t) { if (arrived[i]) return; arrived[i] = t; secs[i].classList.add('arrived'); }
+    function frame(t) {
+      if (heroState.k < 0.999) { running = false; FLY.on = false; last = 0; return false; }
+      if (!tops) layout();
+      const dt = last ? Math.min(100, t - last) : 16; last = t;
+      const tg = target(), vmax = (W / H < 0.8 ? 5 : 7) * dt / 1000;
+      if (scrollY !== prevY) movedT = t;
+      const gap = tg.z - z;
+      if (z === null || Math.abs(gap) > 12) { // first frame or more than a station behind (a menu link): cut, no flight through half the board
+        if (z !== null) FLY.dimFast = 0.3; // the cut is a short dip, then the board comes back
+        z = tg.z; FLY.h = tg.h; for (let i = 0; i < tg.i; i++) arrive(i, t - 2000);
+      } else if (t - movedT > 250 && Math.abs(gap) > 3) { // the page has stopped and the camera lags: cut close, fly the last bit
+        FLY.dimFast = 0.3; z = tg.z - Math.sign(gap) * 3;
+      } else {
+        const dz = (tg.z - z) * (1 - Math.exp(-dt / 350)), c = clamp(dz, -vmax, vmax);
+        capT = Math.abs(dz) > vmax ? capT + dt : 0; z += c;
+        if (Math.abs(tg.z - z) < 0.004) z = tg.z;
+        FLY.h = lerp(FLY.h, tg.h, 1 - Math.exp(-dt / 350));
+      }
+      FLY.z = z; FLY.on = true;
+      FLY.dimFast = lerp(FLY.dimFast, capT > 500 ? 0.6 : 1, 1 - Math.exp(-dt / 150)); // held at the speed limit: the board quiets down
+      for (let i = 0; i < tg.i; i++) if (!arrived[i] && z > STN.cam[i] - 0.5) arrive(i, t - 2000); // flown past on the way: visited
+      if (tg.i >= 0 && Math.abs(z - STN.cam[tg.i]) < 0.5 && !arrived[tg.i]) { arrive(tg.i, t); FLY.sig = { z0: z + 2, z1: STN.obj[tg.i] - 0.6, t0: t, v: 12 }; }
+      FLY.lit = arrived.map(a => a ? (t - a < 400 ? 0.6 * (t - a) / 400 : lerp(0.6, 0.35, seg(t - a, 400, 1200))) : 0);
+      if (!tIn && steps.classList.contains('in')) tIn = t; // the chips on the board power up with the steps on the page
+      for (let c = 0; c < 4; c++) FLY.chips[c] = tIn ? eOut(seg(t - tIn, c * 300 - 60, c * 300 + 300)) : 0;
+      if (FLY.sig && FLY.sig.z0 + (t - FLY.sig.t0) / 1000 * FLY.sig.v > FLY.sig.z1) { FLY.sig = null; sigT = t; }
+      const still = Math.abs(tg.z - z) < 0.004 && Math.abs(FLY.h - tg.h) < 0.002;
+      if (!FLY.sig && still && t - sigT > 5000) FLY.sig = { z0: z + 2, z1: STN.obj[Math.max(0, tg.i)] - 0.6, t0: t, v: 6 }; // a quiet signal every 5 s
+      // Redraw only when something moves: the camera every frame, signals and lighting up at 30 frames a second, else nothing
+      const busy = FLY.sig || arrived.some(a => a && t - a < 1300) || (tIn && t - tIn < 1300) || Math.abs(FLY.dimFast - (capT > 500 ? 0.6 : 1)) > 0.01;
+      if (!still || drawnT === 0 || (busy && t - drawnT > 32)) { planet.draw(t, true); drawnT = t; }
+      prevY = scrollY;
+    }
+    function kick(relayout) { if (relayout) { tops = null; drawnT = 0; } if (!running) { running = true; last = 0; drawnT = 0; ticker.add(frame); } }
+    addEventListener('scroll', () => { if (heroState.k >= 0.999) kick(); }, { passive: true });
+    new ResizeObserver(() => kick(true)).observe(document.querySelector('main'));
+    return { kick };
+  })();
+  flightKick = FLIGHT.kick;
+
   addEventListener('resize', fit); new ResizeObserver(fit).observe(stage);
   if (REDUCE) cur = L_END;
   fit();
@@ -961,7 +1121,7 @@ const heroView = (() => {
   if (!REDUCE) {
     // Back on screen: jump to the current scroll position instead of sliding there from a stale one. Off screen:
     // the fixed world canvas stays as the background of the page, so it gets one frame at the current position.
-    const sync = on => { cur = progress(); if (!on) { render(true); planet.draw(performance.now()); } on ? ticker.add(tick) : ticker.remove(tick); };
+    const sync = on => { cur = progress(); if (!on) render(true); on ? ticker.add(tick) : ticker.remove(tick); };
     heroView.sub(sync); sync(heroView.on);
   }
 })();

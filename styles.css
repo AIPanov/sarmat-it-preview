@@ -129,6 +129,39 @@ html:not(.js) #world, html:not(.js) .ds-caps { display: none; }
 /* 2. Process */
 /* With the world as the page background the flat section grid would double its grid */
 .world-on .sec::before { display: none; }
+/* The flight over the board (main.js, FLIGHT): the page's twins of the objects on the board. Steps are chips with pins that
+   power up in turn; a block the trace enters has a connector on its top edge that flashes when the camera arrives (.arrived on
+   the section); the line at the section number lights up; text sits on a soft underlay of the board's colour; cards are nearly
+   opaque and without blur, so the moving board does not show through the text (designer review, 11.10.2026). */
+.world-on .st .num { border-radius: 8px; transition: border-color .4s, box-shadow .4s; }
+.world-on .st .num::before { content: ""; position: absolute; top: 10px; bottom: 10px; left: -7px; right: -7px; z-index: -1; pointer-events: none; opacity: .3; transition: opacity .4s;
+  background: repeating-linear-gradient(180deg, rgba(143,208,255,.95) 0 2px, transparent 2px 6px) left / 5px 100% no-repeat, repeating-linear-gradient(180deg, rgba(143,208,255,.95) 0 2px, transparent 2px 6px) right / 5px 100% no-repeat; }
+.world-on .steps4.in .st .num::before { opacity: 1; }
+.world-on .steps4.in .st:nth-child(2) .num, .world-on .steps4.in .st:nth-child(2) .num::before { transition-delay: .3s; }
+.world-on .steps4.in .st:nth-child(3) .num, .world-on .steps4.in .st:nth-child(3) .num::before { transition-delay: .6s; }
+.world-on .steps4.in .st:nth-child(4) .num, .world-on .steps4.in .st:nth-child(4) .num::before { transition-delay: .9s; }
+.world-on .deliv { position: relative; }
+.world-on .deliv::before, .world-on .form::before, .world-on .gal-view::after { content: ""; position: absolute; left: 62%; width: 31px; height: 9px; pointer-events: none; opacity: .45;
+  background: repeating-linear-gradient(90deg, rgba(143,208,255,.9) 0 3px, transparent 3px 7px); }
+.world-on .deliv::before, .world-on .form::before { top: -10px; }
+.world-on .gal-view::after { top: 0; z-index: 4; }
+.world-on .sec.arrived .deliv::before, .world-on .sec.arrived .form::before, .world-on .sec.arrived .gal-view::after { animation: zap 1.4s var(--ease) both; }
+@keyframes zap { 0% { opacity: .45; filter: none; } 22% { opacity: 1; filter: drop-shadow(0 0 6px rgba(143,208,255,.95)); } 100% { opacity: .85; filter: drop-shadow(0 0 2px rgba(143,208,255,.5)); } }
+.world-on .eyebrow::after { transition: opacity .6s var(--ease), width .6s var(--ease), box-shadow .6s var(--ease); }
+.world-on .sec.arrived .eyebrow::after { opacity: 1; width: 64px; box-shadow: 0 0 8px rgba(143,208,255,.8); }
+.world-on .h2, .world-on .lede, .world-on .contacts { position: relative; }
+.world-on .h2::after, .world-on .lede::after, .world-on .contacts::after, .world-on .st::after { content: ""; position: absolute; inset: -18px -32px; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(4,13,28,.85) 62%, rgba(4,13,28,0)); }
+.world-on .val, .world-on .deliv, .world-on .form { -webkit-backdrop-filter: none; backdrop-filter: none; }
+.world-on .val { background: linear-gradient(180deg, rgba(16,26,48,.96), rgba(11,19,36,.93)); }
+.world-on .deliv, .world-on .form { background: rgba(11,19,36,.93); }
+@media (max-width: 860px) {
+  .world-on .st .num::before { top: -7px; bottom: -7px; left: 10px; right: 10px;
+    background: repeating-linear-gradient(90deg, rgba(143,208,255,.95) 0 2px, transparent 2px 6px) top / 100% 5px no-repeat, repeating-linear-gradient(90deg, rgba(143,208,255,.95) 0 2px, transparent 2px 6px) bottom / 100% 5px no-repeat; }
+  .world-on .deliv::before, .world-on .form::before, .world-on .gal-view::after { left: 24px; }
+  .world-on .h2::after, .world-on .lede::after, .world-on .contacts::after, .world-on .st::after { inset: -12px -20px; }
+  .world-on .hdr.solid { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(3,5,11,.94); }
+}
 .steps4 { list-style: none; margin: 64px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
 .steps4::before, .steps4::after { content: ""; position: absolute; left: 22px; right: 0; top: 22px; height: 1px; background: var(--line-2); }
 .steps4::after { background: linear-gradient(90deg, var(--accent), var(--accent-2)); transform: scaleX(0); transform-origin: 0 50%; transition: transform 1.6s var(--ease); box-shadow: 0 0 12px rgba(95,176,232,.6); }
