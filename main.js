@@ -43,7 +43,7 @@ const heroView = (() => {
   new IntersectionObserver(es => {
     const v = es[es.length - 1].isIntersecting;
     if (v === on) return; on = v; subs.forEach(f => f(on));
-  }).observe(document.getElementById('hero'));
+  }, { rootMargin: '-2px 0px 0px 0px' }).observe(document.getElementById('hero')); // a hero edge touching the top is off screen
   return { get on() { return on; }, sub(f) { subs.push(f); } };
 })();
 
@@ -95,7 +95,7 @@ const heroView = (() => {
       } else g.fillRect(x, y, s.r, s.r);
     }
   }
-  const step = t => { draw(t); };
+  const step = t => { if (heroState.k < 0.6) draw(t); }; // from k 0.6 the ground and then the board cover the whole screen
   function sync(on) {
     if (on && !REDUCE) ticker.add(step);
     else { ticker.remove(step); draw(lastT); }
@@ -136,7 +136,7 @@ const BOARD = (() => {
   const gridA = sp => 0.2 * smooth(12, 46, sp) * (1 - 0.6 * smooth(300, 900, sp)); // same as the hero ground
   const g = cv.getContext('2d'), stepsEl = document.getElementById('steps4');
   document.documentElement.classList.add('board-on');
-  let M = null, dirty = true, D = 1, VW = 0, VH = 0, tIn = 0, running = false, shown = false, rt = 0, lastY = -1, lastT = 0;
+  let M = null, dirty = true, D = 1, VW = 0, VH = 0, tIn = 0, running = false, shown = false, rt = 0, lastY = -1, lastT = 0, lit = 0, litT = 0;
 
   /* ---------- geometry ---------- */
   const pg = q => [q.left, q.top + scrollY, q.right, q.bottom + scrollY];
@@ -197,20 +197,28 @@ const BOARD = (() => {
     const wp = [[PX, PY]];
     if (xv - PX > 1) { const yj = ya - (xv - PX) - 60; wp.push([PX, yj], [xv, yj + (xv - PX)]); }
     wp.push([xv, ya], [nums[0][0], ya], ...nums);
-    const card = q('#gal1 .gal-card'), bar = q('#gal1 .gal-bar'), view = q('#gal1 .gal-view');
-    let end, bottom;
-    if (row && card && bar && W - deliv[2] >= 28) {
-      // wide screens: along the right margin to the gallery, into the top edge of the server card
-      const cr = pg(card.getBoundingClientRect()), br = pg(bar.getBoundingClientRect());
-      const xr = (deliv[2] + W) / 2, yg = br[1] - 24, xe = cr[0] + (cr[2] - cr[0]) * 0.62;
-      wp.push([xr, nums[3][1]], [xr, yg], [xe, yg], end = [xe, cr[1]]);
-      bottom = cr[1] + 40;
-    } else {
-      // phones: down from the last chip into the «Рассчитать» box
-      wp.push(end = [nums[3][0], deliv[1]]);
-      bottom = deliv[3] + 160;
+    // Then a bus down the page margin (right margin on wide screens, left gutter on phones) to the request form,
+    // with taps into every block on the way: the «Рассчитать» box, both galleries, «Почему выбирают нас».
+    const xm = row ? (deliv[2] + W) / 2 : deliv[0] / 2;
+    const B = sel => { const el = q(sel); return el ? pg(el.getBoundingClientRect()) : null; };
+    const form = B('#reqForm'), c4 = nums[3];
+    const formY = form ? form[1] - (row ? 28 : 16) : 0, formX = form ? form[0] + (form[2] - form[0]) * (row ? 0.62 : 0.5) : 0;
+    const delivY = deliv[1] - 22;
+    if (row) wp.push([xm, c4[1]]);
+    else wp.push([c4[0], delivY], [xm, delivY]);
+    if (form) wp.push([xm, formY], [formX, formY], [formX, form[1]]);
+    else wp.push([xm, deliv[3] + 80]);
+    const route = mkPoly(chamfer(wp, 22)), end = route.pts[route.pts.length - 1];
+    const taps = [];
+    const tap = pts => { const P = mkPoly(chamfer(pts, 16)); P.s0 = sOf(route, pts[0]); taps.push(P); };
+    if (row) tap([[xm, (deliv[1] + deliv[3]) / 2], [deliv[2], (deliv[1] + deliv[3]) / 2]]);
+    else tap([[c4[0], delivY], [c4[0], deliv[1]]]);
+    for (const [blk, bar] of [['#gal1 .gal-view', '#gal1 .gal-bar'], ['#gal2 .gal-view', '#gal2 .gal-bar'], ['#vals', null]]) {
+      const b = B(blk), br = bar && B(bar); if (!b) continue;
+      const y = row ? (br ? br[1] : b[1]) - 24 : b[1] - (br ? 8 : 14), x = row ? b[0] + (b[2] - b[0]) * 0.62 : b[0] + 32;
+      tap([[xm, y], [x, y], [x, b[1]]]);
     }
-    const route = mkPoly(chamfer(wp, 22));
+    const bottom = document.documentElement.scrollHeight;
     const Ls = nums.map(n => sOf(route, n));
     const bus = [];
     for (let i = 0; i < 3; i++) for (const o of [-9, 9]) {
@@ -218,10 +226,10 @@ const BOARD = (() => {
       bus.push(Object.assign(mkPoly(row ? [[a[0] + hs, a[1] + o], [b[0] - hs, b[1] + o]] : [[a[0] + o, a[1] + hs], [b[0] + o, b[1] - hs]]), { i }));
     }
 
-    // Free cells for decorative traces: everything except text, chips, the boxes and the main trace.
-    const top = Ty - 2.5 * H, fade0 = bottom - (row ? 240 : 200);
+    // Free cells for decorative traces: everything except text, chips, the boxes and the traces above.
+    const top = Ty - 2.5 * H;
     const gx0 = PX - CELL * Math.ceil((PX + W) / CELL), gy0 = PY - CELL * Math.ceil((PY - top) / CELL);
-    const cols = Math.ceil((2 * W - gx0) / CELL), rows = Math.max(1, Math.ceil((fade0 + 80 - gy0) / CELL));
+    const cols = Math.ceil((2 * W - gx0) / CELL), rows = Math.max(1, Math.ceil((bottom - gy0) / CELL));
     const occ = new Uint8Array(cols * rows);
     const mark = r => {
       const c0 = Math.max(0, Math.floor((r[0] - gx0) / CELL)), c1 = Math.min(cols - 1, Math.floor((r[2] - gx0) / CELL));
@@ -231,10 +239,14 @@ const BOARD = (() => {
     const eyebrow = el => { if (!el) return []; const r = pg(el.getBoundingClientRect()); return [grow([r[0], r[1], r[0] + 110, r[3]], 14)]; };
     [...textBoxes(q('#process-title'), 18), ...eyebrow(q('#process .eyebrow')), ...qa('#steps4 h3, #steps4 p').flatMap(e => textBoxes(e, 12)),
       ...nums.map(n => [n[0] - hs - 16, n[1] - hs - 16, n[0] + hs + 16, n[1] + hs + 16]), grow(deliv, 16),
-      ...eyebrow(q('#catalog .eyebrow')), ...textBoxes(q('#catalog-title'), 18), ...textBoxes(q('#catalog .lede'), 14),
-      ...boxOf(bar, 12), ...boxOf(view, 0)].forEach(mark);
+      ...qa('#catalog .eyebrow, #turnkey .eyebrow, #why .eyebrow, #request .eyebrow').flatMap(eyebrow),
+      ...qa('#catalog-title, #turnkey-title, #why-title, #request-title').flatMap(e => textBoxes(e, 18)),
+      ...qa('#catalog .lede, #turnkey .lede, #why .lede, #request .lede, #request .contacts').flatMap(e => textBoxes(e, 14)),
+      ...qa('.gal-bar').flatMap(e => boxOf(e, 12)), ...qa('.gal-view').flatMap(e => boxOf(e, 4)), ...boxOf(q('#vals'), 14), ...boxOf(form && q('#reqForm'), 14),
+      ...qa('.ftr-brand, .ftr-nav, .ftr-contacts').flatMap(e => boxOf(e, 14)),
+      [gx0, Ty + H, 0, bottom], [W, Ty + H, 2 * W + CELL, bottom]].forEach(mark); // below the first screen only the page width
     const markLine = (P, r) => { for (let s = 0; s <= P.len; s += 6) { const p = at(P, s); mark([p[0] - r, p[1] - r, p[0] + r, p[1] + r]); } };
-    markLine(route, 26); bus.forEach(b => markLine(b, 14));
+    markLine(route, 26); bus.forEach(b => markLine(b, 14)); taps.forEach(b => markLine(b, 18));
     mark([PX - 40, PY - 40, PX + 40, PY + 40]);
 
     const DIRS = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]];
@@ -286,17 +298,20 @@ const BOARD = (() => {
       }
       walk(c, r, rnd() < 0.7 ? (rnd() * 4 | 0) * 2 : rnd() * 8 | 0, 2 + (rnd() * 4 | 0), 6);
     }
-    M = { W, H, Ty, PX, PY, row, CS, nums, route, Ls, bus, end, traces, comps, top, bottom, fade0 };
+    M = { W, H, Ty, PX, PY, row, CS, nums, route, Ls, bus, taps, end, xm, traces, comps, top, bottom };
+    lit = Math.max(lit, Ls[0]);
   }
 
-  /* ---------- timing: the bus lights chip by chip when the steps appear ---------- */
-  const HOP = 300, TAILMS = 1000;
-  function litLen(t) {
+  /* ---------- timing: the bus lights chip by chip when the steps appear, then the trace follows the scroll ---------- */
+  const HOP = 300, GROW = 2.2; // px per ms the lit end of the trace may advance
+  function litTarget(t) {
     const L = M.Ls; if (!tIn) return L[0];
     const e = t - tIn;
     for (let i = 0; i < 3; i++) if (e < (i + 1) * HOP) return L[i] + (L[i + 1] - L[i]) * eIO(seg(e, i * HOP, (i + 1) * HOP));
-    return L[3] + (M.route.len - L[3]) * eIO(seg(e, 3 * HOP, 3 * HOP + TAILMS));
+    return Math.max(L[3], sOf(M.route, [M.xm, scrollY + VH * 0.8])); // lit as far as 80% down the screen
   }
+  function advance(t) { const dt = litT ? Math.min(100, t - litT) : 16; litT = t; lit = clamp(Math.max(lit, Math.min(litTarget(t), lit + dt * GROW)), M.Ls[0], M.route.len); }
+  const tapLit = P => clamp(lit - P.s0, 0, P.len);
   const busLit = (i, t) => tIn ? eIO(seg(t - tIn, i * HOP, (i + 1) * HOP)) : 0;
   const chipOn = (i, t) => tIn ? eOut(seg(t - tIn, i * HOP - 60, i * HOP + 300)) : 0;
   // signals on the main trace: one every GAP px at V px/ms
@@ -405,6 +420,20 @@ const BOARD = (() => {
   }
 
   /* ---------- page renderer: this fixed layer, after the camera looks down ---------- */
+  function connector(P, Y0, t, s0) { // fingers across the end of a trace, and a ring when a signal arrives
+    const n = P.pts.length, e = P.pts[n - 1], f = P.pts[n - 2], L = Math.hypot(e[0] - f[0], e[1] - f[1]) || 1, ux = (e[0] - f[0]) / L, uy = (e[1] - f[1]) / L;
+    const x = e[0], y = e[1] - Y0; if (y < -60 || y > VH + 60) return;
+    g.fillStyle = 'rgba(143,208,255,.85)'; g.beginPath();
+    for (let i = -2; i <= 2; i++) {
+      const cx = x - ux * 8.5 - uy * i * 7, cy = y - uy * 8.5 + ux * i * 7;
+      g.moveTo(cx - ux * 4.5 - uy * 1.5, cy - uy * 4.5 + ux * 1.5); g.lineTo(cx + ux * 4.5 - uy * 1.5, cy + uy * 4.5 + ux * 1.5);
+      g.lineTo(cx + ux * 4.5 + uy * 1.5, cy + uy * 4.5 - ux * 1.5); g.lineTo(cx - ux * 4.5 + uy * 1.5, cy - uy * 4.5 - ux * 1.5); g.closePath();
+    }
+    g.fill();
+    const ph = ((t * V - (s0 + P.len)) % GAP + GAP) % GAP / GAP;
+    g.strokeStyle = `rgba(143,208,255,${((1 - ph) * 0.8).toFixed(3)})`; g.lineWidth = 1.5;
+    g.beginPath(); g.arc(x - ux * 8, y - uy * 8, 8 + ph * 30, 0, 6.2832); g.stroke();
+  }
   function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
   function chip(X, Y, s, pw, row) { // pins on the sides that face traces, none towards the step text
     const n = 5, step = s / (n + 1), pl = 5, pwid = 3;
@@ -460,32 +489,18 @@ const BOARD = (() => {
     for (const c of M.comps) if (c.Y > Y0 - 20 && c.Y < Y0 + vh + 20) part(g, c, c.X, c.Y - Y0, 1, 1);
     // bus between the chips and the main trace, as far as they are lit
     for (const b of M.bus) { const f = busLit(b.i, t); if (f > 0 && inView(b.bb)) { g.beginPath(); path(b.pts, b.len * f); g.strokeStyle = 'rgba(95,176,232,.42)'; g.lineWidth = 1.4; g.stroke(); } }
-    const lit = litLen(t);
-    g.beginPath(); path(M.route.pts, lit); routeStroke(g, 1, 1);
+    g.beginPath(); path(M.route.pts, lit);
+    for (const P of M.taps) { const l = tapLit(P); if (l > 0 && inView(P.bb)) path(P.pts, l); }
+    routeStroke(g, 1, 1);
     M.nums.forEach((n, i) => { if (n[1] > Y0 - 80 && n[1] < Y0 + vh + 80) chip(n[0], n[1] - Y0, M.CS, chipOn(i, t), M.row); });
     if (M.PY - Y0 > -30) marker(g, M.PX, M.PY - Y0);
-    const sl = mainSignals(t, lit).map(s => [M.route, s, 1]);
+    const main = mainSignals(t, lit), sl = main.map(s => [M.route, s, 1]);
+    for (const P of M.taps) { const l = tapLit(P); if (l > 0 && inView(P.bb)) for (const s of main) if (s > P.s0 && s - P.s0 <= l) sl.push([P, s - P.s0, 1]); }
     for (const tr of M.traces) if (tr.sig && inView(tr.bb)) { const s = decoSignal(tr, t, tr.len); if (s >= 0) sl.push([tr, s, 0.8]); }
     signals(g, sl, pj);
-    // the end of the main trace: a connector that flashes when a signal arrives
-    if (lit >= M.route.len - 1) {
-      const [ex, ey] = M.end, y = ey - Y0;
-      if (y > -40 && y < vh + 40) {
-        g.fillStyle = 'rgba(143,208,255,.85)';
-        for (let i = -2; i <= 2; i++) g.fillRect(ex + i * 7 - 1.5, y - 13, 3, 9);
-        const ph = ((t * V - (M.route.len % GAP)) % GAP + GAP) % GAP / GAP;
-        g.strokeStyle = `rgba(143,208,255,${((1 - ph) * 0.8).toFixed(3)})`; g.lineWidth = 1.5;
-        g.beginPath(); g.arc(ex, y - 8, 8 + ph * 30, 0, 6.2832); g.stroke();
-      }
-    }
-    // the board melts into the page above the gallery
-    const f0 = M.fade0 - Y0;
-    if (f0 < vh) {
-      g.globalCompositeOperation = 'destination-out';
-      const gr = g.createLinearGradient(0, f0, 0, M.bottom - Y0); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
-      g.fillStyle = gr; g.fillRect(0, Math.max(0, f0), vw, vh - Math.max(0, f0));
-      g.globalCompositeOperation = 'source-over';
-    }
+    // connectors where the trace enters a block, flashing when a signal arrives
+    for (const P of M.taps) if (tapLit(P) >= P.len - 0.5) connector(P, Y0, t, P.s0);
+    if (lit >= M.route.len - 0.5) connector(M.route, Y0, t, 0);
   }
 
   /* ---------- loop: runs while the board or the landing is on screen ---------- */
@@ -498,12 +513,14 @@ const BOARD = (() => {
   function frame(t) {
     if (dirty) build();
     if (!M) { running = false; return false; }
-    if (!tIn && stepsEl && stepsEl.classList.contains('in')) tIn = t;
+    // steps seen, or the page opened below them (a menu link): the chips are on
+    if (!tIn && stepsEl && (stepsEl.classList.contains('in') || scrollY > M.nums[3][1])) tIn = t;
+    advance(t);
     const near = scrollY + VH > M.Ty - VH && scrollY < M.bottom;
     const on = near && (heroView.on ? heroState.k >= 0.86 : true);
     // While the page stands still only the signals move: 30 frames a second are enough for them.
     const Y0 = Math.max(scrollY, M.Ty);
-    if (on && (Y0 !== lastY || !shown || t - lastT > 30)) { draw(t); shown = true; lastY = Y0; lastT = t; }
+    if (on && (Y0 !== lastY || !shown || t - lastT > 30 || lit < litTarget(t))) { draw(t); shown = true; lastY = Y0; lastT = t; }
     else if (!on && shown) { g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); shown = false; }
     if (!on && !(heroView.on && heroState.k > 0)) { running = false; return false; }
   }
