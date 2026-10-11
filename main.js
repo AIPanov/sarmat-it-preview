@@ -1112,6 +1112,37 @@ const heroView = (() => {
   })();
   flightKick = FLIGHT.kick;
 
+  /* ---------- soft screens: released near the start of a section, the page settles on it ---------- */
+  /* Антон, 11.10.2026: «фиксированные переходы по экранам», variant 2. CSS scroll-snap (proximity) was tried first: in Chrome and
+     Safari it pulled small wheel steps back to the start of the section, the page felt sticky. Here the page settles only when it
+     has stopped (no scroll for 220 ms, no finger on the screen) and only in the direction of travel: on the start of a section
+     ahead within 30% of the screen. Never backwards, so a slow start from a section is not pulled back; long sections and the
+     form are never pulled. */
+  (function () {
+    if (REDUCE) return;
+    const secs = [...document.querySelectorAll('main .sec')], hdr = document.getElementById('hdr');
+    let lastY = scrollY, dir = 0, timer = 0, touching = false, until = 0;
+    function settle() {
+      timer = 0;
+      if (touching || chapter.running() || performance.now() < until) return;
+      const y = scrollY, VH = innerHeight, snaps = secs.map(e => Math.round(e.getBoundingClientRect().top + y - hdr.offsetHeight));
+      if (y < snaps[0] - VH * 0.3) return; // the first screen has its own ride
+      let to;
+      if (dir > 0) to = snaps.find(v => v > y + 2 && v - y < VH * 0.3);
+      else if (dir < 0) to = [...snaps].reverse().find(v => v < y - 2 && y - v < VH * 0.3);
+      if (to === undefined) return;
+      until = performance.now() + 1000; // our own smooth scroll: do not react to it
+      scrollTo({ top: to, behavior: 'smooth' });
+    }
+    addEventListener('scroll', () => {
+      const y = scrollY; if (y !== lastY) dir = Math.sign(y - lastY); lastY = y;
+      clearTimeout(timer); if (!touching && performance.now() >= until) timer = setTimeout(settle, 220);
+    }, { passive: true });
+    addEventListener('touchstart', () => { touching = true; clearTimeout(timer); }, { passive: true });
+    const lift = e => { touching = e.touches.length > 0; if (!touching) { clearTimeout(timer); timer = setTimeout(settle, 220); } };
+    addEventListener('touchend', lift, { passive: true }); addEventListener('touchcancel', lift, { passive: true });
+  })();
+
   addEventListener('resize', fit); new ResizeObserver(fit).observe(stage);
   if (REDUCE) cur = L_END;
   fit();
