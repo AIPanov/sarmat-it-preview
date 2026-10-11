@@ -12,9 +12,9 @@
 <script>document.documentElement.classList.add('js'); if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('screens')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=f366c763">
+<link rel="stylesheet" href="styles.css?v=6c179186">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
-<script src="main.js?v=3e45369a" defer></script>
+<script src="main.js?v=edebf723" defer></script>
 </head>
 <body>
 
@@ -85,7 +85,7 @@
   </section>
 
   <!-- 3. CATALOG -->
-  <section class="sec sec-catalog" id="catalog" aria-labelledby="catalog-title">
+  <section class="sec sec-catalog" id="catalog" data-slide="card1" aria-labelledby="catalog-title">
     <div class="wrap">
       <div class="sec-intro">
         <div class="eyebrow" aria-hidden="true">02</div>
@@ -214,7 +214,7 @@
   </section>
 
   <!-- 4. TURNKEY: server room from our proposal + video surveillance -->
-  <section class="sec sec-catalog" id="turnkey" aria-labelledby="turnkey-title">
+  <section class="sec sec-catalog" id="turnkey" data-slide="card4" aria-labelledby="turnkey-title">
     <div class="wrap">
       <div class="sec-intro">
         <div class="eyebrow" aria-hidden="true">03</div>
@@ -222,7 +222,7 @@
         <p class="lede">Серверная и видеонаблюдение целиком: от обследования до сдачи с документами.</p>
       </div>
 
-      <!-- #video из меню открывает вторую карточку (main.js, gallery) -->
+      <!-- #video из меню открывает вторую карточку, #turnkey первую (data-slide, main.js) -->
       <div class="anchor" id="video" data-slide="card5" aria-hidden="true"></div>
       <div class="gal" id="gal2" aria-label="Объекты под ключ">
         <div class="gal-view"><div class="gal-track">
@@ -392,7 +392,11 @@
   </section>
 </main>
 
-<footer class="ftr">
+<footer class="ftr" aria-labelledby="ftr-title">
+  <div class="wrap ftr-head">
+    <div class="eyebrow" aria-hidden="true">06</div>
+    <h2 class="h2" id="ftr-title">Контакты</h2>
+  </div>
   <div class="wrap ftr-in">
     <div class="ftr-brand">
       <a class="ftr-logo" href="#hero" aria-label="Сармат-ИТ, в начало">

@@ -149,8 +149,9 @@ html:not(.js) #world, html:not(.js) .ds-caps { display: none; }
 @keyframes zap { 0% { opacity: .45; filter: none; } 22% { opacity: 1; filter: drop-shadow(0 0 6px rgba(143,208,255,.95)); } 100% { opacity: .85; filter: drop-shadow(0 0 2px rgba(143,208,255,.5)); } }
 .world-on .eyebrow::after { transition: opacity .6s var(--ease), width .6s var(--ease), box-shadow .6s var(--ease); }
 .world-on .sec.arrived .eyebrow::after { opacity: 1; width: 64px; box-shadow: 0 0 8px rgba(143,208,255,.8); }
-.world-on .h2, .world-on .lede, .world-on .contacts { position: relative; }
-.world-on .h2::after, .world-on .lede::after, .world-on .contacts::after, .world-on .st::after { content: ""; position: absolute; inset: -18px -32px; z-index: -1; pointer-events: none;
+.world-on .contacts { position: relative; }
+/* no underlay under headings and ledes: a block heading is as wide as the column, and its underlay read as a dark spot (Антон, 11.10.2026) */
+.world-on .contacts::after, .world-on .st::after { content: ""; position: absolute; inset: -18px -32px; z-index: -1; pointer-events: none;
   background: radial-gradient(closest-side, rgba(4,13,28,.85) 62%, rgba(4,13,28,0)); }
 .world-on .val, .world-on .deliv, .world-on .form { -webkit-backdrop-filter: none; backdrop-filter: none; }
 .world-on .val { background: linear-gradient(180deg, rgba(16,26,48,.96), rgba(11,19,36,.93)); }
@@ -159,7 +160,7 @@ html:not(.js) #world, html:not(.js) .ds-caps { display: none; }
   .world-on .st .num::before { top: -7px; bottom: -7px; left: 10px; right: 10px;
     background: repeating-linear-gradient(90deg, rgba(143,208,255,.95) 0 2px, transparent 2px 6px) top / 100% 5px no-repeat, repeating-linear-gradient(90deg, rgba(143,208,255,.95) 0 2px, transparent 2px 6px) bottom / 100% 5px no-repeat; }
   .world-on .deliv::before, .world-on .form::before, .world-on .gal-view::after { left: 24px; }
-  .world-on .h2::after, .world-on .lede::after, .world-on .contacts::after, .world-on .st::after { inset: -12px -20px; }
+  .world-on .contacts::after, .world-on .st::after { inset: -12px -14px; } /* inside the 16 px gutter: wider made the page 4 px wider than the phone */
   .world-on .hdr.solid { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(3,5,11,.94); }
 }
 .steps4 { list-style: none; margin: 64px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
@@ -492,28 +493,80 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
 .doc-back { margin-top: 48px; }
 .doc-back a { color: var(--ink); }
 
-/* ============ Screens (Антон, 11.10.2026: «фиксация экрана»; галереи: «свайпать вправо… неудобно») ============
-   One gesture, one screen (main.js, SCREENS). Every screen takes the full height of the window; the galleries become a stack
-   of full-screen cards, one per screen, and their section intro lists the cards. The request form and the footer below it
-   scroll as usual. Without JS and with reduced motion none of this applies (the class .screens is set in the page head). */
+/* ============ Screens (Антон, 11.10.2026: «фиксация экрана»; галерея одним экраном, карточки стопкой) ============
+   One gesture, one screen (main.js, SCREENS): «Как мы работаем», each gallery, «Почему выбирают нас», the form, the contacts.
+   A gallery screen is its heading with the tabs and a stack of cards under it: the open card on top, the next ones peeking out
+   below it; a flipped card leaves upwards (or sideways when thrown) and comes back from there. The form scrolls as usual if it is
+   taller than the window. Without JS and with reduced motion none of this applies (the class .screens is set in the page head). */
+.ftr-head { display: none; }
 .screens { --scr: calc(100vh - var(--header-h)); --scr: calc(100svh - var(--header-h)); }
-.screens .sec { padding-block: 0; }
-.screens #process > .wrap, .screens .sec-intro, .screens #why > .wrap { box-sizing: border-box; min-height: 100vh; min-height: 100svh; padding-top: calc(var(--header-h) + 20px); padding-bottom: 24px; display: flex; flex-direction: column; justify-content: center; }
-.screens .sec-intro { justify-content: flex-end; padding-bottom: max(40px, 9vh); } /* the board and its station object above, the heading below */
-.screens .sec-toc { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 4px; }
-.screens .sec-toc button { all: unset; cursor: pointer; display: inline-flex; gap: 14px; align-items: baseline; padding: 6px 0; font: 500 17px/1.3 var(--sans); color: var(--ink); }
-.screens .sec-toc button span { font: 500 12px/1 var(--mono); letter-spacing: .12em; color: var(--accent-2); }
-.screens .sec-toc button:hover { color: var(--accent-2); }
-.screens .sec-toc button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
-.screens .gal { margin-top: 0; padding-bottom: 12px; }
-.screens .gal-bar, .screens .gal-side { display: none; }
-.screens .gal-view { overflow: visible; touch-action: auto; }
-.screens .gal-track { display: block; transform: none !important; }
-/* a card screen: header + 12 px, the card, 12 px; so the gap between cards is the header + 24 px */
-.screens .gal-card { width: auto; flex: none; min-height: 0; height: calc(var(--scr) - 24px); margin: calc(var(--header-h) + 12px) 0 0; scroll-margin-top: 12px; opacity: 1; } /* html already pads the header */
-.screens .gal-card + .gal-card, .screens .gal-track > .anchor + .gal-card { margin-top: calc(var(--header-h) + 24px); }
-.screens .gal-track > .anchor { display: block; height: 0; scroll-margin-top: calc(-1 * var(--header-h) - 12px); } /* #video, moved next to its card */
+.screens .sec { padding-block: 0; scroll-margin-top: calc(-1 * var(--header-h)); } /* a link lands on the screen, not a header lower */
+.screens #process > .wrap, .screens #why > .wrap { box-sizing: border-box; min-height: 100vh; min-height: 100svh; padding-top: calc(var(--header-h) + 20px); padding-bottom: 24px; display: flex; flex-direction: column; justify-content: center; }
+.screens .sec-catalog > .wrap { box-sizing: border-box; height: 100vh; height: 100svh; min-height: 520px; padding-top: calc(var(--header-h) + 22px); padding-bottom: 14px; display: flex; flex-direction: column; }
+.screens #video { position: absolute; left: 0; top: 0; scroll-margin-top: calc(-1 * var(--header-h)); }
+.screens .sec-intro { flex: none; }
+.screens .sec-intro .h2 { font-size: clamp(32px, 3.4vw, 46px); margin-top: 12px; }
+.screens .sec-intro .lede { font-size: 15px; margin-top: 8px; max-width: 72ch; }
+.screens .sec-intro .gal-bar { margin: 16px 0 0; }
+.screens .gal { flex: 1; min-height: 0; margin-top: 16px; display: flex; flex-direction: column; --stack: 24px; }
+.screens .gal-view { flex: 1; min-height: 0; overflow: visible; border-radius: 0; touch-action: pinch-zoom; } /* swipes on the stack are the page's */
+.screens .gal-track { position: relative; height: 100%; display: block; transform: none !important; transition: none; }
+.screens .gal-card, .screens .gal-card:not(.cur) { position: absolute; left: 0; right: 0; top: 0; bottom: var(--stack); width: auto; height: auto; min-height: 0; margin: 0; opacity: 1; cursor: auto;
+  transform-origin: 50% 100%; box-shadow: 0 14px 30px -12px rgba(0,0,0,.85); transition: transform .6s var(--ease), opacity .5s var(--ease), visibility 0s; }
+.screens .gal-card::after { content: ""; position: absolute; inset: 0; z-index: 7; border-radius: inherit; background: rgb(4,8,18); opacity: 0; pointer-events: none; transition: opacity .6s var(--ease); }
+.screens .gal-card[data-depth="0"] { z-index: 4; }
+.screens .gal-card[data-depth="1"] { z-index: 3; transform: translateY(calc(var(--stack) / 2)) scale(.965); }
+.screens .gal-card[data-depth="2"], .screens .gal-card[data-depth="far"] { z-index: 2; transform: translateY(var(--stack)) scale(.93); }
+.screens .gal-card[data-depth="1"], .screens .gal-card[data-depth="2"] { border-color: rgba(143,208,255,.32); }
+.screens .gal-card[data-depth="1"]::after { opacity: .3; }
+.screens .gal-card[data-depth="2"]::after { opacity: .55; }
+.screens .gal-card[data-depth="far"] { opacity: 0; visibility: hidden; transition: transform .6s var(--ease), opacity .5s var(--ease), visibility 0s .6s; }
+.screens .gal-card[data-depth="gone"] { z-index: 5; opacity: 0; visibility: hidden; transform: translateY(-14%) scale(1.02); transition: transform .6s var(--ease), opacity .4s var(--ease) .12s, visibility 0s .6s; }
+.screens .gal-card[data-depth="gone"][data-exit="left"] { transform: translateX(-112%) rotate(-5deg); }
+.screens .gal-card[data-depth="gone"][data-exit="right"] { transform: translateX(112%) rotate(5deg); }
+.screens .gal-track.drag .gal-card { transition: none; }
+.screens .gal-side { z-index: 9; }
+.screens .gal-side.gal-next { right: 8px; }
+.world-on.screens .gal-view::after { z-index: 8; }
 .screens #request { padding-top: calc(var(--header-h) + 24px); padding-bottom: 72px; }
+/* the contacts: the last screen, over the stars past the edge of the board */
+.screens .ftr { box-sizing: border-box; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; gap: 44px; padding-top: calc(var(--header-h) + 24px); padding-bottom: max(56px, 8vh); background: none; border-top: 0; scroll-margin-top: calc(-1 * var(--header-h)); } /* the edge of the board and the stars above, the contacts below */
+.screens .ftr-head { display: block; width: 100%; box-sizing: border-box; }
+.screens .ftr-in { width: 100%; box-sizing: border-box; }
+.screens .ftr-contacts .ftr-phone { font-size: 20px; }
+@media (min-width: 861px) and (max-height: 760px) {
+  .screens .sec-intro .lede { display: none; }
+  .screens .sec-intro .h2 { font-size: 34px; }
+  .screens .gal { margin-top: 14px; }
+}
+@media (max-height: 519px) { .screens .gal-view { touch-action: pan-y pinch-zoom; } } /* the screen is taller than the window: it scrolls */
+@media (max-width: 860px) {
+  .screens .sec-catalog > .wrap { padding-top: calc(var(--header-h) + 14px); padding-bottom: 10px; }
+  .screens .sec-intro .eyebrow, .screens .sec-intro .lede { display: none; }
+  .screens .sec-intro .h2 { font-size: 28px; margin: 0; }
+  .screens .sec-intro .gal-bar { margin-top: 12px; }
+  .screens .gal { margin-top: 12px; --stack: 18px; }
+  .screens .gal-side { top: var(--arrow-y, 50%); }
+  .screens .gal-side.gal-prev { left: auto; right: 58px; }
+  /* the card on a phone screen: the tabs already say which one of how many */
+  .screens .sc .card-num { display: none; }
+  .screens .sc .card-title { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* the open tab names it */
+  .screens .sc .boot ul { max-height: calc(var(--rows, 6) * 1.45em); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+  .screens .sc .boot ul.clip { -webkit-mask-image: linear-gradient(transparent, #000 1.1em); mask-image: linear-gradient(transparent, #000 1.1em); }
+  .screens .sc-head .card-desc { font-size: 13.5px; line-height: 1.42; }
+  .screens .sc-head .btn { margin-top: 8px; }
+  .screens .ftr { gap: 28px; justify-content: flex-start; }
+  .screens .ftr-contacts { order: -1; } /* the contacts screen starts with the phone, the mail and the address */
+  .screens .ftr-contacts .ftr-phone { font-size: 22px; }
+  .screens .ftr-logo img { height: 36px; }
+}
+/* a low phone (iPhone SE in Safari): the tabs name the section, the header has the request button, the panel keeps 4 lines */
+@media (max-width: 860px) and (max-height: 620px) {
+  .screens .sec-intro .h2 { display: none; }
+  .screens .sec-intro .gal-bar { margin-top: 0; }
+  .screens .sc-head .btn { display: none; }
+  .screens .sc .boot { --rows: 4; }
+}
 @media (max-width: 860px) {
   /* phones: «Как мы работаем» and «Почему выбирают нас» fit one screen */
   .screens #process .steps4 { margin-top: 22px; gap: 14px; }
@@ -529,4 +582,22 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
   .screens .val h3 { font-size: 18px; margin: 10px 0 6px; }
   .screens .val p { font-size: 12.5px; line-height: 1.42; }
   .screens #why .lede { margin-top: 10px; }
+}
+/* phones up to ~700 px of window (iPhone 13-15 in Safari: 664): «Как мы работаем» and «Почему выбирают нас» still fit one screen */
+@media (max-width: 860px) and (max-height: 760px) {
+  .screens #process > .wrap, .screens #why > .wrap { padding-top: calc(var(--header-h) + 14px); padding-bottom: 12px; }
+  .screens #process .h2, .screens #why .h2 { margin-top: 10px; }
+  .screens #process .steps4 { margin-top: 14px; gap: 8px; }
+  .screens #process .st h3 { font-size: 16px; margin: 3px 0 2px; }
+  .screens #process .st p { font-size: 13px; line-height: 1.38; }
+  .screens #process .deliv { margin-top: 14px; padding: 12px 14px; gap: 10px; }
+  .screens #process .deliv p { font-size: 13.5px; line-height: 1.4; }
+  .screens #process .deliv .btn { min-height: 42px; font-size: 14px; }
+  .screens #why .lede { margin-top: 6px; font-size: 14px; }
+  .screens .vals { gap: 8px; margin-top: 14px; }
+  .screens .val { padding: 11px 10px 12px; }
+  .screens .val-ico { width: 30px; height: 30px; }
+  .screens .val-ico svg { width: 16px; height: 16px; }
+  .screens .val h3 { font-size: 16px; margin: 7px 0 4px; }
+  .screens .val p { font-size: 12px; line-height: 1.38; }
 }
