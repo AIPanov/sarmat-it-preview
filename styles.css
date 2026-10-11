@@ -126,8 +126,8 @@ html:not(.js) .ds-cv, html:not(.js) .ds-caps { display: none; }
 .lede { color: var(--ink-2); font-size: clamp(16px, 1.4vw, 19px); max-width: 52ch; margin: 18px 0 0; }
 
 /* 2. Process */
-/* The board lies under the whole page: it draws the section grid, and the steps are chips joined by a bus */
-.board-on .sec::before, .board-on .steps4::before, .board-on .steps4::after { display: none; }
+/* On the board the steps are chips joined by a bus: the section grid and the line between the steps are drawn there */
+.board-on #process::before, .board-on .steps4::before, .board-on .steps4::after { display: none; }
 .steps4 { list-style: none; margin: 64px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
 .steps4::before, .steps4::after { content: ""; position: absolute; left: 22px; right: 0; top: 22px; height: 1px; background: var(--line-2); }
 .steps4::after { background: linear-gradient(90deg, var(--accent), var(--accent-2)); transform: scaleX(0); transform-origin: 0 50%; transition: transform 1.6s var(--ease); box-shadow: 0 0 12px rgba(95,176,232,.6); }
