@@ -2,7 +2,6 @@
 
 /* ============ shared helpers ============ */
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const SCREENS_ON = document.documentElement.classList.contains('screens'); // one gesture, one screen (set in the page head; SCREENS below)
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const seg = (p, a, b) => clamp((p - a) / (b - a));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -12,12 +11,8 @@ const eBack = t => { const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c 
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const bell = (v, a, b, c) => v <= b ? smooth(a, b, v) : 1 - smooth(b, c, v);
 
-/* Descent progress d (0 before, 1 after landing) and the tilt k after it (the camera looks down at the board).
-   The hero writes them, the starfield and the board read them. */
-const heroState = { d: 0, k: 0 };
-
-/* Galleries shown as a stack of cards in screens mode, by their section: the screens flip the cards before leaving the screen. */
-const DECKS = new Map();
+/* Descent progress (0 before, 1 after landing). The hero writes it, the starfield reads it. */
+const heroState = { d: 0 };
 
 /* Errors for the ?debug overlay at the end of the file. */
 const ERRS = [];
@@ -47,7 +42,7 @@ const heroView = (() => {
   new IntersectionObserver(es => {
     const v = es[es.length - 1].isIntersecting;
     if (v === on) return; on = v; subs.forEach(f => f(on));
-  }, { rootMargin: '-2px 0px 0px 0px' }).observe(document.getElementById('hero')); // a hero edge touching the top is off screen
+  }).observe(document.getElementById('hero'));
   return { get on() { return on; }, sub(f) { subs.push(f); } };
 })();
 
@@ -57,25 +52,20 @@ const heroView = (() => {
   let W = 0, H = 0, D = 1, stars = [], mx = 0, my = 0, tmx = 0, tmy = 0, lastT = 0;
   const LAYERS = [{ k: .025, n: .56, r: [.5, 1.0], a: [.22, .55] }, { k: .07, n: .31, r: [.8, 1.4], a: [.4, .8] }, { k: .16, n: .13, r: [1.1, 2.0], a: [.6, 1] }];
   const NEB = [{ x: .74, y: .30, r: .55, c: '40,90,190', a: .17 }, { x: .18, y: .72, r: .5, c: '90,60,170', a: .10 }, { x: .5, y: .5, r: .32, c: '30,140,190', a: .08 }];
-  let seed = 3; const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const rnd = ([a, b]) => a + rand() * (b - a);
-  // Stars are made once and only rescaled: the phone address bar used to give a new sky on every resize.
+  const rnd = ([a, b]) => a + Math.random() * (b - a);
   function build() {
-    const w = cv.clientWidth || innerWidth, h = cv.clientHeight || innerHeight, d = Math.min(1.5, devicePixelRatio || 1);
-    if (stars.length && w === W && h === H && d === D) return;
-    if (!stars.length) {
-      const total = Math.min(1100, Math.max(320, Math.round(w * h / 1700)));
-      LAYERS.forEach((L, li) => {
-        const n = Math.round(total * L.n);
-        for (let i = 0; i < n; i++) {
-          const q = rand();
-          stars.push({ u: rand(), v: rand(), l: li, k: L.k, r: rnd(L.r), a: rnd(L.a), tw: rand() * 6.28, ts: .4 + rand() * 1.4,
-            c: q < .1 ? '255,214,170' : q < .4 ? '170,205,255' : '235,242,255' });
-        }
-      });
-    }
-    W = w; H = h; D = d; cv.width = Math.round(W * D); cv.height = Math.round(H * D);
-    for (const s of stars) { s.x = s.u * W; s.y = s.v * H; }
+    D = Math.min(1.5, devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * D); cv.height = Math.round(H * D);
+    const total = Math.min(1100, Math.max(320, Math.round(W * H / 1700)));
+    stars = [];
+    LAYERS.forEach((L, li) => {
+      const n = Math.round(total * L.n);
+      for (let i = 0; i < n; i++) {
+        const q = Math.random();
+        stars.push({ x: Math.random() * W, y: Math.random() * H, l: li, k: L.k, r: rnd(L.r), a: rnd(L.a), tw: Math.random() * 6.28, ts: .4 + Math.random() * 1.4,
+          c: q < .1 ? '255,214,170' : q < .4 ? '170,205,255' : '235,242,255' });
+      }
+    });
   }
   function draw(t) {
     if (REDUCE) t = 0;
@@ -104,7 +94,7 @@ const heroView = (() => {
       } else g.fillRect(x, y, s.r, s.r);
     }
   }
-  const step = t => draw(t);
+  const step = t => { draw(t); };
   function sync(on) {
     if (on && !REDUCE) ticker.add(step);
     else { ticker.remove(step); draw(lastT); }
@@ -135,13 +125,11 @@ const heroView = (() => {
    the scroll track covers only [L_END, 1]. One wheel turn, swipe or key plays the rest of the chapter
    down to «Как мы работаем» (see "one gesture" below). */
 (function () {
-  if (!REDUCE) document.documentElement.classList.add('world-on'); // the world canvas is the page background (styles: .world-on)
   const R = document.getElementById('hero');
   const logo = R.querySelector('.si-logo'), stage = R.querySelector('.si-stage'), track = R.querySelector('.si-track');
   const hint = R.querySelector('.si-hint'), bar = R.querySelector('.si-bar'), line = R.querySelector('.hero-line');
   const caps = [...R.querySelectorAll('.ds-cap')];
-  const L_END = 0.40, D0 = 0.46, D1 = 0.85;
-  const K0 = 0.855, K1 = 0.995; // after landing the Earth turns into a circuit board and the camera takes off (planet, ground)
+  const L_END = 0.40, D0 = 0.46, D1 = 0.965;
   const OX = 190, OY = 270, GY = 580 - OY;
   const GLX = 495 - OX, GLY = 580 - OY; // globe centre inside the 620 x 690 logo box
   const NS = 'http://www.w3.org/2000/svg';
@@ -270,7 +258,6 @@ const heroView = (() => {
     gy0 = top + 279 * s + Math.max(0, room - 649 * s) / 2;
     planet.size(W, H);
     render(true);
-    flightKick(true); // the flight relayouts its stations and redraws
   }
 
   let cur = 0, last = -1, logoOn = true, phase = 0, prevT = 0;
@@ -280,7 +267,7 @@ const heroView = (() => {
   function progress() {
     if (REDUCE) return L_END;
     const r = track.getBoundingClientRect();
-    const f = clamp(-r.top / Math.max(1, r.height - stage.clientHeight)); // the stage is 100svh: it unpins at f = 1 whatever the address bar does
+    const f = clamp(-r.top / Math.max(1, r.height - innerHeight));
     if (f > 0) intro = 1;
     return f > 0 ? L_END + (1 - L_END) * f : L_END * intro;
   }
@@ -290,13 +277,11 @@ const heroView = (() => {
     if (!force && Math.abs(P - last) < 1e-5) return; last = P;
     const p = REDUCE ? 1 : clamp(P / L_END), d = REDUCE ? 0 : seg(P, D0, D1);
     heroState.d = d;
-    const tk = REDUCE ? 0 : seg(P, K0, K1), land = 1 - seg(tk, 0.74, 0.84); // «Ближе к делу» stays through the wave
-    if (tk !== heroState.k) { heroState.k = tk; stage.style.setProperty('--land', tk.toFixed(3)); if (tk >= 0.999) flightKick(); }
     bar.style.transform = `scaleX(${REDUCE ? 1 : P})`;
     const hl = eOut(seg(p, 0.9, 1));
     line.style.opacity = hl * (1 - seg(d, 0, 0.05)); line.style.transform = `translateY(${lerp(14, 0, hl)}px)`;
     caps.forEach((c, i) => {
-      const [a, b, e, f] = CAPW[i], o = seg(d, a, b) * (1 - seg(d, e, f)) * land;
+      const [a, b, e, f] = CAPW[i], o = seg(d, a, b) * (1 - seg(d, e, f));
       c.style.opacity = o; c.style.visibility = o > 0.002 ? 'visible' : 'hidden';
       c.style.transform = `translateY(${lerp(18, 0, eOut(seg(d, a, b))) - 12 * seg(d, e, f)}px)`;
     });
@@ -359,11 +344,8 @@ const heroView = (() => {
   }
 
   /* ---------- canvas: planet, clouds, ground ---------- */
-  // Camera of the flight over the board (FLIGHT); the world drawing reads it once the flight is on
-  const FLY = { on: false, z: 0, h: 3.4, lit: [0, 0, 0, 0, 0], chips: [0, 0, 0, 0], sig: null, dimFast: 1, fast: false }; // fast: a screen change is running
-  let flightKick = () => {};
   const planet = (() => {
-    const cv = document.getElementById('world'), g = cv.getContext('2d');
+    const cv = R.querySelector('.ds-cv'), g = cv.getContext('2d');
     const RAD = Math.PI / 180;
     let D = 1, drawn = false;
     const ll = (la, lo) => { const a = la * RAD, b = lo * RAD, c = Math.cos(a); return [c * Math.cos(b), c * Math.sin(b), Math.sin(a)]; };
@@ -396,135 +378,15 @@ const heroView = (() => {
     for (let la = -80; la <= 80; la += 10) if (la % 30) G10.push(latLine(la));
     for (let lo = -180; lo < 180; lo += 10) if (lo % 30) G10.push(lonLine(lo));
 
-    /* City that turns into a circuit board (variant 3, Антон 11.10.2026: «Земля превращается в микросхемы»).
-       The city round the landing point is laid out like a board already: 8 avenues at 45 degrees, two ring roads,
-       districts and a core. Every road point and every light has a city place and a board place, and after the
-       landing a wave from the landing point moves each one from the first to the second: avenues become straight
-       traces, rings octagons, lights pads, districts chips, the core the central chip with the emblem. One model,
-       so nothing is swapped: it changes in place. Units: world units on the ground, landing point at the origin. */
-    /* The flight (FLIGHT below): after take-off the camera flies along the main bus (+z) and stops at one station per
-       section. Each station has an object on the board, 16 units ahead of the camera, to the right of the bus (x < 0 is
-       on the right of the screen). The board ends at ZE: an edge connector, then nothing but stars. */
-    const ZE = 70, STN = { cam: [6, 18, 30, 42, 54], obj: [22, 34, 46, 58, ZE] };
-    const RESERVED = [[-8, 21, -1.4, 23], [-8.4, 31.8, -1.2, 36.4], [-13.4, 42.6, -1.2, 51.2]]; // x0, z0, x1, z1 of the station objects
-    const CITY = (() => {
-      const roads = [], lights = [], blocks = [], parts = [], core = [];
-      const inRes = (x, z, pad) => RESERVED.some(r => x > r[0] - pad && x < r[2] + pad && z > r[1] - pad && z < r[3] + pad) || z > ZE - 1.2 - pad;
-      // a start point: two thirds in the city disk round the landing point, a third in the corridor along the bus
-      const where = pw => { if (rnd() < 0.66) { const a = rnd() * 6.2832, r = 2.8 + 48 * Math.pow(rnd(), pw); return [Math.sin(a) * r, Math.cos(a) * r, a, r]; }
-        const x = (rnd() - 0.5) * 52, z = 8 + rnd() * (ZE - 9); return [x, z, Math.atan2(x, z), Math.hypot(x, z)]; };
-      const G = 0.25, snapG = v => Math.round(v / G) * G;
-      const angOff = a => { const q = ((a % (Math.PI / 4)) + Math.PI / 4) % (Math.PI / 4); return Math.min(q, Math.PI / 4 - q); }; // to the nearest avenue
-      // avenues: 0 runs to the horizon (+z) and becomes the main bus, 4 runs towards the viewer
-      for (let i = 0; i < 8; i++) {
-        const a = i * Math.PI / 4, ux = Math.sin(a), uz = Math.cos(a), px = uz, pz = -ux;
-        const org = [], snap = [], dist = [];
-        let w = 0, dw = 0;
-        for (let r = 0.32; r <= (i === 0 ? ZE - 0.8 : 64); r += 1) {
-          dw = clamp(dw + (rnd() - 0.5) * 0.12, -0.08, 0.08); w = clamp(w + dw, -0.9, 0.9);
-          const ww = w * Math.min(1, r / 3);
-          snap.push(ux * r, uz * r); org.push(ux * r + px * ww, uz * r + pz * ww); dist.push(r);
-        }
-        roads.push({ org, snap, dist, main: i === 0 });
-      }
-      // ring roads: organic circles that become octagons with their corners on the avenues
-      for (const R0 of [10, 22]) {
-        const n = R0 === 10 ? 64 : 120, org = [], snap = [], dist = [], ph = rnd() * 6.283;
-        for (let j = 0; j <= n; j++) {
-          const a = j / n * 6.2832, r = R0 + 0.35 * Math.sin(a * 3 + ph) + 0.2 * Math.sin(a * 7 + 2 * ph);
-          const ai = a - Math.floor(a / (Math.PI / 4)) * (Math.PI / 4) - Math.PI / 8, ro = R0 * Math.cos(Math.PI / 8) / Math.cos(ai);
-          org.push(Math.sin(a) * r, Math.cos(a) * r); snap.push(Math.sin(a) * ro, Math.cos(a) * ro); dist.push(R0);
-        }
-        roads.push({ org, snap, dist, ring: true });
-      }
-      // districts: chip footprints between the avenues; their lights gather on the edges and become pins
-      for (let i = 0, tries = 0; i < 70 && tries < 700; tries++) {
-        const [x0, z0, a, r] = where(0.9), w = snapG(0.7 + 1.5 * rnd()), hh = snapG(0.5 + 1.0 * rnd());
-        const x = snapG(x0), z = snapG(z0), hd = Math.hypot(w, hh) / 2;
-        if (r < 3 || (r < 66 && r * Math.sin(angOff(a)) < hd + 0.45) || Math.abs(x) < hd + 0.6 || Math.abs(r - 10) < hd + 0.6 || Math.abs(r - 22) < hd + 0.6 || inRes(x, z, hd + 0.4)) continue;
-        if (blocks.some(b => Math.abs(b.x - x) < (b.w + w) / 2 + 0.5 && Math.abs(b.z - z) < (b.h + hh) / 2 + 0.5)) continue;
-        const b = { x, z, w, h: hh, d: r, pins: [] };
-        const n = 5 + (w * hh * 5 | 0);
-        for (let q = 0; q < n; q++) {
-          const ox = x + (rnd() - 0.5) * w, oz = z + (rnd() - 0.5) * hh;
-          const dx = ox - x, dz = oz - z, ex = w / 2 - Math.abs(dx), ez = hh / 2 - Math.abs(dz);
-          let sx, sz;
-          if (ex < ez) { sx = x + Math.sign(dx || 1) * (w / 2 + 0.05); sz = z + Math.round(dz / 0.16) * 0.16; }
-          else { sz = z + Math.sign(dz || 1) * (hh / 2 + 0.05); sx = x + Math.round(dx / 0.16) * 0.16; }
-          b.pins.push({ ox, oz, sx, sz, b: 0.5 + 0.5 * rnd() });
-        }
-        blocks.push(b); i++;
-      }
-      // streets between the avenues: short walks on a 0.25 grid, turning by 45 degrees, never crossing; in the city they
-      // bend a little and carry a row of lights, on the board they are the dense thin traces
-      const GC = 0.25, GN = 592, off = GN / 2, occ = new Uint8Array(GN * GN);
-      const cellOf = v => Math.floor(v / GC) + off, cen = c => (c - off + 0.5) * GC;
-      const markR = (x, z, rad) => { const c = cellOf(x), r = cellOf(z), q = Math.ceil(rad / GC); for (let y = Math.max(0, r - q); y <= Math.min(GN - 1, r + q); y++) for (let xx = Math.max(0, c - q); xx <= Math.min(GN - 1, c + q); xx++) occ[y * GN + xx] = 1; };
-      for (const rd of roads) for (let j = 0; j + 3 < rd.snap.length; j += 2) for (let u = 0; u < 1; u += 0.25) markR(lerp(rd.snap[j], rd.snap[j + 2], u), lerp(rd.snap[j + 1], rd.snap[j + 3], u), 0.4);
-      for (const bk of blocks) for (let x = bk.x - bk.w / 2; x <= bk.x + bk.w / 2 + 1e-6; x += GC) for (let z = bk.z - bk.h / 2; z <= bk.z + bk.h / 2 + 1e-6; z += GC) markR(x, z, 0.3);
-      markR(0, 0, 2.6);
-      for (const [x0, z0, x1, z1] of RESERVED) for (let x = x0; x <= x1; x += GC) for (let z = z0; z <= z1; z += GC) markR(x, z, 0.3);
-      for (let x = -40; x <= 40; x += GC) for (let z = ZE - 1.2; z <= ZE + 4; z += GC) markR(x, z, 0); // nothing on the board past its edge
-      const DIR = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]];
-      const freeC = (c, r) => { if (c < 1 || r < 1 || c >= GN - 1 || r >= GN - 1) return false; for (let y = r - 1; y <= r + 1; y++) for (let x = c - 1; x <= c + 1; x++) if (occ[y * GN + x]) return false; return true; };
-      for (let i = 0; i < 3400; i++) {
-        const [sx0, sz0] = where(1.7); // denser near the landing point, where the camera is
-        let c = cellOf(sx0), r = cellOf(sz0); if (!freeC(c, r)) continue;
-        let d = rnd() < 0.6 ? (rnd() * 4 | 0) * 2 : rnd() * 8 | 0, rel = 0;
-        const cells = [[c, r]], verts = [[c, r]], segs = 2 + (rnd() * 4 | 0);
-        for (let sg = 0; sg < segs; sg++) {
-          const len = 2 + (rnd() * 9 | 0); let n = 0;
-          while (n < len) { const nc = c + DIR[d][0], nr = r + DIR[d][1]; if (!freeC(nc, nr)) break; c = nc; r = nr; cells.push([c, r]); n++; }
-          if (!n) break;
-          verts.push([c, r]);
-          const turn = rel <= -2 ? 1 : rel >= 2 ? -1 : rnd() < 0.5 ? 1 : -1; rel += turn; d = (d + turn + 8) % 8;
-        }
-        if (cells.length < 5) continue;
-        for (const [x, y] of cells) for (let yy = y - 1; yy <= y + 1; yy++) for (let xx = x - 1; xx <= x + 1; xx++) occ[yy * GN + xx] = 1;
-        const org = [], snap = [], dist = [];
-        for (let v = 0; v < verts.length; v++) { // vertices and midpoints; the city version bends at both
-          const sx = cen(verts[v][0]), sz = cen(verts[v][1]);
-          snap.push(sx, sz); org.push(sx + (rnd() - 0.5) * 0.22, sz + (rnd() - 0.5) * 0.22); dist.push(Math.hypot(sx, sz));
-          if (v < verts.length - 1) {
-            const mx = (sx + cen(verts[v + 1][0])) / 2, mz = (sz + cen(verts[v + 1][1])) / 2;
-            snap.push(mx, mz); org.push(mx + (rnd() - 0.5) * 0.34, mz + (rnd() - 0.5) * 0.34); dist.push(Math.hypot(mx, mz));
-          }
-        }
-        roads.push({ org, snap, dist, street: true });
-      }
-      // scattered lights: most become pads, some pairs small parts, a few go out
-      const nearRoad = (r, a) => (r < 66 && r * Math.sin(angOff(a)) < 0.35) || Math.abs(r * Math.sin(a)) < 0.35 || Math.abs(r - 10) < 0.5 || Math.abs(r - 22) < 0.5;
-      const inBlock = (x, z) => blocks.some(b => Math.abs(b.x - x) < b.w / 2 + 0.25 && Math.abs(b.z - z) < b.h / 2 + 0.25);
-      for (let i = 0; i < 760; i++) {
-        const [x, z, a, r] = where(1.4);
-        if (r < 1.6 || nearRoad(r, a) || inBlock(x, z) || inRes(x, z, 0.3)) continue;
-        const q = rnd(), sx = snapG(x), sz = snapG(z);
-        if (q < 0.2) { const o = rnd() < 0.5; parts.push({ x: sx, z: sz, o, d: r, a: { ox: x, oz: z, b: 0.5 + 0.5 * rnd() }, c: { ox: x + (o ? 0.22 : 0) + (rnd() - 0.5) * 0.1, oz: z + (o ? 0 : 0.22) + (rnd() - 0.5) * 0.1, b: 0.5 + 0.5 * rnd() } }); }
-        else lights.push({ ox: x, oz: z, sx, sz, d: r, out: q > 0.9, b: 0.35 + 0.65 * rnd() });
-      }
-      // the core: lights round the landing point gather on the edges of the central chip (0.5 units)
-      for (let i = 0; i < 72; i++) {
-        const a = rnd() * 6.2832, r = 0.32 + 1.9 * Math.pow(rnd(), 0.8), ox = Math.sin(a) * r, oz = Math.cos(a) * r;
-        const side = Math.abs(ox) > Math.abs(oz), t = clamp(Math.round((side ? oz : ox) / 0.08) * 0.08, -0.2, 0.2);
-        core.push({ ox, oz, sx: side ? Math.sign(ox) * 0.3 : t, sz: side ? t : Math.sign(oz) * 0.3, b: 0.5 + 0.5 * rnd() });
-      }
-      for (const rd of roads) {
-        rd.cur = new Float32Array(rd.org.length); rd.m = new Float32Array(rd.dist.length); rd.zmin = 1e9; rd.zmax = -1e9;
-        for (let j = 1; j < rd.org.length; j += 2) { rd.zmin = Math.min(rd.zmin, rd.org[j], rd.snap[j]); rd.zmax = Math.max(rd.zmax, rd.org[j], rd.snap[j]); }
-      }
-      // lights along the roads (zigzag on both sides of the avenues, about one per unit on the streets);
-      // they ride on the road and fade as it becomes a trace
-      roads.forEach((rd, ri) => {
-        for (let j = 0; j < rd.dist.length - 1; j++) {
-          if (!rd.street) { for (const [t, o] of [[0.25, 0.15], [0.75, -0.15]]) lights.push({ road: ri, j, t, off: o, b: 0.45 + 0.55 * rnd() }); continue; }
-          const L = Math.hypot(rd.snap[2 * j + 2] - rd.snap[2 * j], rd.snap[2 * j + 3] - rd.snap[2 * j + 1]);
-          for (let t = 0.4 / L; t < 1; t += 0.9 / L) lights.push({ road: ri, j, t, off: (rnd() - 0.5) * 0.1, b: 0.3 + 0.5 * rnd() });
-        }
-      });
-      return { roads, lights, blocks, parts, core };
-    })();
-    // one glow sprite for every signal head
-    const GLOW = (() => { const c = document.createElement('canvas'), n = 54, x = c.getContext('2d'); c.width = c.height = n; const gr = x.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2); gr.addColorStop(0, 'rgba(143,208,255,.6)'); gr.addColorStop(1, 'rgba(143,208,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, n, n); return c; })();
+    // City lights on the ground: a dense core, radial roads and two ring roads.
+    const LIGHTS = [];
+    for (let i = 0; i < 900; i++) {
+      const q = rnd(); let r, a;
+      if (q < 0.55) { r = 1.2 + 34 * Math.pow(rnd(), 1.7); a = rnd() * 6.283; }
+      else if (q < 0.8) { a = Math.floor(rnd() * 9) * 6.283 / 9 + (rnd() - .5) * 0.03; r = 4 + 70 * rnd(); }
+      else { r = (rnd() < .5 ? 10 : 22) + (rnd() - .5) * 0.8; a = rnd() * 6.283; }
+      LIGHTS.push({ x: Math.cos(a) * r, z: Math.sin(a) * r, w: rnd() < .72, b: .35 + .65 * rnd() });
+    }
     // Cloud sprite and puffs the camera flies through.
     const CLOUD = document.createElement('canvas'); CLOUD.width = CLOUD.height = 256;
     (() => {
@@ -537,13 +399,7 @@ const heroView = (() => {
     })();
     const PUFFS = Array.from({ length: 34 }, () => ({ x: rnd() * 2 - 1, y: rnd() * 2 - 1, z: 0.25 + rnd() * 1.1, s: 0.5 + rnd() * 0.8, a: 0.35 + rnd() * 0.4 }));
 
-    // The world canvas is fixed and takes the large viewport height; the scene keeps the stage's W x H geometry.
-    let Wc = 0, Hc = 0;
-    function size(w, h) {
-      const cw = cv.clientWidth || w, ch = cv.clientHeight || h, d = clamp(Math.sqrt(2.2e6 / (cw * ch)), 0.75, Math.min(devicePixelRatio || 1, 1.5));
-      if (cw === Wc && ch === Hc && d === D) return;
-      Wc = cw; Hc = ch; D = d; cv.width = Math.round(cw * D); cv.height = Math.round(ch * D); drawn = true;
-    }
+    function size(w, h) { D = Math.min(devicePixelRatio || 1, w * h > 1.1e6 ? 1 : 1.5); cv.width = Math.round(w * D); cv.height = Math.round(h * D); drawn = true; }
 
     function strokeSet(list, B, r, gx, gy, front, a, lw) {
       if (a <= 0.004) return;
@@ -643,257 +499,79 @@ const heroView = (() => {
       g.globalAlpha = 1;
     }
 
-    /* After the landing (k 0..1, heroState.k): a snap (k 0-0.11: the beam goes into the ground, the core gathers
-       into the central chip), the wave (0.11-0.63: a front runs from the landing point to the horizon and the city
-       turns into the board behind it; the camera barely moves, the horizon stays in frame), a pause (0.63-0.78:
-       signals run out along the avenues), take-off (0.78-1: the camera rises into the flight pose, the board quiets
-       down to background level, the main bus and the central chip stay lit). Before k > 0 nothing here changes. */
-    const BG = '#040d1c';
-    function ground(u, t, A, k = 0) {
-      const narrow = W / H < 0.8, fov = (narrow ? 76 : 60) * RAD, FL = (H / 2) / Math.tan(fov / 2), HH = Math.max(H, Hc);
-      const h0 = Math.exp(lerp(Math.log(46), Math.log(1.5), eOut(u))), th0 = lerp(-89, -12, eIO(seg(u, 0.1, 0.95)));
-      let h = h0, thd = th0, Cx = 0, Cz = h0 * 1.6 * eIO(seg(u, 0.35, 1)) - h0 / Math.tan(-th0 * RAD);
-      const thF = narrow ? -27 : -20, CxF = narrow ? 0.5 : 1.0; // flight pose; the bus comes in from the lower right, not through the middle of the text
-      if (FLY.on) { h = FLY.h; thd = thF; Cx = CxF; Cz = FLY.z; k = 1; }
-      else if (k > 0) {
-        const e1 = eIO(seg(k, 0.05, 0.63)), e2 = eIO(seg(k, 0.78, 1));
-        h = lerp(lerp(1.5, 2.4, e1), 3.4, e2); thd = lerp(lerp(-12, -18, e1), thF, e2);
-        Cz = lerp(Cz, flightZ0(), e2); Cx = CxF * e2;
-      }
-      const th = thd * RAD, st = Math.sin(th), ct = Math.cos(th), dist = h / -st;
-      const C = [Cx, h, Cz], f = [0, st, ct], rv = [-1, 0, 0], up = [0, ct, -st];
+    function ground(u, t, A) {
+      const fov = (W / H < 0.8 ? 76 : 60) * RAD, FL = (H / 2) / Math.tan(fov / 2);
+      const h = Math.exp(lerp(Math.log(46), Math.log(1.5), eOut(u)));
+      const th = lerp(-89, -12, eIO(seg(u, 0.1, 0.95))) * RAD, st = Math.sin(th), ct = Math.cos(th);
+      const dist = h / -st, tz = h * 1.6 * eIO(seg(u, 0.35, 1));
+      const C = [0, h, tz - dist * ct], f = [0, st, ct], rv = [-1, 0, 0], up = [0, ct, -st];
       const cx = W / 2, cy = H / 2;
       const cam = (x, y, z) => { const dx = x - C[0], dy = y - C[1], dz = z - C[2]; return [dx * rv[0] + dy * rv[1] + dz * rv[2], dx * up[0] + dy * up[1] + dz * up[2], dx * f[0] + dy * f[1] + dz * f[2]]; };
-      const NEAR = 0.05;
-      const P = (x, z) => { const c = cam(x, 0, z); return c[2] < NEAR ? null : [cx + c[0] / c[2] * FL, cy - c[1] / c[2] * FL, c[2]]; };
-      const snap = eOut(seg(k, 0.02, 0.11)), w = seg(k, 0.11, 0.63), ew = eOut(seg(w, 0, 0.45)), R = w > 0 ? 2.5 + 68 * Math.pow(w, 1.6) : 0;
-      const dim = lerp(1, 0.45, eIO(seg(k, 0.8, 1))) * (FLY.on ? FLY.dimFast : 1); // after take-off the board is background, the bus stays lit
-      // beyond the city disk (the corridor along the bus) there is no city: that part of the board appears at the end of the wave
-      const mAt = d => R > 0 ? Math.max(smooth(0, 1, (R - d) / 4), d > 62 ? smooth(0.75, 1, w) : 0) : 0;
-      const zLo = Cz - 1, zHi = Cz + 100; // what the camera can see along the bus
-      const voidA = FLY.on ? smooth(STN.cam[2], STN.cam[3], Cz) : 0; // the edge of the board and the stars past it, near the end of the flight
-      const fogD = z => 1 - smooth(30, 90, z);
       g.globalAlpha = A;
       const Yh = cy + st / ct * FL, top = Math.max(0, Yh);
       const gg = g.createLinearGradient(0, Math.max(Yh, -H), 0, H);
       gg.addColorStop(0, '#0d2d5c'); gg.addColorStop(0.25, '#071a38'); gg.addColorStop(1, '#030b1a');
-      g.fillStyle = gg; g.fillRect(0, top, W, HH - top);
-      if (w > 0) { g.globalAlpha = A * 0.7 * ew; g.fillStyle = BG; g.fillRect(0, top, W, HH - top); g.globalAlpha = A; }
-      const hzA = lerp(1, 0.5, ew) * (1 - voidA);
+      g.fillStyle = gg; g.fillRect(0, top, W, H - top);
       if (Yh > 0) {
         const sg = g.createLinearGradient(0, Yh, 0, Yh - H * 0.5);
-        sg.addColorStop(0, `rgba(70,150,225,${(0.5 * hzA).toFixed(3)})`); sg.addColorStop(0.3, `rgba(30,80,160,${(0.18 * hzA).toFixed(3)})`); sg.addColorStop(1, 'rgba(10,30,70,0)');
+        sg.addColorStop(0, 'rgba(70,150,225,.5)'); sg.addColorStop(0.3, 'rgba(30,80,160,.18)'); sg.addColorStop(1, 'rgba(10,30,70,0)');
         g.fillStyle = sg; g.fillRect(0, Yh - H * 0.5, W, H * 0.5);
       }
-      // ground grid, several scales fading by on-screen spacing; the board keeps only the fine one, quiet (0.05)
+      // ground grid, several scales fading by on-screen spacing
+      const NEAR = 0.05;
       const seg3 = (x0, z0, x1, z1) => {
         let a = cam(x0, 0, z0), b = cam(x1, 0, z1);
         if (a[2] < NEAR && b[2] < NEAR) return;
-        if (a[2] < NEAR) { const q = (NEAR - a[2]) / (b[2] - a[2]); a = [a[0] + (b[0] - a[0]) * q, a[1] + (b[1] - a[1]) * q, NEAR]; }
-        if (b[2] < NEAR) { const q = (NEAR - b[2]) / (a[2] - b[2]); b = [b[0] + (a[0] - b[0]) * q, b[1] + (a[1] - b[1]) * q, NEAR]; }
+        if (a[2] < NEAR) { const k = (NEAR - a[2]) / (b[2] - a[2]); a = [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, NEAR]; }
+        if (b[2] < NEAR) { const k = (NEAR - b[2]) / (a[2] - b[2]); b = [b[0] + (a[0] - b[0]) * k, b[1] + (a[1] - b[1]) * k, NEAR]; }
         g.moveTo(cx + a[0] / a[2] * FL, cy - a[1] / a[2] * FL); g.lineTo(cx + b[0] / b[2] * FL, cy - b[1] / b[2] * FL);
       };
-      if (ew >= 0.999) for (const [d0, d1, ga] of [[0, 18, 0.05], [18, 42, 0.025]]) {
-        const za = Math.ceil((Cz + 0.5 + d0) * 2) / 2, zb = Math.min(Cz + d1, ZE);
-        if (zb <= za) continue;
-        g.beginPath();
-        for (let x = Math.floor((Cx - 30) * 2) / 2; x <= Cx + 30; x += 0.5) seg3(x, za, x, zb);
-        for (let z = za; z <= zb; z += 0.5) seg3(Cx - 30, z, Cx + 30, z);
-        g.strokeStyle = `rgba(95,176,232,${ga})`; g.lineWidth = 1; g.stroke();
-      }
-      else for (const gs of [0.5, 2, 8, 32, 128]) {
-        const sp = gs * FL / dist;
-        const a = 0.2 * smooth(12, 46, sp) * (1 - 0.6 * smooth(300, 900, sp)) * (gs === 0.5 ? lerp(1, 0.25, ew) : 1 - ew);
+      for (const gs of [0.5, 2, 8, 32, 128]) {
+        const sp = gs * FL / dist, a = 0.2 * smooth(12, 46, sp) * (1 - 0.6 * smooth(300, 900, sp));
         if (a <= 0.004) continue;
         const E = Math.min(gs * 36, 400);
         g.beginPath();
         for (let i = -E; i <= E + 1e-6; i += gs) { seg3(i, -E, i, E); seg3(-E, i, E, i); }
         g.strokeStyle = `rgba(95,176,232,${a.toFixed(3)})`; g.lineWidth = 1; g.stroke();
       }
-      // the front of the wave: the last landing ring keeps growing to the horizon
-      if (w > 0 && w < 1) {
-        g.beginPath(); let pen = false;
-        for (let i = 0; i <= 120; i++) { const a = i / 120 * 6.2832, q = P(Math.sin(a) * R, Math.cos(a) * R); if (!q) { pen = false; continue; } pen ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); pen = true; }
-        g.strokeStyle = `rgba(143,208,255,${(0.6 * (1 - smooth(0.7, 1, w))).toFixed(3)})`; g.lineWidth = 1.5; g.stroke();
-      }
-      // roads: organic until the front passes, then straight traces (avenues) and octagons (rings)
-      const traceB = new Map();
-      for (const rd of CITY.roads) {
-        rd.vis = rd.zmax > zLo && rd.zmin < zHi; if (!rd.vis) continue;
-        const n = rd.dist.length, cur = rd.cur, mm = rd.m;
-        for (let j = 0; j < n; j++) { const m = mAt(rd.dist[j]); mm[j] = m; cur[2 * j] = lerp(rd.org[2 * j], rd.snap[2 * j], m); cur[2 * j + 1] = lerp(rd.org[2 * j + 1], rd.snap[2 * j + 1], m); }
-        if (R <= 0) continue;
-        for (let j = 0; j < n - 1; j++) {
-          const m = Math.min(mm[j], mm[j + 1]); if (m <= 0.02) continue;
-          const a = cam(cur[2 * j], 0, cur[2 * j + 1]), b = cam(cur[2 * j + 2], 0, cur[2 * j + 3]);
-          if (a[2] < NEAR || b[2] < NEAR) continue;
-          const z = (a[2] + b[2]) / 2, key = (rd.main ? 100 : rd.street ? 200 : 0) + (m < 0.4 ? 0 : m < 0.8 ? 10 : 20) + (z < 5 ? 0 : z < 14 ? 1 : z < 35 ? 2 : 3);
-          let L = traceB.get(key); if (!L) traceB.set(key, L = []);
-          L.push(cx + a[0] / a[2] * FL, cy - a[1] / a[2] * FL, cx + b[0] / b[2] * FL, cy - b[1] / b[2] * FL);
-        }
-      }
-      g.lineCap = 'round';
-      for (const [key, L] of traceB) {
-        const type = (key / 100) | 0, li = ((key % 100) / 10) | 0, di = key % 10, zm = [3, 9, 24, 60][di]; // type: 0 avenue or ring, 1 main bus, 2 street
-        const a = [0.45 * dim, 0.55, 0.36 * dim][type] * [0.35, 0.7, 1][li] * fogD(zm);
-        g.beginPath(); for (let i = 0; i < L.length; i += 4) { g.moveTo(L[i], L[i + 1]); g.lineTo(L[i + 2], L[i + 3]); }
-        g.strokeStyle = `rgba(143,208,255,${a.toFixed(3)})`; g.lineWidth = clamp([0.04, 0.05, 0.03][type] * FL / zm, 0.5, [2, 2.6, 1.5][type]); g.stroke();
-      }
-      // districts become chips: a dark body with a thin outline appears as their lights gather on the edges
-      const quad = (x0, z0, x1, z1) => { const a = P(x0, z0), b = P(x1, z0), c = P(x1, z1), d = P(x0, z1); if (!a || !b || !c || !d) return false; g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.lineTo(c[0], c[1]); g.lineTo(d[0], d[1]); g.closePath(); return true; };
-      for (const bk of CITY.blocks) {
-        const m = mAt(bk.d); bk.mm = m; bk.vis = bk.z > zLo && bk.z < zHi; if (m <= 0.02 || !bk.vis) continue;
-        g.beginPath(); if (!quad(bk.x - bk.w / 2, bk.z - bk.h / 2, bk.x + bk.w / 2, bk.z + bk.h / 2)) continue;
-        g.fillStyle = `rgba(8,21,40,${(0.92 * m).toFixed(3)})`; g.fill();
-        g.strokeStyle = `rgba(143,208,255,${(0.4 * m * dim * fogD(bk.d)).toFixed(3)})`; g.lineWidth = 1; g.stroke();
-      }
-      for (const pt of CITY.parts) { // pairs of lights become small parts: two pads and a body
-        const m = mAt(pt.d); pt.mm = m; pt.vis = pt.z > zLo && pt.z < zHi; if (m <= 0.05 || !pt.vis) continue;
-        const bx = pt.x + (pt.o ? 0.125 : 0), bz = pt.z + (pt.o ? 0 : 0.125);
-        g.beginPath(); if (quad(bx - (pt.o ? 0.07 : 0.045), bz - (pt.o ? 0.045 : 0.07), bx + (pt.o ? 0.07 : 0.045), bz + (pt.o ? 0.045 : 0.07))) { g.fillStyle = `rgba(28,52,88,${(m * dim).toFixed(3)})`; g.fill(); }
-      }
-      // lights: warm while they are city, blue pads once the front has passed; batched by brightness
-      const warm = Array.from({ length: 9 }, () => []), blue = Array.from({ length: 9 }, () => []);
-      const put = (x, z, aw, ab, big) => {
-        const q = P(x, z); if (!q || q[0] < -4 || q[0] > W + 4 || q[1] < -4 || q[1] > HH + 4) return;
-        const fg = 1 - smooth(40, 160, q[2]);
-        if (aw * fg > 0.03) warm[Math.min(8, Math.round(aw * fg * 8))].push(q[0], q[1], clamp(0.07 * FL / q[2], 0.8, 3.6));
-        if (ab * fg > 0.03) blue[Math.min(8, Math.round(ab * fg * 8))].push(q[0], q[1], clamp((big ? 0.05 : 0.045) * FL / q[2], 0.8, big ? 3.6 : 3.2));
-      };
-      for (const L of CITY.lights) {
-        if (L.road !== undefined) {
-          const rd = CITY.roads[L.road], j = L.j, m = rd.m[j]; if (!rd.vis || m > 0.98 || rd.dist[j] > 62) continue;
-          const ax = rd.cur[2 * j], az = rd.cur[2 * j + 1], bx = rd.cur[2 * j + 2], bz = rd.cur[2 * j + 3], ln = Math.hypot(bx - ax, bz - az) || 1;
-          put(lerp(ax, bx, L.t) + (bz - az) / ln * L.off, lerp(az, bz, L.t) - (bx - ax) / ln * L.off, L.b * (1 - m), 0);
-        } else { if (L.oz < zLo || L.oz > zHi) continue; const m = mAt(L.d); put(lerp(L.ox, L.sx, m), lerp(L.oz, L.sz, m), L.d > 62 ? 0 : L.b * (1 - m), L.out ? 0 : 0.75 * m * dim); }
-      }
-      for (const bk of CITY.blocks) { if (!bk.vis) continue; const m = bk.mm || 0; for (const q of bk.pins) put(lerp(q.ox, q.sx, m), lerp(q.oz, q.sz, m), bk.d > 62 ? 0 : q.b * (1 - m), 0.7 * m * dim); }
-      for (const pt of CITY.parts) {
-        if (!pt.vis) continue;
-        const m = pt.mm || 0, x2 = pt.x + (pt.o ? 0.25 : 0), z2 = pt.z + (pt.o ? 0 : 0.25);
-        put(lerp(pt.a.ox, pt.x, m), lerp(pt.a.oz, pt.z, m), pt.a.b * (1 - m), 0.6 * m * dim); put(lerp(pt.c.ox, x2, m), lerp(pt.c.oz, z2, m), pt.c.b * (1 - m), 0.6 * m * dim);
-      }
-      for (const q of CITY.core) put(lerp(q.ox, q.sx, snap), lerp(q.oz, q.sz, snap), q.b * (1 - snap), 0.9 * snap, true);
-      for (let i = 0; i < 9; i++) {
-        if (warm[i].length) { g.fillStyle = `rgba(255,208,150,${(i / 8).toFixed(3)})`; const L = warm[i]; for (let j = 0; j < L.length; j += 3) g.fillRect(L[j] - L[j + 2] / 2, L[j + 1] - L[j + 2] / 2, L[j + 2], L[j + 2]); }
-        if (blue[i].length) { g.fillStyle = `rgba(143,208,255,${(i / 8).toFixed(3)})`; const L = blue[i]; for (let j = 0; j < L.length; j += 3) g.fillRect(L[j] - L[j + 2] / 2, L[j + 1] - L[j + 2] / 2, L[j + 2], L[j + 2]); }
-      }
-      // stations of the flight: an object for every section, at board level until the camera arrives (FLY.lit), then lit
-      if (zHi > STN.obj[0] - 3) {
-        const pk = (i, base) => Math.min(1, base + (FLY.lit[i] || 0));
-        const stroke = (a, lw) => { g.strokeStyle = `rgba(143,208,255,${a.toFixed(3)})`; g.lineWidth = lw; g.stroke(); };
-        const lwAt = z => clamp(0.045 * FL / Math.max(0.5, z - Cz), 0.6, 2.2);
-        const dot = (x, z, k0, max) => { const q = P(x, z); if (q) { const sz = clamp(k0 * FL / q[2], 0.8, max); g.fillRect(q[0] - sz / 2, q[1] - sz / 2, sz, sz); } };
-        const body = (x0, z0, x1, z1, a, lw = 1.2) => { g.beginPath(); if (quad(x0, z0, x1, z1)) { g.fillStyle = 'rgba(8,21,40,.95)'; g.fill(); stroke(a, lw); } };
-        const glowAt = (x, z, rr, a) => { const q = P(x, z); if (q && a > 0) { const r = clamp(rr * FL / q[2], 6, 36); g.globalAlpha = A * a; g.drawImage(GLOW, q[0] - r, q[1] - r, 2 * r, 2 * r); g.globalAlpha = A; } };
-        // 1. «Как мы работаем»: four chips in a row across the bus, fed by a branch; they power up with the steps on the page
-        { const z = STN.obj[0], a = pk(0, 0.3 * dim);
-          g.beginPath(); seg3(0, z, -1.75, z); for (let c = 0; c < 3; c++) seg3(-2.85 - c * 1.6, z, -3.35 - c * 1.6, z); stroke(a, lwAt(z));
-          for (let c = 0; c < 4; c++) {
-            const x = -2.3 - c * 1.6, pw = FLY.chips[c] || 0;
-            glowAt(x, z, 0.9, 0.35 * pw); // small: a wide glow read as a blue spot by the heading (Антон, 11.10.2026)
-            body(x - 0.55, z - 0.55, x + 0.55, z + 0.55, 0.25 + 0.55 * Math.max(pw, a));
-            g.fillStyle = `rgba(143,208,255,${(0.3 + 0.65 * Math.max(pw, a * 0.5)).toFixed(3)})`;
-            for (let j = 0; j < 5; j++) { const o = -0.4 + j * 0.2; dot(x + o, z - 0.66, 0.07, 3.2); dot(x + o, z + 0.66, 0.07, 3.2); dot(x - 0.66, z + o, 0.07, 3.2); dot(x + 0.66, z + o, 0.07, 3.2); }
-          } }
-        // 2. «Готовые конфигурации»: a processor socket with two memory slots on each side
-        { const z = STN.obj[1], x = -4.4, a = pk(1, 0.3 * dim);
-          g.beginPath(); seg3(0, z, -1.6, z); stroke(a, lwAt(z));
-          glowAt(x, z, 1.4, 0.35 * (FLY.lit[1] || 0));
-          body(x - 1.2, z - 1.2, x + 1.2, z + 1.2, 0.25 + 0.5 * a);
-          g.beginPath(); if (quad(x - 0.92, z - 0.92, x + 0.92, z + 0.92)) stroke(0.18 + 0.4 * a, 1);
-          g.fillStyle = `rgba(143,208,255,${(0.22 + 0.5 * a).toFixed(3)})`;
-          for (let i = 0; i < 7; i++) for (let j = 0; j < 7; j++) dot(x - 0.72 + i * 0.24, z - 0.72 + j * 0.24, 0.05, 2.6);
-          for (const sx of [-1.75, -2.1, -6.7, -7.05]) body(sx - 0.1, z - 1.5, sx + 0.1, z + 1.5, 0.2 + 0.45 * a, 1); }
-        // 3. «Объекты под ключ»: a network node with two rows of ports and a fan of traces to workplaces and cameras
-        { const z = STN.obj[2], a = pk(2, 0.3 * dim);
-          g.beginPath(); seg3(0, z, -3.1, z);
-          const ends = [];
-          for (let j = 0; j < 14; j++) {
-            const zp = z - 0.36 + (j % 7) * 0.12, zt = z + (j - 6.5) * 0.62, xt = -8.6 - (j % 3) * 1.5, xb = -5.4 - (j % 2) * 0.2, dz = Math.abs(zt - zp);
-            seg3(-4.9, zp, xb, zp); seg3(xb, zp, xb - dz, zt); seg3(xb - dz, zt, xt, zt); ends.push([xt, zt]);
-          }
-          stroke(0.25 + 0.5 * a, lwAt(z) * 0.8);
-          glowAt(-4, z, 1.1, 0.35 * (FLY.lit[2] || 0));
-          body(-4.9, z - 0.45, -3.1, z + 0.45, 0.25 + 0.5 * a);
-          g.fillStyle = `rgba(143,208,255,${(0.3 + 0.55 * a).toFixed(3)})`;
-          for (let i = 0; i < 8; i++) { dot(-4.72 + i * 0.2, z - 0.18, 0.08, 3); dot(-4.72 + i * 0.2, z + 0.18, 0.08, 3); }
-          for (const [x2, z2] of ends) dot(x2, z2, 0.12, 4); }
-        // 4. «Почему выбирают нас»: four checkpoints on a calm stretch of the bus
-        { const a = pk(3, 0.35 * dim);
-          for (let j = 0; j < 4; j++) { const q = P(0, STN.obj[3] - 1.5 + j); if (!q) continue; const r = clamp(0.22 * FL / q[2], 2, 10); g.beginPath(); g.ellipse(q[0], q[1], r, r * 0.45, 0, 0, 6.2832); g.fillStyle = BG; g.fill(); stroke(0.3 + 0.6 * a, 1.2); } }
-        // 5. «Заявка»: the board ends with an edge connector; past the edge there is no board, only the stars
-        if (voidA > 0) {
-          const qe = P(Cx, ZE);
-          if (qe && qe[1] > Yh) {
-            g.globalCompositeOperation = 'destination-out'; g.globalAlpha = voidA;
-            const y0 = Yh - H * 0.5, gr = g.createLinearGradient(0, qe[1] - 8, 0, qe[1]); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-            g.fillStyle = '#000'; g.fillRect(0, y0, W, qe[1] - 8 - y0); g.fillStyle = gr; g.fillRect(0, qe[1] - 8, W, 8);
-            g.globalCompositeOperation = 'source-over'; g.globalAlpha = A;
-          }
-        }
-        { const a = pk(4, 0.35 * dim);
-          g.beginPath(); seg3(-40, ZE, 40, ZE); stroke((0.15 + 0.35 * a) * Math.max(voidA, 0.4), 1);
-          glowAt(0, ZE - 0.4, 2, 0.45 * (FLY.lit[4] || 0));
-          g.fillStyle = `rgba(143,208,255,${(0.35 + 0.5 * a).toFixed(3)})`;
-          for (let j = 0; j < 14; j++) { const x = -1.95 + j * 0.3; g.beginPath(); if (quad(x - 0.08, ZE - 0.75, x + 0.08, ZE - 0.15)) g.fill(); } }
-      }
-      // glow of the landing point; it stays faint round the chip
-      const M0 = cam(0, 0, 0);
-      if (M0[2] > 0.1) {
-        const MX = cx + M0[0] / M0[2] * FL, MY = cy - M0[1] / M0[2] * FL, gr = 22 * lerp(1, 1.8, snap), gl = g.createRadialGradient(MX, MY, 0, MX, MY, gr);
-        gl.addColorStop(0, `rgba(143,208,255,${(0.55 * lerp(1, 0.5, snap)).toFixed(3)})`); gl.addColorStop(1, 'rgba(143,208,255,0)');
-        g.fillStyle = gl; g.fillRect(MX - gr, MY - gr, 2 * gr, 2 * gr);
-      }
-      // the central chip with the emblem's triangle: the Sarmat itself has landed and become the centre of the board
-      if (snap > 0) {
-        g.beginPath();
-        if (quad(-0.25, -0.25, 0.25, 0.25)) {
-          g.fillStyle = `rgba(8,21,40,${(0.95 * snap).toFixed(3)})`; g.fill();
-          g.strokeStyle = `rgba(143,208,255,${(0.8 * snap).toFixed(3)})`; g.lineWidth = 1.2; g.stroke();
-        }
-        const ta = 0.55 * seg(k, 0.09, 0.2), T = [P(0, 0.165), P(-0.145, -0.09), P(0.145, -0.09)];
-        if (ta > 0 && T.every(Boolean)) {
-          g.beginPath(); g.moveTo(T[0][0], T[0][1]); g.lineTo(T[1][0], T[1][1]); g.lineTo(T[2][0], T[2][1]); g.closePath();
-          g.strokeStyle = `rgba(232,242,255,${ta.toFixed(3)})`; g.lineWidth = 1.1; g.lineJoin = 'miter'; g.stroke();
-        }
+      // city lights
+      for (const L of LIGHTS) {
+        const c = cam(L.x, 0, L.z); if (c[2] < 0.1) continue;
+        const X = cx + c[0] / c[2] * FL, Y = cy - c[1] / c[2] * FL;
+        if (X < -4 || X > W + 4 || Y < -4 || Y > H + 4) continue;
+        const sz = clamp(0.14 * FL / c[2], 0.8, 3), fog = 1 - smooth(40, 160, c[2]);
+        g.fillStyle = L.w ? `rgba(255,208,150,${(L.b * fog).toFixed(3)})` : `rgba(160,210,255,${(L.b * fog).toFixed(3)})`;
+        g.fillRect(X - sz / 2, Y - sz / 2, sz, sz);
       }
       if (Yh > -H * 0.3) {
         const hz = g.createLinearGradient(0, Yh, 0, Yh + H * 0.28);
-        hz.addColorStop(0, `rgba(95,176,232,${(0.3 * hzA).toFixed(3)})`); hz.addColorStop(1, 'rgba(95,176,232,0)');
+        hz.addColorStop(0, 'rgba(95,176,232,.3)'); hz.addColorStop(1, 'rgba(95,176,232,0)');
         g.fillStyle = hz; g.fillRect(0, Yh, W, H * 0.28);
-        g.fillStyle = `rgba(143,208,255,${lerp(0.4, 0.25, ew).toFixed(3)})`; g.fillRect(0, Yh - 0.5, W, 1);
+        g.fillStyle = 'rgba(143,208,255,.4)'; g.fillRect(0, Yh - 0.5, W, 1);
       }
-      // landing marker: rings and the beam go into the ground on the snap, the glow stays faint under the chip
+      // landing marker: rings on the ground and a beam
       const M = cam(0, 0, 0);
       if (M[2] > 0.1) {
-        const MX = cx + M[0] / M[2] * FL, MY = cy - M[1] / M[2] * FL, ra = 1 - snap;
-        if (ra > 0) for (let j = 0; j < 3; j++) {
-          const ph = (t * 0.00035 + j / 3) % 1, rr = 0.25 + ph * 3.2;
+        const MX = cx + M[0] / M[2] * FL, MY = cy - M[1] / M[2] * FL;
+        for (let k = 0; k < 3; k++) {
+          const ph = (t * 0.00035 + k / 3) % 1, rr = 0.25 + ph * 3.2;
           g.beginPath();
           for (let i = 0; i <= 48; i++) {
             const c = cam(Math.cos(i / 48 * 6.2832) * rr, 0, Math.sin(i / 48 * 6.2832) * rr); if (c[2] < NEAR) continue;
             const X = cx + c[0] / c[2] * FL, Y = cy - c[1] / c[2] * FL; i ? g.lineTo(X, Y) : g.moveTo(X, Y);
           }
-          g.strokeStyle = `rgba(143,208,255,${((1 - ph) * 0.75 * ra).toFixed(3)})`; g.lineWidth = 1.3; g.stroke();
+          g.strokeStyle = `rgba(143,208,255,${((1 - ph) * 0.75).toFixed(3)})`; g.lineWidth = 1.3; g.stroke();
         }
-        const T2 = cam(0, 5 * (1 - seg(k, 0, 0.07)), 0);
-        if (T2[2] > NEAR && k < 0.07) {
+        const T2 = cam(0, 5, 0);
+        if (T2[2] > NEAR) {
           const TX = cx + T2[0] / T2[2] * FL, TY = cy - T2[1] / T2[2] * FL, bm = g.createLinearGradient(MX, MY, TX, TY);
           bm.addColorStop(0, 'rgba(143,208,255,.85)'); bm.addColorStop(1, 'rgba(143,208,255,0)');
           g.strokeStyle = bm; g.lineWidth = 2; g.beginPath(); g.moveTo(MX, MY); g.lineTo(TX, TY); g.stroke();
         }
-        if (ra > 0) { g.fillStyle = `rgba(232,242,255,${ra.toFixed(3)})`; g.beginPath(); g.arc(MX, MY, 2.6, 0, 6.2832); g.fill(); }
+        const gl = g.createRadialGradient(MX, MY, 0, MX, MY, 22); gl.addColorStop(0, 'rgba(143,208,255,.55)'); gl.addColorStop(1, 'rgba(143,208,255,0)');
+        g.fillStyle = gl; g.fillRect(MX - 22, MY - 22, 44, 44);
+        g.fillStyle = '#e8f2ff'; g.beginPath(); g.arc(MX, MY, 2.6, 0, 6.2832); g.fill();
       }
-      // signals: in the pause three run out to the horizon and one towards the viewer, then one along the main bus every 4 s
-      const sig = (ai, r, a) => {
-        const an = ai * Math.PI / 4, q = P(Math.sin(an) * r, Math.cos(an) * r); if (!q || a <= 0) return;
-        const s = clamp(0.12 * FL / q[2], 5, 18); g.globalAlpha = A * a; g.drawImage(GLOW, q[0] - s, q[1] - s, 2 * s, 2 * s);
-        g.fillStyle = '#eaf6ff'; g.beginPath(); g.arc(q[0], q[1], clamp(0.012 * FL / q[2], 1.2, 2.6), 0, 6.2832); g.fill(); g.globalAlpha = A;
-      };
-      if (FLY.on) { const q = FLY.sig; if (q) { const zz = q.z0 + (t - q.t0) / 1000 * q.v; if (zz < q.z1) sig(0, zz, 1 - smooth(q.z1 - 1.5, q.z1, zz)); } } // one signal on the bus, to the next station
-      else if (k > 0.63 && k < 0.78) { const sp = seg(k, 0.63, 0.78), fa = 1 - smooth(0.8, 1, sp); for (const ai of [0, 1, 7]) sig(ai, 0.4 + sp * 40, fa); sig(4, 0.4 + sp * 8, fa); }
-      else if (k >= 0.78) { const r = 0.4 + ((t / 1000) % 4) * 9; sig(0, r, 1 - smooth(26, 36, r)); }
       g.globalAlpha = 1;
     }
 
@@ -912,32 +590,25 @@ const heroView = (() => {
       if (hz > 0.004) { g.fillStyle = `rgba(92,132,186,${hz.toFixed(3)})`; g.fillRect(0, 0, W, H); }
     }
 
-    // camera z of the flight pose right after take-off: the central chip at 88% of the height (on phones just below the edge)
-    function flightZ0() {
-      const narrow = W / H < 0.8, FL = (H / 2) / Math.tan((narrow ? 76 : 60) * RAD / 2), thF = narrow ? -27 : -20;
-      return -3.4 / Math.tan(-thF * RAD + Math.atan((narrow ? 0.56 : 0.38) * H / FL));
-    }
-    function draw(t, fromFlight) {
-      if (FLY.on && !fromFlight) return; // after take-off the flight draws the world
-      const d = heroState.d, k = heroState.k;
+    function draw(t) {
+      const d = heroState.d;
       if (d < 0.05 || REDUCE) { if (drawn) { g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); drawn = false; } return; }
       drawn = true;
       g.setTransform(D, 0, 0, D, 0, 0);
-      g.clearRect(0, 0, Wc, Hc);
+      g.clearRect(0, 0, W, H);
       const oA = seg(d, 0.05, 0.09) * (1 - seg(d, 0.64, 0.68)), gA = seg(d, 0.64, 0.68);
       if (oA > 0) orbit(d, t, oA, globeAt(d));
-      if (gA > 0) ground(seg(d, 0.66, 1), t, gA, k);
+      if (gA > 0) ground(seg(d, 0.66, 1), t, gA);
       clouds(d);
     }
-    return { size, draw, flightZ0, STN };
+    return { size, draw };
   })();
 
-  let hintOn = false, tickT = 0;
+  let hintOn = false;
   function tick(t) {
     if (intro < 1) { introT0 = introT0 || t; intro = clamp((t - introT0 - INTRO_DELAY) / INTRO_MS); }
-    const target = progress(), dt = tickT ? Math.min(100, t - tickT) : 16.7; tickT = t;
-    // follow the scroll with a 110 ms time constant, the same on 60 and 120 Hz screens and when frames drop
-    cur = Math.abs(target - cur) < 1e-5 ? target : lerp(cur, target, 1 - Math.exp(-dt / 110));
+    const target = progress();
+    cur = Math.abs(target - cur) < 1e-5 ? target : lerp(cur, target, 0.14);
     render(false);
     spinGlobe(t);
     planet.draw(t);
@@ -958,8 +629,8 @@ const heroView = (() => {
     const proc = document.getElementById('process');
     const html = document.documentElement;
     // Seconds of the way down from the assembled logo, by descent progress d. Captions get time to read.
-    const PLAN = [[0, 0.35], [0.24, 0.95], [0.47, 1.5], [0.64, 1.25], [0.86, 1.0], [1, 1.0]]; // Антон, 11.10.2026: the shorter descent lost its charm, back to these
-    const TAIL = [2.7, 1.0]; // landed: the Earth turns into the board and the camera takes off (stage still pinned), then on to the process section
+    const PLAN = [[0, 0.35], [0.24, 0.95], [0.47, 1.5], [0.64, 1.25], [0.86, 1.0], [1, 1.0]];
+    const TAIL = [0.25, 0.9]; // landed: stage unpins, then the page scrolls on to the process section
     const UP = 0.4;           // the way up is the same path, faster
     const R_IN = 0.45, R_OUT = 0.7; // speed ramps at the start and the end, seconds
     // native: the ride failed to move the page on this device, so scrolling is left to the browser
@@ -967,7 +638,7 @@ const heroView = (() => {
     let run = null, touchY = null, native = false, last = '';
     const MOUSE = matchMedia('(hover: hover) and (pointer: fine)').matches;
     function path() {
-      const top = track.getBoundingClientRect().top + scrollY, len = Math.max(1, track.offsetHeight - stage.clientHeight);
+      const top = track.getBoundingClientRect().top + scrollY, len = Math.max(1, track.offsetHeight - innerHeight);
       const yOf = d => top + len * (D0 + d * (D1 - D0) - L_END) / (1 - L_END);
       const pts = [[0, 0]]; let t = 0;
       for (const [d, dt] of PLAN) { t += dt; pts.push([yOf(d), t]); }
@@ -1039,7 +710,7 @@ const heroView = (() => {
       addEventListener('click', e => { if (run && e.target.closest && e.target.closest('a[href]')) stop('link'); }, true); // a link wins
       addEventListener('mousedown', e => { if (run && e.clientX >= html.clientWidth) stop('scrollbar'); });
     }
-    return { running: () => !!run, up: () => start(-1), state: () => ({ ride: run ? run.dir : 0, native, last }) };
+    return { running: () => !!run, state: () => ({ ride: run ? run.dir : 0, native, last }) };
   })();
 
   // ?debug: ride state, screen and errors in a strip at the top, to check a phone without devtools
@@ -1053,191 +724,6 @@ const heroView = (() => {
     }, 250);
   }
 
-  /* ---------- the flight over the board, section by section ---------- */
-  /* After take-off (heroState.k = 1) this loop owns the world canvas. The camera flies along the main bus and has one
-     station per section (STN.cam). While a section is read the camera stands and only sinks a little (the ground moves
-     up with the text); it flies on to the next station while the next section comes in, with a speed limit, so a fast
-     flick never makes the board race. A jump from the menu cuts to the station. On arrival the object on the board and
-     its twin on the page light up together (class .arrived on the section). Designer and front-end review, 11.10.2026. */
-  const FLIGHT = (() => {
-    if (REDUCE) return { kick() {} };
-    const STN = planet.STN;
-    const secs = ['process', 'catalog', 'turnkey', 'why', 'request'].map(id => document.getElementById(id));
-    const steps = document.getElementById('steps4'), ftr = document.querySelector('.ftr'), cards = [...document.querySelectorAll('.gal-card')];
-    let tops = null, endY = 0, Ty = 0, running = false, z = null, last = 0, capT = 0, tIn = 0, sigT = 0, prevY = -1, drawnT = 0, movedT = 0;
-    const arrived = [0, 0, 0, 0, 0];
-    function layout() { tops = secs.map(e => e.getBoundingClientRect().top + scrollY); endY = ftr.getBoundingClientRect().top + scrollY; Ty = track.getBoundingClientRect().bottom + scrollY - stage.clientHeight; }
-    function target() {
-      const VH = innerHeight, y = scrollY + VH * 0.4, S = STN.cam;
-      if (y < tops[0]) return { z: lerp(planet.flightZ0(), S[0], smooth(0, 1, (scrollY - Ty) / Math.max(1, tops[0] - VH * 0.4 - Ty))), h: 3.4, i: -1 };
-      let i = 0; while (i < 4 && y >= tops[i + 1]) i++;
-      const f = clamp((y - tops[i]) / Math.max(1, (i < 4 ? tops[i + 1] : endY) - tops[i]));
-      if (i === 4) return { z: lerp(S[4], S[4] + 3, smooth(0, 1, (y - endY) / (VH * 0.3))), h: 3.4, i }; // the contacts: a little closer to the edge, which stays up by the horizon
-      return { z: lerp(S[i], S[i + 1], smooth(0.55, 1, f)), h: 3.4, i }; // stands while the section is read: nothing moves under the text
-    }
-    function arrive(i, t) { if (arrived[i]) return; arrived[i] = t; secs[i].classList.add('arrived'); }
-    function frame(t) {
-      if (heroState.k < 0.999) { running = false; FLY.on = false; last = 0; return false; }
-      if (!tops) layout();
-      const dt = last ? Math.min(100, t - last) : 16; last = t;
-      const tg = target(), vmax = (FLY.fast ? 16 : W / H < 0.8 ? 5 : 7) * dt / 1000; // during a screen change the camera keeps up with it
-      if (scrollY !== prevY) movedT = t;
-      const gap = tg.z - z;
-      if (z === null || Math.abs(gap) > 12) { // first frame or more than a station behind (a menu link): cut, no flight through half the board
-        if (z !== null) FLY.dimFast = 0.3; // the cut is a short dip, then the board comes back
-        z = tg.z; FLY.h = tg.h; for (let i = 0; i < tg.i; i++) arrive(i, t - 2000);
-      } else if (t - movedT > 250 && Math.abs(gap) > 3) { // the page has stopped and the camera lags: cut close, fly the last bit
-        FLY.dimFast = 0.3; z = tg.z - Math.sign(gap) * 3;
-      } else {
-        const dz = (tg.z - z) * (1 - Math.exp(-dt / 350)), c = clamp(dz, -vmax, vmax);
-        capT = Math.abs(dz) > vmax ? capT + dt : 0; z += c;
-        if (Math.abs(tg.z - z) < 0.004) z = tg.z;
-        FLY.h = lerp(FLY.h, tg.h, 1 - Math.exp(-dt / 350));
-      }
-      FLY.z = z; FLY.on = true;
-      FLY.dimFast = lerp(FLY.dimFast, capT > 500 ? 0.6 : 1, 1 - Math.exp(-dt / 150)); // held at the speed limit: the board quiets down
-      for (let i = 0; i < tg.i; i++) if (!arrived[i] && z > STN.cam[i] - 0.5) arrive(i, t - 2000); // flown past on the way: visited
-      if (tg.i >= 0 && Math.abs(z - STN.cam[tg.i]) < 0.5 && !arrived[tg.i]) { arrive(tg.i, t); FLY.sig = { z0: z + 2, z1: STN.obj[tg.i] - 0.6, t0: t, v: 12 }; }
-      FLY.lit = arrived.map(a => a ? (t - a < 400 ? 0.6 * (t - a) / 400 : lerp(0.6, 0.35, seg(t - a, 400, 1200))) : 0);
-      if (!tIn && steps.classList.contains('in')) tIn = t; // the chips on the board power up with the steps on the page
-      for (let c = 0; c < 4; c++) FLY.chips[c] = tIn ? eOut(seg(t - tIn, c * 300 - 60, c * 300 + 300)) : 0;
-      if (FLY.sig && FLY.sig.z0 + (t - FLY.sig.t0) / 1000 * FLY.sig.v > FLY.sig.z1) { FLY.sig = null; sigT = t; }
-      const still = Math.abs(tg.z - z) < 0.004 && Math.abs(FLY.h - tg.h) < 0.002;
-      if (!FLY.sig && still && t - sigT > 5000) FLY.sig = { z0: z + 2, z1: STN.obj[Math.max(0, tg.i)] - 0.6, t0: t, v: 6 }; // a quiet signal every 5 s
-      // Redraw only when something moves: the camera every frame, signals and lighting up at 30 frames a second, else nothing
-      const busy = FLY.sig || arrived.some(a => a && t - a < 1300) || (tIn && t - tIn < 1300) || Math.abs(FLY.dimFast - (capT > 500 ? 0.6 : 1)) > 0.01;
-      // a gallery card over most of the window hides the board: do not draw what nobody sees (the card's own 3D scene is busy)
-      const VH = innerHeight, hidden = cards.some(c => { const r = c.getBoundingClientRect(); return r.top <= VH * 0.12 && r.bottom >= VH * 0.88; });
-      if (!hidden && (!still || drawnT === 0 || (busy && t - drawnT > 32))) { planet.draw(t, true); drawnT = t; }
-      else if (hidden) drawnT = 0; // redraw as soon as the card moves away
-      prevY = scrollY;
-    }
-    function kick(relayout) { if (relayout) { tops = null; drawnT = 0; } if (!running) { running = true; last = 0; drawnT = 0; ticker.add(frame); } }
-    addEventListener('scroll', () => { if (heroState.k >= 0.999) kick(); }, { passive: true });
-    new ResizeObserver(() => kick(true)).observe(document.querySelector('main'));
-    return { kick };
-  })();
-  flightKick = FLIGHT.kick;
-
-  /* ---------- screens: one gesture, one screen ---------- */
-  /* Антон, 11.10.2026: «надо пробовать делать, чтобы была фиксация экрана», and the same evening: each gallery is one screen with
-     its cards stacked, the contacts are the last screen. Below the first screen every wheel turn, swipe or arrow key moves to the next
-     or previous screen: «Как мы работаем», «Готовые конфигурации», «Объекты под ключ», «Почему выбирают нас», the request form,
-     the contacts (footer). On a gallery screen the same gesture first flips its cards, at any moment of a build; past the last card
-     it goes on to the next screen. A sideways swipe throws the top card off the stack (gallery, toss). A screen taller than the
-     window (the form, a small phone) is stepped through to its end first. The ride of the first screen handles everything above
-     «Как мы работаем»; an upward gesture on that screen goes back into it. One gesture does one thing: a long swipe, a burst of
-     trackpad events or a held key moves one screen or one card. */
-  const SCREENS = (() => {
-    if (!SCREENS_ON) return null;
-    const html = document.documentElement;
-    const els = ['process', 'catalog', 'turnkey', 'why', 'request'].map(id => document.getElementById(id)).concat(document.querySelector('.ftr'));
-    let anchors = null, ends = null, tw = null, wheelT = 0, burstMine = false, tX = 0, tY = null, touchMine = null, touchLazy = false, fired = false;
-    const skip = el => el && el.closest && el.closest('.asst, .cookie, input, textarea, select');
-    const skipTouch = el => el && el.closest && el.closest('.asst, .cookie'); // a swipe over a form field steps too, a tap still focuses it
-    function layout() {
-      const y = scrollY, max = html.scrollHeight - innerHeight;
-      anchors = els.map(e => Math.min(max, Math.round(e.getBoundingClientRect().top + y)));
-      ends = els.map(e => Math.round(e.getBoundingClientRect().bottom + y));
-    }
-    const at = y => { let c = -1; for (let i = 0; i < anchors.length; i++) if (anchors[i] <= y + 3) c = i; return c; };
-    // the stack of the screen the page stands on, if that screen fits the window
-    function deckHere() {
-      if (!anchors) layout();
-      const y = scrollY, c = at(y);
-      if (tw || c < 0 || Math.abs(y - anchors[c]) > 3) return null;
-      const d = DECKS.get(els[c]);
-      return d && ends[c] - anchors[c] <= innerHeight + 3 ? d : null;
-    }
-    // what a gesture would do: 'deck' (flip a card), { y } a scroll position to go to, 'hero', or nothing ('none' above the first
-    // screen, 'end' at the bottom of the page). A screen taller than the window (the form, a small phone) is stepped through by 80 % of
-    // the window and stops at its own top and bottom: native scrolling with its momentum flew past the next screen's top (iPhone SE).
-    function plan(dir) {
-      if (!anchors) layout();
-      if (tw) return dir === tw.dir ? { y: tw.y, same: true } : { y: tw.from };
-      const d = deckHere(); if (d && d.can(dir)) return 'deck';
-      const y = scrollY, c = at(y), VH = innerHeight, last = anchors.length - 1, step = Math.round(VH * 0.8);
-      if (c < 0) return 'none';
-      const bottom = Math.max(anchors[c], Math.min(c < last ? anchors[c + 1] : Infinity, ends[c]) - VH); // this screen's end at the bottom of the window
-      if (dir > 0) {
-        if (y < bottom - 3) return { y: Math.min(bottom, y + step) };
-        return c === last ? 'end' : { y: anchors[c + 1] };
-      }
-      if (y > anchors[c] + 3) return { y: Math.max(anchors[c], y - step) };
-      return c === 0 ? 'hero' : { y: anchors[c - 1] };
-    }
-    function go(to, dir) {
-      const from = scrollY, d = to - from;
-      if (Math.abs(d) < 2) return;
-      const T = clamp(Math.abs(d) / 1400, 0.7, 1.1) * 1000, t0 = performance.now(), me = { y: to, from, dir };
-      tw = me; FLY.fast = true; html.style.scrollBehavior = 'auto';
-      ticker.add(now => {
-        if (tw !== me) return false;
-        const u = Math.min(1, (now - t0) / T);
-        scrollTo(0, Math.round(from + d * eIO(u)));
-        if (u >= 1) { tw = null; FLY.fast = false; html.style.scrollBehavior = ''; return false; }
-      });
-    }
-    const takes = r => r !== 'none' && r !== 'end';
-    function gesture(dir) { // true: the screens took it
-      const r = plan(dir);
-      if (!takes(r)) return false;
-      if (r === 'deck') { deckHere().step(dir); return true; }
-      if (r === 'hero') { chapter.up(); return true; }
-      if (!r.same) go(r.y, dir);
-      return true;
-    }
-    addEventListener('wheel', e => {
-      if (e.ctrlKey || skip(e.target) || chapter.running()) return;
-      const now = performance.now(), burst = now - wheelT > 220; wheelT = now;
-      if (burst) { // the inertia tail of a trackpad swipe is part of the same gesture
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) { const d = deckHere(); burstMine = !!d; if (d) d.toss(e.deltaX > 0 ? 'left' : 'right'); }
-        else burstMine = gesture(Math.sign(e.deltaY));
-      }
-      if (burstMine) e.preventDefault();
-    }, { passive: false });
-    addEventListener('touchstart', e => {
-      tY = null; touchMine = null; fired = false;
-      if (e.touches.length !== 1 || skipTouch(e.target)) return;
-      tX = e.touches[0].clientX; tY = e.touches[0].clientY;
-      // on a stack the browser does not pan (touch-action), so the direction can wait for a clear move; elsewhere it cannot
-      const v = e.target.closest && e.target.closest('.gal-view');
-      touchLazy = !!v && !/pan|auto|manipulation/.test(getComputedStyle(v).touchAction);
-    }, { passive: true });
-    addEventListener('touchmove', e => {
-      if (tY === null || e.touches.length > 1 || chapter.running()) return;
-      const dx = tX - e.touches[0].clientX, dy = tY - e.touches[0].clientY;
-      if (touchMine === null) {
-        if (touchLazy) {
-          if (Math.max(Math.abs(dx), Math.abs(dy)) < 8) return;
-          if (Math.abs(dx) > Math.abs(dy)) { touchMine = false; return; } // sideways: the stack follows the finger (gallery)
-        } else if (!dy) return;
-        touchMine = takes(plan(dy > 0 ? 1 : -1)); // decided on the first move: the browser cannot get a touch back
-      }
-      if (!touchMine) return;
-      if (e.cancelable) e.preventDefault();
-      if (!fired && Math.abs(dy) > 12) { fired = true; gesture(dy > 0 ? 1 : -1); }
-    }, { passive: false });
-    addEventListener('keydown', e => {
-      if (e.altKey || e.ctrlKey || e.metaKey || skip(e.target) || chapter.running()) return;
-      const onCtl = e.target.closest && e.target.closest('a, button');
-      if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !(e.target.closest && e.target.closest('[role="tablist"]'))) {
-        const d = deckHere(), k = e.key === 'ArrowRight' ? 1 : -1;
-        if (d && d.can(k)) { if (!e.repeat) d.step(k, 'key'); e.preventDefault(); }
-        return;
-      }
-      const dir = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey && !onCtl) ? 1
-        : e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey && !onCtl) ? -1 : 0;
-      if (!dir) return;
-      if (e.repeat) { if (takes(plan(dir))) e.preventDefault(); return; } // a held key moves one screen
-      if (gesture(dir)) e.preventDefault();
-    });
-    addEventListener('click', e => { if (tw && e.target.closest && e.target.closest('a[href]')) { tw = null; FLY.fast = false; html.style.scrollBehavior = ''; } }, true); // a link wins
-    addEventListener('resize', () => { anchors = null; });
-    new ResizeObserver(() => { anchors = null; }).observe(document.querySelector('main'));
-    return { busy: () => !!tw };
-  })();
-
   addEventListener('resize', fit); new ResizeObserver(fit).observe(stage);
   if (REDUCE) cur = L_END;
   fit();
@@ -1245,9 +731,7 @@ const heroView = (() => {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildWords);
   spinGlobe(0);
   if (!REDUCE) {
-    // Back on screen: jump to the current scroll position instead of sliding there from a stale one. Off screen:
-    // the fixed world canvas stays as the background of the page, so it gets one frame at the current position.
-    const sync = on => { cur = progress(); if (!on) render(true); on ? ticker.add(tick) : ticker.remove(tick); };
+    const sync = on => on ? ticker.add(tick) : ticker.remove(tick);
     heroView.sub(sync); sync(heroView.on);
   }
 })();
@@ -1940,21 +1424,7 @@ const SCENES = {
         [[6.16, 0.95, 2.2], [5.88, 0.99, 2.2], [5.88, 0.99, -3.88], [-5.35, 0.99, -3.88], cab]
       ];
       const on = seg(p, 0.72, 0.76);
-      // Board style (Антон, 11.10.2026): bends along the walls cut at 45 degrees, vias at the bends, and once the
-      // system starts one signal runs along every trace from its camera to the cabinet, like the traces on the board.
-      const cut = pts => {
-        const out = [pts[0]];
-        for (let i = 1; i < pts.length - 1; i++) {
-          const a = pts[i - 1], b = pts[i], n = pts[i + 1];
-          const flat = Math.abs(a[1] - b[1]) < 0.05 && Math.abs(n[1] - b[1]) < 0.05;
-          const d1 = Math.hypot(b[0] - a[0], b[2] - a[2]), d2 = Math.hypot(n[0] - b[0], n[2] - b[2]), r = Math.min(0.45, d1 / 2, d2 / 2);
-          if (!flat || r < 0.05) { out.push(b); continue; }
-          out.push([b[0] - (b[0] - a[0]) / d1 * r, b[1], b[2] - (b[2] - a[2]) / d1 * r], [b[0] + (n[0] - b[0]) / d2 * r, b[1], b[2] + (n[2] - b[2]) / d2 * r]);
-        }
-        out.push(pts[pts.length - 1]); return out;
-      };
-      return R.map((pts, i) => ({ pts: cut(pts), t: seg(p, 0.38 + i * 0.02, 0.44 + i * 0.02), rgb: '143,208,255', a: 0.7 + 0.25 * on, w: 1.5, vias: true,
-        sig: seg(p, 0.72 + i * 0.008, 0.8 + i * 0.008) }));
+      return R.map((pts, i) => ({ pts, t: seg(p, 0.38 + i * 0.02, 0.44 + i * 0.02), rgb: '143,208,255', a: 0.7 + 0.25 * on, w: 1.5 }));
     },
     labels(p) {
       const z = seg(p, 0.05, 0.1) * (1 - seg(p, 0.3, 0.36));
@@ -1985,32 +1455,9 @@ function serverScene(card, def) {
   const boot = card.querySelector('.boot'), pbar = card.querySelector('.pbar i'), bootText = card.querySelector('.bootText'), bootState = card.querySelector('.bootState'), bootList = card.querySelector('.bootList');
   const STEPS = [...card.querySelectorAll('.step')].map(li => Object.assign({ key: li.dataset.key, el: li }, def.steps[li.dataset.key]));
   const BT = def.boot, CAM = def.cam;
-  // Phones (Антон, 11.10.2026: тексты шагов «перебираются один за одним, очень мелькают»): no step texts; the result panel is
-  // there from the start and fills up line by line as the build goes, each check lighting a moment after its line, and the final
-  // state lights up at the end. Lines up to a failure demo are spread over the build; the failure demo keeps its own time.
-  const NARROW = matchMedia('(max-width: 860px)');
-  const MOB = (() => {
-    const w = BT.lines.findIndex(l => l[2] === 'warn'), k = w < 0 ? BT.lines.length : w;
-    const tA = (STEPS[1] || STEPS[0]).t[1], tB = k ? BT.lines[k - 1][0] : BT.show[1];
-    return { lines: BT.lines.map((l, i) => i < k ? [k > 1 ? lerp(tA, tB, i / (k - 1)) : tB, l[1], l[2]] : l),
-      endT: BT.states[BT.states.length - 1][0], first: [0, card.closest('#turnkey') ? 'Монтаж' : 'Сборка', 'идёт'] };
-  })();
-  const bootLi = (l, fresh) => `<li class="${(l[2] || '') + (fresh ? ' fresh' : '')}"><i>${l[2] === 'warn' ? '!' : '✓'}</i> ${l[1]}</li>`;
   const lerp3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
   const LIGHT = V.norm([-0.35, 1, 0.55]);
-  let W = 0, H = 0, DPR = 1, cur = 0, last = -1, headBottom = 0, visible = false, shownLines = -1, lastState = null, bootH = 0;
-  // Phones: the height of the result panel at the end of the build (measured on a hidden copy), so the model is framed in the
-  // band left between the card text and the panel. A long list keeps its last lines (6, on a low phone 4), the earlier ones go up
-  // like a log and the top line fades (.clip, when the list is cut).
-  function measureBoot() {
-    bootH = 0;
-    if (!NARROW.matches || !card.closest('.screens')) return;
-    const c = boot.cloneNode(true), ul = c.querySelector('.bootList');
-    c.style.visibility = 'hidden'; c.style.opacity = '0';
-    ul.innerHTML = MOB.lines.map(l => bootLi(l, false)).join('');
-    c.querySelector('.bootText').textContent = BT.states[BT.states.length - 1][1];
-    card.appendChild(c); bootH = c.offsetHeight; c.remove();
-  }
+  let W = 0, H = 0, DPR = 1, cur = 0, last = -1, headBottom = 0, visible = false, shownLines = -1, lastState = null;
 
   function resize() {
     W = cv.clientWidth; H = cv.clientHeight;
@@ -2019,7 +1466,6 @@ function serverScene(card, def) {
     DPR = Math.min(devicePixelRatio || 1, W * H > 600000 ? 1.5 : 2);
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
     headBottom = side.offsetTop + head.offsetTop + head.offsetHeight;
-    measureBoot();
     last = -1;
     frame(REDUCE ? 1 : cur); last = cur;
   }
@@ -2047,11 +1493,9 @@ function serverScene(card, def) {
     const [cam, tgt] = camAt(p);
     const f = V.norm(V.sub(tgt, cam)), r = V.norm(V.cross(f, [0, 1, 0])), u = V.cross(r, f);
     const aspect = W / H, fov = aspect < 0.8 ? 0.95 : 0.62;
-    // On narrow cards centre the model in the free band between the title block and the panel (on a screen stack: the panel
-    // as tall as it gets at the end, and a narrow band makes the model smaller), else above ~96px of step panel.
-    const band = H - 12 - bootH - headBottom, fit = W > 860 || !bootH ? 1 : clamp(band / (0.42 * H), 0.6, 1);
-    const FL = (H / 2) / Math.tan(fov / 2) * (aspect < 0.8 ? Math.min(1, aspect * 1.35) : 1) * (def.zoom || 1) * fit;
-    const cx = W / 2 + (W > 860 ? 150 : 0), cy = W > 860 ? H / 2 + 10 : bootH ? headBottom + band / 2 : Math.max(H / 2, (headBottom + H - 96) / 2);
+    const FL = (H / 2) / Math.tan(fov / 2) * (aspect < 0.8 ? Math.min(1, aspect * 1.35) : 1) * (def.zoom || 1);
+    // On narrow cards centre the model in the free band between the title block and the step panel (~96px).
+    const cx = W / 2 + (W > 860 ? 150 : 0), cy = W > 860 ? H / 2 + 10 : Math.max(H / 2, (headBottom + H - 96) / 2);
     const proj = q => { const d = V.sub(q, cam); const z = V.dot(d, f); return [cx + V.dot(d, r) / z * FL, cy - V.dot(d, u) / z * FL, z]; };
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.clearRect(0, 0, W, H);
@@ -2133,19 +1577,6 @@ function serverScene(card, def) {
       ctx.strokeStyle = `rgba(${L.rgb},${L.a.toFixed(3)})`; ctx.lineWidth = L.w || 1.6; ctx.stroke();
       ctx.setLineDash([]);
       if (L.t < 1) { const h = Q[Q.length - 1]; ctx.fillStyle = `rgba(232,242,255,${L.a.toFixed(3)})`; ctx.beginPath(); ctx.arc(h[0], h[1], 2.4, 0, 6.2832); ctx.fill(); }
-      if (L.vias && L.t >= 1) { // board style: small rings where the trace bends
-        ctx.fillStyle = '#0b1424'; ctx.strokeStyle = `rgba(${L.rgb},${L.a.toFixed(3)})`; ctx.lineWidth = 1;
-        for (let i = 1; i < Q.length - 1; i++) { ctx.beginPath(); ctx.arc(Q[i][0], Q[i][1], 2.2, 0, 6.2832); ctx.fill(); ctx.stroke(); }
-      }
-      if (L.sig > 0 && L.sig < 1 && L.t >= 1) { // one signal along the finished trace
-        let s = total * L.sig, i = 1; while (i < P3.length - 1 && s > lens[i - 1]) { s -= lens[i - 1]; i++; }
-        const q = proj(V.add(P3[i - 1], V.mul(V.sub(P3[i], P3[i - 1]), Math.min(1, s / lens[i - 1]))));
-        if (q[2] > 0.2) {
-          const gr = ctx.createRadialGradient(q[0], q[1], 0, q[0], q[1], 10); gr.addColorStop(0, 'rgba(143,208,255,.7)'); gr.addColorStop(1, 'rgba(143,208,255,0)');
-          ctx.fillStyle = gr; ctx.fillRect(q[0] - 10, q[1] - 10, 20, 20);
-          ctx.fillStyle = '#eaf6ff'; ctx.beginPath(); ctx.arc(q[0], q[1], 2.4, 0, 6.2832); ctx.fill();
-        }
-      }
     }
     // Labels pinned to points of the model
     if (def.labels) {
@@ -2164,10 +1595,6 @@ function serverScene(card, def) {
       }
       ctx.globalAlpha = 1; ctx.textBaseline = 'alphabetic';
     }
-    if (bootH) { // a phone stack: a big model fades out under the card text instead of running over it
-      const gr = ctx.createLinearGradient(0, headBottom - 6, 0, headBottom + 26); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = gr; ctx.fillRect(0, 0, W, headBottom + 26); ctx.globalCompositeOperation = 'source-over';
-    }
     bar.style.transform = `scaleX(${p})`;
     let active = -1;
     STEPS.forEach((s, i) => { const done = p >= s.t[1]; const on = p >= s.t[0] - 0.035 && !done; if (on && active < 0) active = i; s.el.classList.toggle('done', done); s.el.classList.toggle('active', on); });
@@ -2182,21 +1609,12 @@ function serverScene(card, def) {
       const clear = W > 860 ? q[1] > 40 : q[1] - 40 > headBottom + 6;
       tagEl.style.opacity = (q[0] > 0 && q[0] < W - 60 && clear) ? 1 : 0;
     } else tagEl.style.opacity = 0;
-    const mob = NARROW.matches, LINES = mob ? MOB.lines : BT.lines;
-    const bs = mob ? seg(p, 0.004, 0.04) : seg(p, BT.show[0], BT.show[1]);
+    const bs = seg(p, BT.show[0], BT.show[1]);
     boot.style.opacity = bs; boot.style.transform = `translateY(${lerp(12, 0, bs)}px)`;
-    pbar.style.transform = `scaleX(${mob ? seg(p, 0.01, MOB.endT) : seg(p, BT.bar[0], BT.bar[1])})`;
-    let n = 0; while (n < LINES.length && p >= LINES[n][0]) n++;
-    if (n !== shownLines) {
-      // new lines are added, not redrawn: only they animate in (CSS .fresh)
-      if (n > shownLines && shownLines >= 0 && bootList.children.length === shownLines) for (let i = shownLines; i < n; i++) bootList.insertAdjacentHTML('beforeend', bootLi(LINES[i], true));
-      else bootList.innerHTML = LINES.slice(0, n).map(l => bootLi(l, false)).join('');
-      shownLines = n;
-      let lh = 0; for (const li of bootList.children) lh += li.offsetHeight;
-      bootList.classList.toggle('clip', lh > bootList.clientHeight + 1);
-    }
-    let state = mob && p < BT.show[0] ? MOB.first : BT.states[0];
-    if (!(mob && p < BT.show[0])) for (const s of BT.states) if (p >= s[0]) state = s;
+    pbar.style.transform = `scaleX(${seg(p, BT.bar[0], BT.bar[1])})`;
+    let n = 0; while (n < BT.lines.length && p >= BT.lines[n][0]) n++;
+    if (n !== shownLines) { shownLines = n; bootList.innerHTML = BT.lines.slice(0, n).map(l => `<li${l[2] ? ` class="${l[2]}"` : ''}>${l[2] === 'warn' ? '!' : '✓'} ${l[1]}</li>`).join(''); }
+    let state = BT.states[0]; for (const s of BT.states) if (p >= s[0]) state = s;
     if (state !== lastState) {
       lastState = state;
       bootText.textContent = state[1]; bootText.className = 'bootText' + (state[3] ? ' ' + state[3] : '');
@@ -2221,7 +1639,7 @@ function serverScene(card, def) {
     if (go) ticker.add(step); else ticker.remove(step);
   }
   function seek(p) { cur = clamp(p); card.classList.toggle('built', cur >= 1); frame(cur); last = cur; update(); }
-  function redraw() { headBottom = side.offsetTop + head.offsetTop + head.offsetHeight; measureBoot(); last = -1; frame(REDUCE ? 1 : cur); last = cur; }
+  function redraw() { headBottom = side.offsetTop + head.offsetTop + head.offsetHeight; last = -1; frame(REDUCE ? 1 : cur); last = cur; }
 
   new ResizeObserver(resize).observe(cv);
   new IntersectionObserver(es => { visible = es[es.length - 1].intersectionRatio >= 0.45; update(); }, { threshold: [0, 0.45, 0.6] }).observe(card);
@@ -2241,9 +1659,6 @@ function gallery(root) {
   const cards = [...track.children];
   const scenes = cards.map(c => serverScene(c, SCENES[c.dataset.scene]));
   const name = root.getAttribute('aria-label');
-  // Screens mode (Антон, 11.10.2026): the gallery is one screen, its cards a stack. The open card lies on top, the next ones peek
-  // out under it; a gesture flips the top card off the stack at any moment, also while its build is playing.
-  const STACK = SCREENS_ON;
   root.setAttribute('role', 'region'); root.setAttribute('aria-roledescription', 'галерея');
 
   const bar = document.createElement('div'); bar.className = 'gal-bar';
@@ -2262,28 +1677,21 @@ function gallery(root) {
   const prev = mk('gal-arrow gal-prev', 'Предыдущая', ARROW), next = mk('gal-arrow gal-next', 'Следующая', ARROW);
   const ctl = document.createElement('div'); ctl.className = 'gal-ctl'; ctl.append(replay, prev, next);
   bar.append(tabsEl, ctl);
-  const intro = STACK && root.closest('.sec').querySelector('.sec-intro');
-  if (intro) intro.appendChild(bar); else root.insertBefore(bar, view); // the stack: the tabs stand next to the section heading
+  root.insertBefore(bar, view);
   // Phones: arrows sit on the card edges instead of the bar
   const sPrev = mk('gal-side gal-prev', 'Предыдущая', ARROW), sNext = mk('gal-side gal-next', 'Следующая', ARROW);
   view.append(sPrev, sNext);
 
   let idx = -1, offset = 0;
   function place(dx) {
-    if (STACK) { // depth under the top card: 0, 1, 2, then 'far'; cards flipped off are 'gone' and keep the way they left (data-exit)
-      cards.forEach((c, j) => { const k = j - idx; c.dataset.depth = k < 0 ? 'gone' : k > 2 ? 'far' : String(k); });
-      cards[idx].style.transform = dx ? `translateX(${dx}px) rotate(${(dx / 40).toFixed(2)}deg)` : '';
-      return;
-    }
     const w = cards[0].offsetWidth + parseFloat(getComputedStyle(track).columnGap || 0);
     const max = Math.max(0, track.scrollWidth - view.clientWidth);
     offset = Math.min(idx * w, max);
     track.style.transform = `translateX(${-offset + (dx || 0)}px)`;
   }
-  function show(i, focusTab, exit) {
+  function show(i, focusTab) {
     i = clamp(i, 0, cards.length - 1);
     if (i === idx) return;
-    if (STACK && idx >= 0) for (let j = idx; j < i; j++) cards[j].dataset.exit = exit || 'up';
     idx = i;
     cards.forEach((c, j) => {
       const on = j === i;
@@ -2295,19 +1703,12 @@ function gallery(root) {
     for (const b of [next, sNext]) b.disabled = i === cards.length - 1;
     nudge();
     if (focusTab) tabs[i].focus();
-    place(); arrowsY();
-  }
-  // the stack on a phone: the side arrows stand on the right of the open card's «Запросить расчёт», clear of the model and the panel
-  function arrowsY() {
-    const c = cards[idx], side = c.querySelector('.sc-side'), head = c.querySelector('.sc-head'), btn = head && head.querySelector('.btn');
-    if (!STACK || !side || !head) return;
-    const y = btn && btn.offsetParent ? btn.offsetTop + btn.offsetHeight / 2 : head.offsetTop + head.offsetHeight + 28; // a low phone has no button there
-    view.style.setProperty('--arrow-y', Math.round(c.offsetTop + side.offsetTop + y) + 'px');
+    place();
   }
   const nudge = () => { const on = scenes[idx].done && idx < cards.length - 1; next.classList.toggle('nudge', on); sNext.classList.toggle('nudge', on); };
   root.addEventListener('built', nudge);
   for (const b of [prev, sPrev]) b.addEventListener('click', () => show(idx - 1));
-  for (const b of [next, sNext]) b.addEventListener('click', () => show(idx + 1, false, 'left'));
+  for (const b of [next, sNext]) b.addEventListener('click', () => show(idx + 1));
   replay.addEventListener('click', () => { scenes[idx].seek(0); nudge(); });
   tabsEl.addEventListener('keydown', e => {
     const k = { ArrowRight: idx + 1, ArrowLeft: idx - 1, Home: 0, End: cards.length - 1 }[e.key];
@@ -2315,7 +1716,7 @@ function gallery(root) {
     e.preventDefault(); show(k, true);
   });
   // A click on the peeking neighbour opens it (inert cards get no events, so find it by position).
-  if (!STACK) track.addEventListener('click', e => {
+  track.addEventListener('click', e => {
     const j = cards.findIndex(c => { const r = c.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right; });
     if (j >= 0 && j !== idx) show(j);
   });
@@ -2326,31 +1727,22 @@ function gallery(root) {
     if (e.pointerId !== pid) return;
     const dx = e.clientX - sx, dy = e.clientY - sy;
     if (!drag && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { drag = 1; track.classList.add('drag'); }
-    if (drag) { const edge = !STACK && ((idx === 0 && dx > 0) || (idx === cards.length - 1 && dx < 0)); place(edge ? dx * 0.3 : dx); }
+    if (drag) { const edge = (idx === 0 && dx > 0) || (idx === cards.length - 1 && dx < 0); place(edge ? dx * 0.3 : dx); }
   });
   const end = e => {
     if (e.pointerId !== pid) return;
     pid = null;
     if (!drag) return;
     track.classList.remove('drag');
-    const dx = e.clientX - sx, far = e.type === 'pointerup' && Math.abs(dx) > Math.min(90, view.clientWidth * 0.18);
-    if (STACK) { if (far) toss(dx < 0 ? 'left' : 'right'); else place(); return; } // the stack: a card thrown either way reveals the next
-    if (far) show(idx + (dx < 0 ? 1 : -1)); else place();
+    const dx = e.clientX - sx;
+    if (e.type === 'pointerup' && Math.abs(dx) > Math.min(90, view.clientWidth * 0.18)) show(idx + (dx < 0 ? 1 : -1)); else place();
   };
   view.addEventListener('pointerup', end); view.addEventListener('pointercancel', end);
   // Anchors and focus must never scroll the clipped viewport sideways.
   view.addEventListener('scroll', () => { view.scrollLeft = 0; });
-  new ResizeObserver(() => { place(); if (idx >= 0) arrowsY(); }).observe(view);
-  // The stack: down/up (wheel, swipe, keys) flips to the next or previous card, the screens move on past the ends (SCREENS);
-  // a sideways throw always reveals the next card and after the last one the stack starts over.
-  function toss(side) { show(idx < cards.length - 1 ? idx + 1 : 0, false, side); }
-  if (STACK) DECKS.set(root.closest('.sec'), {
-    can: d => idx + d >= 0 && idx + d < cards.length,
-    step: (d, how) => show(idx + d, false, how === 'key' ? (d > 0 ? 'left' : 'right') : 'up'),
-    toss
-  });
+  new ResizeObserver(() => place()).observe(view);
   show(0);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { TX.redraw(); scenes.forEach(s => s.redraw()); arrowsY(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { TX.redraw(); scenes.forEach(s => s.redraw()); });
   return { show, has: id => cards.findIndex(c => c.id === id) };
 }
 
