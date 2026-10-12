@@ -57,16 +57,20 @@ a { color: inherit; }
 .nav { display: flex; gap: 24px; margin-left: auto; }
 .nav a { color: var(--ink-2); text-decoration: none; font-size: 14px; transition: color .2s; }
 .nav a:hover { color: var(--ink); }
-.hdr-phone { font: 500 14px/1 var(--mono); color: var(--ink); text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
-.hdr-phone:hover { color: var(--accent-2); }
-.hdr-phone svg { width: 16px; height: 16px; flex: none; }
+/* Одна кнопка вместо номера: нажатие набирает номер */
+.hdr-call { display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 24px; border-radius: 999px; background: linear-gradient(180deg, var(--accent), #2f86c4); color: var(--accent-ink); text-decoration: none; font: 600 15px/1 var(--sans); white-space: nowrap; box-shadow: 0 10px 28px rgba(95,176,232,.3); transition: transform .25s var(--ease), box-shadow .25s, filter .25s; }
+.hdr-call:hover { transform: translateY(-1px); box-shadow: 0 14px 34px rgba(95,176,232,.44); filter: brightness(1.06); }
+.hdr-call svg { width: 18px; height: 18px; flex: none; }
 .hdr .btn { margin-left: 4px; }
+.nav, .hdr-req { transition: opacity .45s var(--ease); }
+/* На первом экране меню и заявка живут спутниками вокруг Земли, в шапке остаётся только звонок */
+.wd .hdr:not(.solid) .nav, .wd .hdr:not(.solid) .hdr-req { opacity: 0; pointer-events: none; }
 @media (max-width: 900px) {
   .nav { display: none; }
-  .hdr-phone { margin-left: auto; width: 38px; height: 38px; justify-content: center; border: 1px solid var(--line-2); border-radius: 50%; background: rgba(8,14,28,.5); }
-  .hdr-phone span { display: none; }
+  .hdr-call { margin-left: auto; height: 42px; padding: 0 18px; font-size: 14px; }
   .hdr-in { gap: 10px; }
 }
+@media (max-width: 520px) { .hdr-call { padding: 0 14px; gap: 8px; } }
 @media (max-width: 420px) { .hdr .btn { padding: 0 12px; font-size: 13px; } .brand span { display: none; } .brand img { height: 36px; } }
 
 /* 1. Hero: logo assembly */
@@ -94,6 +98,26 @@ html:not(.js) .ds-cv, html:not(.js) .ds-caps { display: none; }
 .si-glow { transform-box: fill-box; transform-origin: center; animation: siPulse 3.6s ease-in-out infinite; }
 @keyframes siPulse { 50% { transform: scale(1.1); opacity: .65; } }
 .hero-foot { z-index: 2; position: absolute; left: 0; right: 0; bottom: calc(122px + env(safe-area-inset-bottom, 0px)); padding-inline: var(--gutter); text-align: center; pointer-events: none; }
+.js .hero-foot { transition: left .8s var(--ease), right .8s var(--ease), top .8s var(--ease), bottom .8s var(--ease), width .8s var(--ease), transform .8s var(--ease); }
+/* Фаза «рабочего стола»: строка уходит вправо, под шапку */
+.wd .hero-foot { left: auto; right: max(var(--gutter), calc((100% - var(--maxw)) / 2 + var(--gutter))); bottom: auto; top: calc(var(--header-h) + 30px); width: min(24ch, 30vw); padding-inline: 0; text-align: right; }
+.wd .hero-line { margin: 0 0 0 auto; max-width: none; font-size: clamp(19px, 1.9vw, 26px); }
+/* Спутники-кнопки */
+.si-svg { pointer-events: none; }
+.si-sat { pointer-events: none; }
+.wd .si-sat { pointer-events: auto; cursor: pointer; }
+.si-sat-ring { transition: fill .2s, stroke .2s; }
+.si-sat:hover .si-sat-ring, .si-sat:focus-visible .si-sat-ring { fill: #13304f; stroke: var(--accent-2); }
+.si-sat-lab { font-family: var(--sans); font-weight: 500; fill: var(--ink-2); transition: fill .2s; }
+.si-sat-cta { fill: rgba(95,176,232,.18); stroke: var(--accent-2); }
+.si-sat-lab-cta { fill: var(--ink); }
+.si-sat:hover .si-sat-lab, .si-sat:focus-visible .si-sat-lab { fill: var(--ink); }
+.si-sat:focus { outline: none; }
+.si-sat:focus-visible .si-sat-ring { stroke-width: 2.6; }
+@media (max-width: 760px) {
+  .wd .hero-foot { left: 0; right: 0; top: auto; bottom: calc(112px + env(safe-area-inset-bottom, 0px)); width: auto; padding-inline: var(--gutter); text-align: center; }
+  .wd .hero-line { margin: 0 auto; max-width: 24ch; font-size: clamp(17px, 4.6vw, 21px); }
+}
 .hero-line { margin: 0 auto; max-width: 30ch; font: 400 clamp(21px, 2.5vw, 32px)/1.25 var(--serif); color: var(--ink); text-wrap: balance; }
 .js .hero-line { opacity: 0; transform: translateY(14px); }
 /* Hint: pulsing rings and three chevrons running in the direction of the gesture (down for a wheel, up for a finger) */

@@ -12,9 +12,9 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=9358b1ad">
+<link rel="stylesheet" href="styles.css?v=dc9f5a28">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
-<script src="main.js?v=9b4be238" defer></script>
+<script src="main.js?v=2e88944c" defer></script>
 </head>
 <body>
 
@@ -32,11 +32,12 @@
       <a href="#video">Видеонаблюдение</a>
       <a href="#request">Заявка</a>
     </nav>
-    <a class="hdr-phone" href="tel:+74994606265" aria-label="Позвонить: 8 (499) 460-62-65">
+    <!-- Вместо номера одна кнопка: нажатие сразу набирает номер -->
+    <a class="hdr-call" href="tel:+74994606265" aria-label="Позвонить: 8 (499) 460-62-65">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
-      <span>8 (499) 460-62-65</span>
+      <span>Позвонить</span>
     </a>
-    <a class="btn btn-primary btn-sm" href="#request">Рассчитать конфигурацию</a>
+    <a class="btn btn-primary btn-sm hdr-req" href="#request">Рассчитать конфигурацию</a>
   </div>
 </header>
 
@@ -388,7 +389,7 @@
   </section>
 </main>
 
-<footer class="ftr">
+<footer class="ftr" id="contacts">
   <div class="wrap ftr-in">
     <div class="ftr-brand">
       <a class="ftr-logo" href="#hero" aria-label="Сармат-ИТ, в начало">

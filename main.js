@@ -149,21 +149,23 @@ const heroView = (() => {
 
   // Everything except the globe sits in gFx: during the descent it fades while the camera flies through it.
   const gFx = el('g', {}, svg);
+  // Знак (треугольник с кругом) в фазе «рабочего стола» уезжает в левый верхний угол отдельно от спутников.
+  const gMark = el('g', {}, gFx);
   const triA = { fill: 'none', stroke: 'var(--si-ink)', 'stroke-width': 9.5, 'stroke-linejoin': 'miter', 'stroke-miterlimit': 8 };
-  const tri = el('path', Object.assign({ d: 'M495 301 L771 713 L219 713 Z' }, triA), gFx);
-  const halves = ['M495 301 L771 713 L495 713', 'M495 301 L219 713 L495 713'].map(d => el('path', Object.assign({ d }, triA), gFx));
+  const tri = el('path', Object.assign({ d: 'M495 301 L771 713 L219 713 Z' }, triA), gMark);
+  const halves = ['M495 301 L771 713 L495 713', 'M495 301 L219 713 L495 713'].map(d => el('path', Object.assign({ d }, triA), gMark));
   const halfLen = halves[0].getTotalLength();
   halves.forEach(h => { h.style.strokeDasharray = halfLen; });
   const runePts = [[11.6, -24.7], [-10.9, -7.2], [11.6, 7.2], [-11.5, 24.7]];
   const runes = [[490.3, 347.2], [283.7, 676.4], [703.4, 676.2]].map(([x, y]) => {
-    const gg = el('g', { 'data-x': x, 'data-y': y }, gFx);
+    const gg = el('g', { 'data-x': x, 'data-y': y }, gMark);
     el('polyline', { points: runePts.map(p => p.join(',')).join(' '), fill: 'none', stroke: 'var(--si-ink)', 'stroke-width': 4.2, 'stroke-linecap': 'round' }, gg);
     return gg;
   });
-  const disc = el('circle', { cx: 495, cy: 580, r: 199, fill: 'url(#siDisc)' }, gFx);
-  const ring = el('circle', { cx: 495, cy: 580, r: 195, fill: 'none', stroke: 'var(--si-ink)', 'stroke-width': 8, transform: 'rotate(-90 495 580)', filter: 'url(#siSoft)' }, gFx);
+  const disc = el('circle', { cx: 495, cy: 580, r: 199, fill: 'url(#siDisc)' }, gMark);
+  const ring = el('circle', { cx: 495, cy: 580, r: 195, fill: 'none', stroke: 'var(--si-ink)', 'stroke-width': 8, transform: 'rotate(-90 495 580)', filter: 'url(#siSoft)' }, gMark);
   const ringLen = 2 * Math.PI * 195; ring.style.strokeDasharray = ringLen;
-  const dash = el('circle', { cx: 495, cy: 580, r: 177, fill: 'none', stroke: 'var(--si-ink)', 'stroke-width': 5, 'stroke-dasharray': '21 11.3', opacity: .85 }, gFx);
+  const dash = el('circle', { cx: 495, cy: 580, r: 177, fill: 'none', stroke: 'var(--si-ink)', 'stroke-width': 5, 'stroke-dasharray': '21 11.3', opacity: .85 }, gMark);
   const linesG = el('g', { stroke: 'var(--si-line)', 'stroke-width': 1.6, 'stroke-linecap': 'round' }, gFx);
   const dotsG = el('g', { fill: 'var(--si-dot)', filter: 'url(#siSoft)' }, gFx);
 
@@ -188,6 +190,17 @@ const heroView = (() => {
     phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
     cable: '<path d="M9 3v4M15 3v4"/><path d="M6 7h12v4a6 6 0 0 1-12 0z"/><path d="M12 17v4"/>'
   };
+  // Фаза «рабочего стола»: спутники встают кнопками вокруг Земли. Ведём только на то, что есть на
+  // странице. Углы: 0 - вправо, 90 - вниз; «Рассчитать конфигурацию» внизу, остальные через 360/7.
+  const SAT_MENU = {
+    server: { href: '#catalog', deg: 295.7, lines: ['Конфигурации'] },
+    cable: { href: '#turnkey', deg: 347.1, lines: ['Серверная', 'под ключ'] },
+    camera: { href: '#video', deg: 38.6, lines: ['Видеонаблюдение'] },
+    network: { href: '#request', deg: 90, lines: ['Рассчитать', 'конфигурацию'] },
+    phone: { href: '#contacts', deg: 141.4, lines: ['Контакты'] },
+    dish: { href: '#process', deg: 192.9, lines: ['Как мы', 'работаем'] },
+    wifi: { href: '#why', deg: 244.3, lines: ['Почему', 'выбирают нас'] }
+  };
   const ICON_POS = [['dish', -125, 142], ['wifi', -78, 140], ['server', -30, 138], ['camera', 22, 140], ['network', 76, 142], ['phone', 128, 140], ['cable', -178, 138]];
   const IR = 25;
   const DOTS = [[480, 457.5, 10], [560, 488, 9], [355.5, 508.5, 10], [656.5, 563.5, 10], [380.5, 627.5, 10], [585, 682.5, 10], [471, 696, 10]];
@@ -201,12 +214,19 @@ const heroView = (() => {
     const x1 = 495 + Math.cos(s.a) * 104, y1 = 580 + Math.sin(s.a) * 104;
     const x2 = 495 + Math.cos(s.a) * (s.d - s.r - 1), y2 = 580 + Math.sin(s.a) * (s.d - s.r - 1);
     s.line = el('line', { x1, y1, x2, y2 }, linesG); s.len = Math.max(1, Math.hypot(x2 - x1, y2 - y1)); s.line.style.strokeDasharray = s.len;
+    s.lx = [x1, y1, x2, y2];
     if (s.kind === 'dot') s.node = el('circle', { cx: 0, cy: 0, r: s.r }, dotsG);
     else {
-      s.node = el('g', {}, iconsG);
-      el('circle', { r: IR, fill: '#081226', stroke: 'rgba(143,208,255,.55)', 'stroke-width': 1.5 }, s.node);
+      s.menu = SAT_MENU[s.key];
+      s.link = el('a', { class: 'si-sat', href: s.menu.href, 'aria-label': s.menu.lines.join(' ') }, iconsG);
+      s.node = el('g', {}, s.link);
+      el('circle', { r: IR * 1.7, fill: 'transparent' }, s.node); // площадь нажатия больше самой кнопки
+      el('circle', { class: 'si-sat-ring' + (s.key === 'network' ? ' si-sat-cta' : ''), r: IR, fill: '#081226', stroke: 'rgba(143,208,255,.55)', 'stroke-width': 1.5 }, s.node);
       const ig = el('g', { transform: `scale(${(IR * 1.2 / 24).toFixed(3)}) translate(-12 -12)`, fill: 'none', stroke: '#e8eef7', 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, s.node);
       ig.innerHTML = ICON[s.key];
+      s.lab = el('text', { class: 'si-sat-lab' + (s.key === 'network' ? ' si-sat-lab-cta' : '') }, s.link);
+      s.lab.style.opacity = 0;
+      s.rows = s.menu.lines.map(txt => { const r = el('tspan', {}, s.lab); r.textContent = txt; return r; });
     }
     return s;
   });
@@ -260,7 +280,10 @@ const heroView = (() => {
     render(true);
   }
 
-  let cur = 0, last = -1, logoOn = true, phase = 0, prevT = 0;
+  let cur = 0, last = -1, lastU = -1, logoOn = true, phase = 0, prevT = 0;
+  // U: фаза «рабочего стола», 0 - собранный логотип по центру, 1 - знак и логотип по углам,
+  // Земля в центре, спутники кнопками. Прокрутка складывает всё назад до начала спуска.
+  let U = 0, wdG = null, spreadOn = false, markBB = null;
   // intro: 0..1, the logo assembly on load. Any scroll into the track finishes it at once.
   const INTRO_DELAY = 350, INTRO_MS = 3600;
   let intro = scrollY > 0 ? 1 : 0, introT0 = 0;
@@ -274,7 +297,7 @@ const heroView = (() => {
   const CAPW = [[0.24, 0.30, 0.42, 0.47], [0.50, 0.54, 0.60, 0.64], [0.86, 0.92, 2, 2]];
   function render(force) {
     const P = cur;
-    if (!force && Math.abs(P - last) < 1e-5) return; last = P;
+    if (!force && Math.abs(P - last) < 1e-5 && Math.abs(U - lastU) < 1e-5) return; last = P; lastU = U;
     const p = REDUCE ? 1 : clamp(P / L_END), d = REDUCE ? 0 : seg(P, D0, D1);
     heroState.d = d;
     bar.style.transform = `scaleX(${REDUCE ? 1 : P})`;
@@ -287,7 +310,7 @@ const heroView = (() => {
     });
     const on = d < 0.17;
     if (on !== logoOn) { logoOn = on; logo.style.visibility = on ? '' : 'hidden'; }
-    if (!on) return;
+    if (!on) { if (spreadOn) { spreadOn = false; U = 0; unspread(); } return; }
     const G = globeAt(d);
     logo.style.transform = `translate(${G.x - GLX * G.k}px, ${G.y - GLY * G.k}px) scale(${G.k})`;
     const fo = 1 - seg(d, 0.03, 0.14);
@@ -334,6 +357,104 @@ const heroView = (() => {
     const l2 = eOut(seg(p, 0.93, 1));
     line2.style.opacity = l2; line2.style.letterSpacing = lerp(0.35, 0, l2) + 'em';
     line2.style.transform = `translate(-50%, ${lerp(18, 0, l2)}px)`;
+    spread(G);
+  }
+
+  /* ---------- фаза 2: «рабочий стол» ---------- */
+  // Размеры в пикселях экрана, перевод в координаты логотипа - через текущий transform контейнера.
+  function layout() {
+    const hdrH = document.getElementById('hdr').offsetHeight;
+    const brand = document.querySelector('.hdr .brand');
+    const padX = Math.max(16, brand ? brand.getBoundingClientRect().left : 20);
+    const narrow = W < 760;
+    // пока на экране плашка про cookie, логотип в углу поднимается над ней
+    const ck = document.documentElement.classList.contains('cookie-open')
+      ? (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cookie-h')) || 0) + 18 : 0;
+    if (narrow) {
+      // на телефоне кольцо живёт между шапкой и строкой внизу, с плашкой про cookie места меньше
+      const ft = R.querySelector('.hero-foot').getBoundingClientRect().top;
+      const bt = hdrH + 8, bb = Math.max(bt + 150, (ft || H) - 14), band = bb - bt;
+      return { narrow, padX, top: hdrH + 12, bot: 24 + ck, px: W / 2, py: bt + band * 0.47,
+        pr: Math.min(W * 0.145, band * 0.17), rr: Math.min(W * 0.37, band * 0.34), ir: 21, fs: 10, mark: 42, word: 26 };
+    }
+    return { narrow, padX, top: hdrH + 22, bot: 40 + ck, px: W * 0.42, py: hdrH + (H - hdrH) * 0.46,
+      pr: Math.min(W * 0.072, H * 0.12, 108), rr: Math.min(W * 0.2, (H - hdrH) * 0.3), ir: 26, fs: 13, mark: 74, word: 42 };
+  }
+  function wordBox() {
+    const f2 = parseFloat(line2.style.fontSize) || fs1 * 0.8;
+    const top = W1.cy - fs1 * 0.5, bot = (parseFloat(line2.style.top) || W2.cy) + f2;
+    return { cx: W1.cx, cy: (top + bot) / 2, w: W1.width + 12, h: bot - top };
+  }
+  function unspread() {
+    gMark.removeAttribute('transform');
+    for (const n of [back, front, over]) { n.style.transform = ''; n.style.transformOrigin = ''; }
+    glowG.style.opacity = '';
+    for (const st of sats) {
+      st.line.setAttribute('x1', st.lx[0]); st.line.setAttribute('y1', st.lx[1]);
+      st.line.setAttribute('x2', st.lx[2]); st.line.setAttribute('y2', st.lx[3]);
+      st.line.style.strokeDasharray = st.len; st.line.style.opacity = '';
+      if (st.lab) st.lab.style.opacity = 0;
+    }
+    wdG = null;
+  }
+  function spread(G) {
+    if (U < 1e-4) { if (spreadOn) { spreadOn = false; unspread(); } return; }
+    spreadOn = true;
+    const e = eIO(clamp(U)), L = layout(), k = G.k;
+    const tx = G.x - GLX * k, ty = G.y - GLY * k;
+    const uX = X => (X - tx) / k + OX, uY = Y => (Y - ty) / k + OY; // экран -> координаты svg
+    const sX = ux => tx + (ux - OX) * k, sY = uy => ty + (uy - OY) * k;
+
+    if (!markBB) markBB = gMark.getBBox();
+    const mcx = markBB.x + markBB.width / 2, mcy = markBB.y + markBB.height / 2;
+    const scM1 = L.mark / (markBB.height * k), scM = lerp(1, scM1, e);
+    const mx = lerp(mcx, uX(L.padX + L.mark * markBB.width / markBB.height / 2), e);
+    const my = lerp(mcy, uY(L.top + L.mark / 2), e);
+    gMark.setAttribute('transform', `translate(${(mx - mcx * scM).toFixed(2)} ${(my - mcy * scM).toFixed(2)}) scale(${scM.toFixed(4)})`);
+
+    const wb = wordBox(), scW1 = L.word / (wb.h * k), scW = lerp(1, scW1, e);
+    const wx = lerp(wb.cx, (L.padX + wb.w * k * scW1 / 2 - tx) / k, e);
+    const wy = lerp(wb.cy, (H - L.bot - L.word / 2 - ty) / k, e);
+    const wtr = `translate(${(wx - wb.cx * scW).toFixed(2)}px, ${(wy - wb.cy * scW).toFixed(2)}px) scale(${scW.toFixed(4)})`;
+    for (const n of [back, front, over]) { n.style.transformOrigin = '0 0'; n.style.transform = wtr; }
+
+    const pr0 = 99 * k, pr = lerp(pr0, L.pr, e), pcx = lerp(G.x, L.px, e), pcy = lerp(G.y, L.py, e);
+    wdG = { x: pcx, y: pcy, r: pr, k, a: seg(e, 0.08, 0.45) };
+    const scG = pr / pr0;
+    globeG.setAttribute('transform', `translate(${(uX(pcx) - 495 * scG).toFixed(2)} ${(uY(pcy) - 580 * scG).toFixed(2)}) scale(${scG.toFixed(4)})`);
+    globeG.style.opacity = 1 - wdG.a;
+    glowG.style.opacity = 1 - seg(e, 0, 0.45);
+
+    const fade = 1 - seg(e, 0, 0.4), lo = seg(e, 0.45, 1), lh = L.fs * 1.25;
+    for (const st of sats) {
+      if (st.kind === 'dot') { st.node.style.opacity = fade; st.line.style.opacity = fade; continue; }
+      const ang = st.menu.deg * Math.PI / 180;
+      const scS1 = L.ir / (IR * k), scS = lerp(1, scS1, e);
+      const x = lerp(495 + Math.cos(st.a) * st.d, uX(L.px + Math.cos(ang) * L.rr), e);
+      const y = lerp(580 + Math.sin(st.a) * st.d, uY(L.py + Math.sin(ang) * L.rr), e);
+      st.node.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${scS.toFixed(4)})`);
+      st.node.style.opacity = 1;
+      // линия от планеты к кнопке
+      const dx = sX(x) - pcx, dy = sY(y) - pcy, dl = Math.hypot(dx, dy) || 1, nx = dx / dl, ny = dy / dl;
+      st.line.style.strokeDasharray = 'none'; st.line.style.strokeDashoffset = 0; st.line.style.opacity = 1;
+      st.line.setAttribute('x1', uX(pcx + nx * (pr + 2)).toFixed(2)); st.line.setAttribute('y1', uY(pcy + ny * (pr + 2)).toFixed(2));
+      st.line.setAttribute('x2', uX(sX(x) - nx * (IR * scS * k + 3)).toFixed(2)); st.line.setAttribute('y2', uY(sY(y) - ny * (IR * scS * k + 3)).toFixed(2));
+      // подпись: по радиусу наружу, у нижнего спутника под кнопкой
+      st.lab.style.opacity = lo;
+      if (lo > 0.002) {
+        const cos = Math.cos(ang), sin = Math.sin(ang);
+        const anchor = L.narrow ? 'middle' : cos > 0.3 ? 'start' : cos < -0.3 ? 'end' : 'middle';
+        const below = L.narrow || Math.abs(cos) <= 0.3;
+        const up = below && !L.narrow && sin < 0;
+        const lx = L.px + cos * L.rr + (below ? 0 : (cos > 0 ? L.ir + 5 : -L.ir - 5));
+        const ly = L.py + sin * L.rr + (below
+          ? (up ? -L.ir - 12 - lh * (st.rows.length - 1) : L.ir + L.fs + 7)
+          : L.fs * 0.36 - lh * (st.rows.length - 1) / 2);
+        st.lab.setAttribute('text-anchor', anchor);
+        st.lab.style.fontSize = (L.fs / k).toFixed(2) + 'px';
+        st.rows.forEach((r, i) => { r.setAttribute('x', uX(lx).toFixed(2)); r.setAttribute('y', uY(ly + i * lh).toFixed(2)); });
+      }
+    }
   }
   // The emblem's globe spins until the descent starts; the canvas planet picks up the same angle.
   function spinGlobe(t) {
@@ -592,6 +713,12 @@ const heroView = (() => {
 
     function draw(t) {
       const d = heroState.d;
+      // Фаза «рабочего стола»: та же Земля, но стоит на месте и крутится (d = 0.2: сетка без дуг и городов).
+      if (d < 0.05 && !REDUCE && wdG && wdG.a > 0.004) {
+        drawn = true; g.setTransform(D, 0, 0, D, 0, 0); g.clearRect(0, 0, W, H);
+        orbit(0.2, t, wdG.a, wdG);
+        return;
+      }
       if (d < 0.05 || REDUCE) { if (drawn) { g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); drawn = false; } return; }
       drawn = true;
       g.setTransform(D, 0, 0, D, 0, 0);
@@ -604,11 +731,17 @@ const heroView = (() => {
     return { size, draw };
   })();
 
-  let hintOn = false;
+  let hintOn = false, wdOn = false, assembledT = 0;
   function tick(t) {
     if (intro < 1) { introT0 = introT0 || t; intro = clamp((t - introT0 - INTRO_DELAY) / INTRO_MS); }
+    else if (!assembledT) assembledT = t;
     const target = progress();
     cur = Math.abs(target - cur) < 1e-5 ? target : lerp(cur, target, 0.14);
+    // Логотип собрался и страницу не крутят: части разъезжаются по углам. Любая прокрутка - назад.
+    const uT = !REDUCE && assembledT && t - assembledT > 420 && cur <= L_END + 2e-3 && !chapter.running() ? 1 : 0;
+    U = Math.abs(uT - U) < 1e-4 ? uT : lerp(U, uT, uT ? 0.055 : 0.16);
+    const w = U > 0.5;
+    if (w !== wdOn) { wdOn = w; document.documentElement.classList.toggle('wd', w); }
     render(false);
     spinGlobe(t);
     planet.draw(t);
@@ -725,6 +858,8 @@ const heroView = (() => {
   }
 
   addEventListener('resize', fit); new ResizeObserver(fit).observe(stage);
+  // плашку про cookie закрыли: пересобрать раскладку «рабочего стола»
+  new MutationObserver(() => { if (spreadOn) render(true); }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   if (REDUCE) cur = L_END;
   fit();
   buildWords();
