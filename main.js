@@ -151,14 +151,15 @@ const heroView = (() => {
   const gFx = el('g', {}, svg);
   // Знак (треугольник с кругом) в фазе «рабочего стола» уезжает в левый верхний угол отдельно от спутников.
   const gMark = el('g', {}, gFx);
+  const gSpin = el('g', {}, gMark); // треугольник с рунами: на «рабочем столе» медленно идёт вокруг круга
   const triA = { fill: 'none', stroke: 'var(--si-ink)', 'stroke-width': 9.5, 'stroke-linejoin': 'miter', 'stroke-miterlimit': 8 };
-  const tri = el('path', Object.assign({ d: 'M495 301 L771 713 L219 713 Z' }, triA), gMark);
-  const halves = ['M495 301 L771 713 L495 713', 'M495 301 L219 713 L495 713'].map(d => el('path', Object.assign({ d }, triA), gMark));
+  const tri = el('path', Object.assign({ d: 'M495 301 L771 713 L219 713 Z' }, triA), gSpin);
+  const halves = ['M495 301 L771 713 L495 713', 'M495 301 L219 713 L495 713'].map(d => el('path', Object.assign({ d }, triA), gSpin));
   const halfLen = halves[0].getTotalLength();
   halves.forEach(h => { h.style.strokeDasharray = halfLen; });
   const runePts = [[11.6, -24.7], [-10.9, -7.2], [11.6, 7.2], [-11.5, 24.7]];
   const runes = [[490.3, 347.2], [283.7, 676.4], [703.4, 676.2]].map(([x, y]) => {
-    const gg = el('g', { 'data-x': x, 'data-y': y }, gMark);
+    const gg = el('g', { 'data-x': x, 'data-y': y }, gSpin);
     el('polyline', { points: runePts.map(p => p.join(',')).join(' '), fill: 'none', stroke: 'var(--si-ink)', 'stroke-width': 4.2, 'stroke-linecap': 'round' }, gg);
     return gg;
   });
@@ -196,7 +197,7 @@ const heroView = (() => {
     server: { href: '#catalog', deg: 295.7, lines: ['Конфигурации'] },
     cable: { href: '#turnkey', deg: 347.1, lines: ['Серверная', 'под ключ'] },
     camera: { href: '#video', deg: 38.6, lines: ['Видеонаблюдение'] },
-    network: { href: '#request', deg: 90, lines: ['Рассчитать', 'конфигурацию'] },
+    network: { href: 'configurator.html', deg: 90, lines: ['Рассчитать', 'конфигурацию'] },
     phone: { href: '#contacts', deg: 141.4, lines: ['Контакты'] },
     dish: { href: '#process', deg: 192.9, lines: ['Как мы', 'работаем'] },
     wifi: { href: '#why', deg: 244.3, lines: ['Почему', 'выбирают нас'] }
@@ -230,6 +231,9 @@ const heroView = (() => {
     }
     return s;
   });
+
+  // порядок вылета из планеты: по кругу от нижней кнопки
+  sats.filter(s => s.kind === 'icon').sort((a, b) => a.menu.deg - b.menu.deg).forEach((s, i) => { s.i = i; s.ph = i * 1.9; });
 
   const WORD1 = 'САРМАТ-ИТ', WORD2 = 'SARMAT-IT';
   const W1 = { cx: 495 - OX, cy: 820 - OY, width: 570 }, W2 = { cx: 494 - OX, cy: 905 - OY, width: 516 };
@@ -283,7 +287,8 @@ const heroView = (() => {
   let cur = 0, last = -1, lastU = -1, logoOn = true, phase = 0, prevT = 0;
   // U: фаза «рабочего стола», 0 - собранный логотип по центру, 1 - знак и логотип по углам,
   // Земля в центре, спутники кнопками. Прокрутка складывает всё назад до начала спуска.
-  let U = 0, wdG = null, spreadOn = false, markBB = null;
+  let U = 0, wdG = null, spreadOn = false, markBB = null, tNow = 0, markSpin = 0, satHover = false, drift = 1;
+  const lerpA = (a, b, t) => { let d = (b - a) % (2 * Math.PI); if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; return a + d * t; };
   // intro: 0..1, the logo assembly on load. Any scroll into the track finishes it at once.
   const INTRO_DELAY = 350, INTRO_MS = 3600;
   let intro = scrollY > 0 ? 1 : 0, introT0 = 0;
@@ -300,6 +305,8 @@ const heroView = (() => {
     if (!force && Math.abs(P - last) < 1e-5 && Math.abs(U - lastU) < 1e-5) return; last = P; lastU = U;
     const p = REDUCE ? 1 : clamp(P / L_END), d = REDUCE ? 0 : seg(P, D0, D1);
     heroState.d = d;
+    markSpin = REDUCE || U < 0.001 ? 0 : ((tNow * 360 / 110000) % 360) * seg(eIO(clamp(U)), 0.25, 1);
+    gSpin.setAttribute('transform', `rotate(${markSpin.toFixed(2)} 495 580)`);
     bar.style.transform = `scaleX(${REDUCE ? 1 : P})`;
     const hl = eOut(seg(p, 0.9, 1));
     line.style.opacity = hl * (1 - seg(d, 0, 0.05)); line.style.transform = `translateY(${lerp(14, 0, hl)}px)`;
@@ -337,7 +344,7 @@ const heroView = (() => {
     const tc = eIO(seg(p, 0.56, 0.7));
     halves.forEach(h => { h.style.strokeDashoffset = halfLen * (1 - tc); h.style.opacity = tc > 0 && tc < 1 ? 1 : 0; });
     tri.style.opacity = tc >= 1 ? 1 : 0;
-    runes.forEach((gg, i) => { const t = seg(p, 0.66 + i * 0.015, 0.72 + i * 0.015); gg.style.opacity = seg(t, 0, .3); gg.setAttribute('transform', `translate(${gg.dataset.x} ${gg.dataset.y}) scale(${lerp(.2, 1, eBack(t))})`); });
+    runes.forEach((gg, i) => { const t = seg(p, 0.66 + i * 0.015, 0.72 + i * 0.015); gg.style.opacity = seg(t, 0, .3); gg.setAttribute('transform', `translate(${gg.dataset.x} ${gg.dataset.y}) scale(${lerp(.2, 1, eBack(t))}) rotate(${-markSpin})`); });
     const q = seg(p, 0.68, 0.95);
     const phi = -3.3 * (1 - eOut(seg(q, 0, 0.72)));
     const f = eIO(seg(q, 0.32, 1));
@@ -374,11 +381,11 @@ const heroView = (() => {
       // на телефоне кольцо живёт между шапкой и строкой внизу, с плашкой про cookie места меньше
       const ft = R.querySelector('.hero-foot').getBoundingClientRect().top;
       const bt = hdrH + 8, bb = Math.max(bt + 150, (ft || H) - 14), band = bb - bt;
-      return { narrow, padX, top: hdrH + 12, bot: 24 + ck, px: W / 2, py: bt + band * 0.47,
-        pr: Math.min(W * 0.145, band * 0.17), rr: Math.min(W * 0.37, band * 0.34), ir: 21, fs: 10, mark: 42, word: 26 };
+      return { narrow, padX, top: hdrH + 12, bot: 24 + ck, px: W / 2, py: bt + band * 0.46,
+        pr: Math.min(W * 0.155, band * 0.18), rr: Math.min(W * 0.36, band * 0.33), ir: 24, fs: 11.5, mark: 42, word: 26 };
     }
-    return { narrow, padX, top: hdrH + 22, bot: 40 + ck, px: W * 0.42, py: hdrH + (H - hdrH) * 0.46,
-      pr: Math.min(W * 0.072, H * 0.12, 108), rr: Math.min(W * 0.2, (H - hdrH) * 0.3), ir: 26, fs: 13, mark: 74, word: 42 };
+    return { narrow, padX, top: hdrH + 22, bot: 40 + ck, px: W / 2, py: hdrH + (H - hdrH) * 0.44,
+      pr: Math.min(W * 0.085, H * 0.14, 126), rr: Math.min(W * 0.25, (H - hdrH) * 0.31), ir: 34, fs: 15, mark: 76, word: 44 };
   }
   function wordBox() {
     const f2 = parseFloat(line2.style.fontSize) || fs1 * 0.8;
@@ -425,37 +432,42 @@ const heroView = (() => {
     globeG.style.opacity = 1 - wdG.a;
     glowG.style.opacity = 1 - seg(e, 0, 0.45);
 
-    const fade = 1 - seg(e, 0, 0.4), lo = seg(e, 0.45, 1), lh = L.fs * 1.25;
+    // под курсором кнопки замирают, чтобы по ним было легко попасть
+    drift += ((satHover ? 0 : 1) - drift) * 0.07;
+    const lh = L.fs * 1.3;
     for (const st of sats) {
-      if (st.kind === 'dot') { st.node.style.opacity = fade; st.line.style.opacity = fade; continue; }
-      const ang = st.menu.deg * Math.PI / 180;
-      const scS1 = L.ir / (IR * k), scS = lerp(1, scS1, e);
-      const x = lerp(495 + Math.cos(st.a) * st.d, uX(L.px + Math.cos(ang) * L.rr), e);
-      const y = lerp(580 + Math.sin(st.a) * st.d, uY(L.py + Math.sin(ang) * L.rr), e);
-      st.node.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${scS.toFixed(4)})`);
-      st.node.style.opacity = 1;
-      // линия от планеты к кнопке
-      const dx = sX(x) - pcx, dy = sY(y) - pcy, dl = Math.hypot(dx, dy) || 1, nx = dx / dl, ny = dy / dl;
-      st.line.style.strokeDasharray = 'none'; st.line.style.strokeDashoffset = 0; st.line.style.opacity = 1;
-      st.line.setAttribute('x1', uX(pcx + nx * (pr + 2)).toFixed(2)); st.line.setAttribute('y1', uY(pcy + ny * (pr + 2)).toFixed(2));
-      st.line.setAttribute('x2', uX(sX(x) - nx * (IR * scS * k + 3)).toFixed(2)); st.line.setAttribute('y2', uY(sY(y) - ny * (IR * scS * k + 3)).toFixed(2));
-      // подпись: по радиусу наружу, у нижнего спутника под кнопкой
+      // точки-спутники уходят вместе с эмблемой, кнопки остаются
+      if (st.kind === 'dot') { const f = 1 - seg(e, 0, 0.3); st.node.style.opacity = f; st.line.style.opacity = f; continue; }
+      // сначала спутник втягивается в планету, потом вылетает из неё на своё место, по очереди
+      const tA = eIO(seg(e, 0, 0.3)), tB = eOut(seg(e, 0.33 + st.i * 0.045, 0.86 + st.i * 0.045));
+      const dr = seg(e, 0.75, 1) * drift; // живое движение включается, когда кнопка встала
+      const aT = st.menu.deg * Math.PI / 180 + dr * (Math.sin(tNow / 5200 + st.ph) * 0.055 + Math.sin(tNow / 11000 + st.ph * 0.7) * 0.03);
+      const rT = L.rr * (1 + dr * (Math.sin(tNow / 4300 + st.ph * 1.6) * 0.04 + Math.sin(tNow / 9000 + st.ph) * 0.022));
+      const ex = sX(495 + Math.cos(st.a) * st.d), ey = sY(580 + Math.sin(st.a) * st.d);
+      const ang = lerpA(Math.atan2(ey - pcy, ex - pcx), aT, tA);
+      const rad = lerp(lerp(Math.hypot(ex - pcx, ey - pcy), pr * 0.45, tA), rT, tB);
+      const bx = pcx + Math.cos(ang) * rad, by = pcy + Math.sin(ang) * rad;
+      const scS = lerp(lerp(1, 0.4, tA), L.ir / (IR * k), tB), ir = IR * scS * k;
+      st.node.setAttribute('transform', `translate(${uX(bx).toFixed(2)} ${uY(by).toFixed(2)}) scale(${scS.toFixed(4)})`);
+      st.node.style.opacity = lerp(lerp(1, 0.08, tA), 1, seg(tB, 0, 0.4));
+      // луч от планеты к кнопке
+      const nx = Math.cos(ang), ny = Math.sin(ang);
+      st.line.style.strokeDasharray = 'none'; st.line.style.strokeDashoffset = 0;
+      st.line.style.opacity = seg(tB, 0.15, 0.6);
+      st.line.setAttribute('x1', uX(pcx + nx * (pr + 3)).toFixed(2)); st.line.setAttribute('y1', uY(pcy + ny * (pr + 3)).toFixed(2));
+      st.line.setAttribute('x2', uX(bx - nx * (ir + 4)).toFixed(2)); st.line.setAttribute('y2', uY(by - ny * (ir + 4)).toFixed(2));
+      // подпись под кнопкой
+      const lo = seg(tB, 0.5, 1);
       st.lab.style.opacity = lo;
       if (lo > 0.002) {
-        const cos = Math.cos(ang), sin = Math.sin(ang);
-        const anchor = L.narrow ? 'middle' : cos > 0.3 ? 'start' : cos < -0.3 ? 'end' : 'middle';
-        const below = L.narrow || Math.abs(cos) <= 0.3;
-        const up = below && !L.narrow && sin < 0;
-        const lx = L.px + cos * L.rr + (below ? 0 : (cos > 0 ? L.ir + 5 : -L.ir - 5));
-        const ly = L.py + sin * L.rr + (below
-          ? (up ? -L.ir - 12 - lh * (st.rows.length - 1) : L.ir + L.fs + 7)
-          : L.fs * 0.36 - lh * (st.rows.length - 1) / 2);
-        st.lab.setAttribute('text-anchor', anchor);
+        st.lab.setAttribute('text-anchor', 'middle');
         st.lab.style.fontSize = (L.fs / k).toFixed(2) + 'px';
-        st.rows.forEach((r, i) => { r.setAttribute('x', uX(lx).toFixed(2)); r.setAttribute('y', uY(ly + i * lh).toFixed(2)); });
+        const ly = by + ir + L.fs + 8;
+        st.rows.forEach((r, j) => { r.setAttribute('x', uX(bx).toFixed(2)); r.setAttribute('y', uY(ly + j * lh).toFixed(2)); });
       }
     }
   }
+
   // The emblem's globe spins until the descent starts; the canvas planet picks up the same angle.
   function spinGlobe(t) {
     const dt = prevT ? Math.min(64, t - prevT) : 0; prevT = t;
@@ -742,7 +754,8 @@ const heroView = (() => {
     U = Math.abs(uT - U) < 1e-4 ? uT : lerp(U, uT, uT ? 0.055 : 0.16);
     const w = U > 0.5;
     if (w !== wdOn) { wdOn = w; document.documentElement.classList.toggle('wd', w); }
-    render(false);
+    tNow = t;
+    render(U > 1e-4 || spreadOn); // пока «рабочий стол» на экране, спутники и знак двигаются каждый кадр
     spinGlobe(t);
     planet.draw(t);
     const h = intro >= 1 && cur < L_END + 0.012 && !chapter.running();
@@ -768,7 +781,7 @@ const heroView = (() => {
     const R_IN = 0.45, R_OUT = 0.7; // speed ramps at the start and the end, seconds
     // native: the ride failed to move the page on this device, so scrolling is left to the browser
     // (the hero still follows the scroll position, as a scrubbed animation).
-    let run = null, touchY = null, native = false, last = '';
+    let run = null, touchY = null, native = false, last = '', pend = null, glideOff = null;
     const MOUSE = matchMedia('(hover: hover) and (pointer: fine)').matches;
     function path() {
       const top = track.getBoundingClientRect().top + scrollY, len = Math.max(1, track.offsetHeight - innerHeight);
@@ -784,10 +797,10 @@ const heroView = (() => {
     const yAt = (pts, t) => { for (let i = 1; i < pts.length; i++) if (t <= pts[i][1]) return lerp(pts[i - 1][0], pts[i][0], seg(t, pts[i - 1][1], pts[i][1])); return pts[pts.length - 1][0]; };
     const end = () => proc.getBoundingClientRect().top + scrollY;
     const inZone = () => scrollY < end() - 2;
-    function start(dir) {
+    function start(dir, speed) {
       const pts = path(), s0 = timeAt(pts, scrollY), S = dir > 0 ? pts[pts.length - 1][1] - s0 : s0;
       if (S < 0.02) return;
-      const k = dir > 0 ? 1 : UP, T = S * k + (R_IN + R_OUT) / 2;
+      const k = dir > 0 ? (speed || 1) : UP, T = S * k + (R_IN + R_OUT) / 2;
       const r = run = { dir, pts, s0, S: S * k, k, T, t0: performance.now(), y: scrollY, hist: [scrollY] };
       html.style.scrollBehavior = 'auto';
       ticker.add(step);
@@ -798,6 +811,32 @@ const heroView = (() => {
         setTimeout(() => { if ((run === r || !run) && Math.abs(scrollY - y0) < 8) { if (run) stop('watchdog'); native = true; } }, 1200);
     }
     function stop(why) { run = null; last = why || ''; html.style.scrollBehavior = ''; ticker.remove(step); }
+    /* Клик по спутнику: сначала прежний проезд с приземлением, потом плавный доезд до раздела.
+       Кнопка «К меню» тем же ходом возвращает наверх. Любой жест по дороге отменяет доезд. */
+    function glide(y) {
+      if (glideOff) glideOff();
+      const y0 = scrollY, dy = Math.round(y) - y0;
+      if (Math.abs(dy) < 6) return;
+      const ms = clamp(Math.abs(dy) / 1.6, 600, 1800), t0 = performance.now();
+      html.style.scrollBehavior = 'auto';
+      const f = now => {
+        const t = clamp((now - t0) / ms);
+        scrollTo(0, Math.round(y0 + dy * eIO(t)));
+        if (t >= 1) { glideOff(); return false; }
+      };
+      const cancel = () => { ticker.remove(f); glideOff(); };
+      glideOff = () => {
+        glideOff = null; html.style.scrollBehavior = '';
+        removeEventListener('wheel', cancel); removeEventListener('touchstart', cancel); removeEventListener('keydown', cancel);
+      };
+      addEventListener('wheel', cancel, { passive: true }); addEventListener('touchstart', cancel, { passive: true }); addEventListener('keydown', cancel);
+      ticker.add(f);
+    }
+    function after() {
+      if (!pend) return;
+      const el = pend; pend = null;
+      glide(Math.max(0, el.getBoundingClientRect().top + scrollY - (el.tagName === 'FOOTER' ? 0 : document.getElementById('hdr').offsetHeight + 8)));
+    }
     function step(now) {
       if (!run) return false;
       if (MOUSE && (scrollY < Math.min(...run.hist) - 40 || scrollY > Math.max(...run.hist) + 40)) { stop('scroll'); return false; }
@@ -808,12 +847,12 @@ const heroView = (() => {
       run.y = Math.round(yAt(run.pts, pt));
       run.hist.push(run.y); if (run.hist.length > 8) run.hist.shift();
       scrollTo(0, run.y);
-      if (t >= T) { stop('done'); return false; }
+      if (t >= T) { stop('done'); after(); return false; }
     }
-    function gesture(dir) {
+    function gesture(dir, speed) {
       if (run && run.dir === dir) return;
       if (dir < 0 && scrollY <= 0) return;
-      start(dir);
+      start(dir, speed);
     }
     const skip = el => el && el.closest && el.closest('.asst, .cookie, input, textarea, select');
     if (!REDUCE) {
@@ -843,8 +882,35 @@ const heroView = (() => {
       addEventListener('click', e => { if (run && e.target.closest && e.target.closest('a[href]')) stop('link'); }, true); // a link wins
       addEventListener('mousedown', e => { if (run && e.clientX >= html.clientWidth) stop('scrollbar'); });
     }
-    return { running: () => !!run, state: () => ({ ride: run ? run.dir : 0, native, last }) };
+    return {
+      running: () => !!run,
+      state: () => ({ ride: run ? run.dir : 0, native, last }),
+      to(el) { if (REDUCE || native) { el.scrollIntoView(); return; } if (inZone()) { pend = el; gesture(1, 0.62); } else glide(el.getBoundingClientRect().top + scrollY - document.getElementById('hdr').offsetHeight - 8); },
+      top() { if (REDUCE) { scrollTo(0, 0); return; } pend = null; glide(0); }
+    };
   })();
+
+  iconsG.addEventListener('pointerover', e => { if (e.target.closest && e.target.closest('a.si-sat')) satHover = true; });
+  iconsG.addEventListener('pointerout', e => { if (e.target.closest && e.target.closest('a.si-sat')) satHover = false; });
+
+  // Спутник ведёт в раздел не прыжком, а проездом: спуск с приземлением, потом доезд.
+  iconsG.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a.si-sat');
+    const href = a && a.getAttribute('href');
+    if (!href || href[0] !== '#') return; // ссылка на другую страницу открывается как обычно
+    const t = document.querySelector(href);
+    if (!t) return;
+    e.preventDefault();
+    chapter.to(t);
+  });
+
+  // Кнопка «К меню»: возврат на первый экран к спутникам
+  const toMenu = document.getElementById('toMenu');
+  if (toMenu) {
+    const upd = () => toMenu.classList.toggle('on', scrollY > innerHeight * 0.75);
+    addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
+    toMenu.addEventListener('click', () => chapter.top());
+  }
 
   // ?debug: ride state, screen and errors in a strip at the top, to check a phone without devtools
   if (/[?&]debug\b/.test(location.search)) {

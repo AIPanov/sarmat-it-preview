@@ -12,9 +12,9 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=dc9f5a28">
+<link rel="stylesheet" href="styles.css?v=0e881774">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
-<script src="main.js?v=2e88944c" defer></script>
+<script src="main.js?v=2286185c" defer></script>
 </head>
 <body>
 
@@ -338,6 +338,7 @@
         <div class="eyebrow" aria-hidden="true">05</div>
         <h2 class="h2" id="request-title">Заявка на расчёт</h2>
         <p class="lede">Опишите задачу. Подберём конфигурацию и свяжемся с вами, чтобы уточнить детали.</p>
+        <p class="lede">Можно пойти по шагам: <a href="configurator.html">собрать сервер под задачу</a>.</p>
         <ul class="contacts">
           <li><span class="k">Телефон</span><a href="tel:+74994606265">8 (499) 460-62-65</a></li>
           <li><span class="k">Почта</span><a href="mailto:sarmat-it@ya.ru">sarmat-it@ya.ru</a></li>
@@ -417,6 +418,12 @@
 </footer>
 
 <!-- 4. ASSISTANT (appears after the first screen) -->
+<!-- Возврат к спутникам первого экрана, появляется ниже первого экрана -->
+<button class="tomenu" id="toMenu" type="button">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V6"/><path d="M6 12l6-6 6 6"/></svg>
+  <span>К меню</span>
+</button>
+
 <div class="asst" id="asst">
   <div class="asst-panel" id="asstPanel" role="dialog" aria-labelledby="asstTitle" hidden>
     <header><h3 id="asstTitle">Вопрос сотруднику</h3><button class="asst-x" id="asstClose" type="button" aria-label="Закрыть">&#x2715;</button></header>
