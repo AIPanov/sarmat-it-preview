@@ -468,11 +468,28 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
   .js .val-ico svg * { stroke-dashoffset: 0; }
 }
 
+/* ============ Окно «отправить на проработку» ============ */
+.modal { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 0; border: 1px solid var(--line-2); border-radius: var(--r-l); background: var(--surface-1); color: var(--ink); overflow: auto; overscroll-behavior: contain; }
+.modal::backdrop { background: rgba(3,5,11,.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.modal-in { position: relative; display: grid; gap: 16px; padding: clamp(20px, 3vw, 32px); }
+.modal-title { font: 400 clamp(22px, 2.6vw, 30px)/1.15 var(--serif); margin: 0; padding-right: 40px; }
+.modal-sub { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.5; }
+.modal-chip { margin: 0; justify-self: start; padding: 9px 14px; border: 1px solid var(--accent); border-radius: 999px; background: rgba(95,176,232,.12); font: 500 14px/1 var(--sans); color: var(--ink); }
+.modal-x { position: absolute; right: 14px; top: 14px; width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line-2); border-radius: 50%; background: rgba(8,14,28,.6); color: var(--ink-2); font-size: 14px; cursor: pointer; transition: color .2s, border-color .2s; }
+.modal-x:hover { color: var(--ink); border-color: var(--accent); }
+.modal-in .btn { width: 100%; min-height: 54px; font-size: 16px; }
+.modal-in .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 560px) { .modal-in .row2 { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: no-preference) { .modal[open] { animation: modalIn .28s cubic-bezier(.2,.7,.2,1); } }
+@keyframes modalIn { from { opacity: 0; transform: translateY(12px); } }
+
 /* ============ Конфигуратор: страница «соберите сервер под задачу» ============ */
 .conf { padding: calc(var(--header-h) + 44px) 0 90px; }
 .conf-head { max-width: 860px; }
 .conf-head h1 { font: 400 clamp(32px, 4.6vw, 54px)/1.05 var(--serif); margin: 14px 0 0; text-wrap: balance; }
 .conf-head .lede { margin: 16px 0 0; color: var(--ink-2); font-size: 17px; line-height: 1.6; max-width: 62ch; }
+.conf-alt { font-size: 15px; color: var(--ink-3); }
+.conf-alt a { color: var(--accent-2); }
 .conf-form { margin-top: 40px; }
 .conf-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
 .conf-steps { display: grid; gap: 20px; min-width: 0; }

@@ -14,6 +14,14 @@ const bell = (v, a, b, c) => v <= b ? smooth(a, b, v) : 1 - smooth(b, c, v);
 /* Descent progress (0 before, 1 after landing). The hero writes it, the starfield reads it. */
 const heroState = { d: 0 };
 
+/* Превью на GitHub Pages: PHP там нет, письмо не уйдёт. Пишем это прямо в сообщении об ошибке,
+   чтобы при показе превью было понятно, что отправка проверяется на рабочем сайте. */
+const PREVIEW = /\.github\.io$/.test(location.hostname);
+const PREVIEW_MSG = 'Это превью сайта: заявка отсюда не отправляется. На рабочем сайте письмо уходит в Сармат-ИТ.';
+if (PREVIEW) addEventListener('DOMContentLoaded', () => {
+  ['msgErr', 'p-err', 'asstErr'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = PREVIEW_MSG; });
+});
+
 /* Errors for the ?debug overlay at the end of the file. */
 const ERRS = [];
 addEventListener('error', e => ERRS.push(e.message));
@@ -2085,11 +2093,83 @@ function liveCheck(input, el, problem) {
 }
 
 /* ============ Card buttons prefill the form ============ */
-document.querySelectorAll('.js-pick').forEach(b => b.addEventListener('click', () => {
-  document.getElementById('f-pos').value = b.dataset.pos;
-  document.getElementById('request').scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth' });
-  setTimeout(() => document.getElementById('f-name').focus({ preventScroll: true }), REDUCE ? 0 : 900);
-}));
+/* ============ 3c. «Отправить на проработку»: окно у готовой сборки ============ */
+/* Кнопка на карточке открывает окно: контакты и что поправить под задачу. Письмо уходит как обычная
+   заявка (kind=lead), в нём название сборки и её состав со страницы, чтобы мы видели, о чём речь. */
+(function () {
+  const dlg = document.getElementById('pickModal');
+  const picks = [...document.querySelectorAll('.js-pick')];
+  if (!dlg || !picks.length) return;
+  const form = document.getElementById('pickForm'), nameEl = document.getElementById('pickName');
+  const pos = document.getElementById('p-pos'), sumField = document.getElementById('p-sum');
+  const phone = document.getElementById('p-phone'), phoneErr = document.getElementById('p-phone-err');
+  const email = document.getElementById('p-email'), emailErr = document.getElementById('p-email-err');
+  const comment = document.getElementById('p-msg');
+  const consent = document.getElementById('p-consent'), consentErr = document.getElementById('p-consent-err'), consentWrap = consent.closest('.field-check');
+  const ok = document.getElementById('p-ok'), err = document.getElementById('p-err');
+  const btn = form.querySelector('button[type="submit"]');
+  liveCheck(phone, phoneErr, phoneProblem);
+  liveCheck(email, emailErr, emailProblem);
+  const showConsent = bad => { consentErr.hidden = !bad; if (bad) consentWrap.setAttribute('data-invalid', 'true'); else consentWrap.removeAttribute('data-invalid'); };
+  consent.addEventListener('change', () => { if (consent.checked) showConsent(false); });
+
+  // состав сборки берём со страницы: заголовок, описание и строки сборки
+  function cardText(card, title) {
+    const desc = card.querySelector('.card-desc');
+    const steps = [...card.querySelectorAll('.steps .step')].map(li => {
+      const b = li.querySelector('b'), v = li.querySelector('span');
+      return b ? '- ' + b.textContent.trim() + (v ? ': ' + v.textContent.trim() : '') : '';
+    }).filter(Boolean);
+    return ['Интересует готовая сборка с сайта: ' + title,
+      desc ? desc.textContent.trim() : '',
+      steps.length ? 'Состав на странице:\n' + steps.join('\n') : ''].filter(Boolean).join('\n');
+  }
+
+  let body = null;
+  const open = card => {
+    const title = card.querySelector('.card-title');
+    const name = title ? title.textContent.trim() : 'Готовая конфигурация';
+    nameEl.textContent = name;
+    pos.value = ('Готовая сборка: ' + name).slice(0, 200);
+    sumField.dataset.card = cardText(card, name);
+    ok.hidden = true; err.hidden = true;
+    body = document.body.style.overflow; document.body.style.overflow = 'hidden';
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+    setTimeout(() => document.getElementById('p-name').focus({ preventScroll: true }), 60);
+  };
+  const close = () => { document.body.style.overflow = body || ''; if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); };
+  picks.forEach(b => b.addEventListener('click', () => {
+    const card = b.closest('.gal-card, .sc, article');
+    if (card) open(card);
+  }));
+  document.getElementById('pickClose').addEventListener('click', close);
+  dlg.addEventListener('close', () => { document.body.style.overflow = body || ''; });
+  dlg.addEventListener('click', e => { if (e.target === dlg) close(); }); // клик по тёмному фону
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    ok.hidden = true; err.hidden = true;
+    const bad = [
+      fieldMsg(phone, phoneErr, phoneProblem(phone.value)) && phone,
+      fieldMsg(email, emailErr, emailProblem(email.value)) && email,
+      (showConsent(!consent.checked), !consent.checked && consent)
+    ].filter(Boolean);
+    if (bad.length) { bad[0].focus(); return; }
+    const note = comment.value.trim();
+    sumField.value = ((sumField.dataset.card || '') + (note ? '\n\nЧто поправить: ' + note : '')).slice(0, 4000);
+    btn.disabled = true;
+    send('lead', form)
+      .then(() => { const c = sumField.dataset.card; form.reset(); sumField.dataset.card = c; showConsent(false); ok.hidden = false; ok.focus(); })
+      .catch(e2 => {
+        const m = e2.message;
+        if (m === 'phone') { fieldMsg(phone, phoneErr, PHONE_BAD); phone.focus(); }
+        else if (m === 'email') { fieldMsg(email, emailErr, EMAIL_BAD); email.focus(); }
+        else if (m === 'consent') { showConsent(true); consent.focus(); }
+        else err.hidden = false;
+      })
+      .finally(() => { btn.disabled = false; });
+  });
+})();
 
 /* ============ 4. Assistant: shows after the first screen ============ */
 (function () {

@@ -11,9 +11,9 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=0e881774">
+<link rel="stylesheet" href="styles.css?v=02ed45ba">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
-<script src="conf.js?v=4ae8d676" defer></script>
+<script src="conf.js?v=c04fa55c" defer></script>
 </head>
 <body class="doc-body">
 
@@ -41,6 +41,7 @@
     <div class="eyebrow" aria-hidden="true">Конфигуратор</div>
     <h1>Соберите сервер под свою задачу</h1>
     <p class="lede">Отметьте, что должен делать сервер, и укажите масштаб. Модели, совместимость и запас по питанию подбираем мы: в ответ пришлём спецификацию с точными позициями, ценами и сроком поставки.</p>
+    <p class="lede conf-alt">Знаете, что нужно что-то похожее на наши <a href="index.html#catalog">готовые конфигурации</a>? Там можно отправить сборку на проработку в один шаг.</p>
   </div>
 
   <form class="wrap conf-form" id="confForm" method="post" action="api/send.php" enctype="multipart/form-data" novalidate>
@@ -52,14 +53,14 @@
           <p class="field-hint conf-sub">Можно выбрать несколько.</p>
           <div class="conf-tiles">
             <label class="tile"><input type="checkbox" name="task" value="Виртуализация" data-k="virt"><span>Виртуализация</span></label>
-            <label class="tile"><input type="checkbox" name="task" value="1С" data-k="app"><span>1С</span></label>
-            <label class="tile"><input type="checkbox" name="task" value="Базы данных" data-k="data"><span>Базы данных</span></label>
-            <label class="tile"><input type="checkbox" name="task" value="Файловое хранилище" data-k="data"><span>Файловое хранилище</span></label>
+            <label class="tile"><input type="checkbox" name="task" value="1С" data-k="s1c"><span>1С</span></label>
+            <label class="tile"><input type="checkbox" name="task" value="Базы данных" data-k="db"><span>Базы данных</span></label>
+            <label class="tile"><input type="checkbox" name="task" value="Файловое хранилище" data-k="file"><span>Файловое хранилище</span></label>
             <label class="tile"><input type="checkbox" name="task" value="Видеонаблюдение" data-k="video"><span>Видеонаблюдение</span></label>
-            <label class="tile"><input type="checkbox" name="task" value="Удалённые рабочие места" data-k="app"><span>Удалённые рабочие места</span></label>
+            <label class="tile"><input type="checkbox" name="task" value="Удалённые рабочие места" data-k="rdp"><span>Удалённые рабочие места</span></label>
             <label class="tile"><input type="checkbox" name="task" value="Машинное обучение и ИИ" data-k="ai"><span>Машинное обучение и ИИ</span></label>
-            <label class="tile"><input type="checkbox" name="task" value="Резервное копирование" data-k="data"><span>Резервное копирование</span></label>
-            <label class="tile"><input type="checkbox" name="task" value="Сайт и веб-сервисы" data-k="app"><span>Сайт и веб-сервисы</span></label>
+            <label class="tile"><input type="checkbox" name="task" value="Резервное копирование" data-k="backup"><span>Резервное копирование</span></label>
+            <label class="tile"><input type="checkbox" name="task" value="Сайт и веб-сервисы" data-k="web"><span>Сайт и веб-сервисы</span></label>
             <label class="tile"><input type="checkbox" name="task" value="Другое" data-k="other"><span>Другое</span></label>
           </div>
           <div class="field conf-when" data-when="other" hidden>
@@ -75,13 +76,83 @@
             <div class="field"><label for="c-users">Пользователей, чел.</label><input class="input" id="c-users" name="users" type="number" min="1" max="100000" inputmode="numeric" placeholder="например, 40"></div>
             <div class="field conf-when" data-when="virt" hidden><label for="c-vm">Виртуальных машин, шт.</label><input class="input" id="c-vm" name="vm" type="number" min="1" max="10000" inputmode="numeric" placeholder="например, 12"></div>
           </div>
-          <div class="conf-row conf-when" data-when="data" hidden>
+          <div class="conf-row conf-when" data-when="db file backup" hidden>
             <div class="field"><label for="c-data">Данных сейчас, ТБ</label><input class="input" id="c-data" name="data" type="number" min="0" max="100000" step="0.5" inputmode="decimal" placeholder="например, 8"></div>
             <div class="field"><label for="c-grow">Прирост за год, ТБ</label><input class="input" id="c-grow" name="grow" type="number" min="0" max="100000" step="0.5" inputmode="decimal" placeholder="например, 3"></div>
+          </div>
+          <div class="conf-row conf-when" data-when="virt" hidden>
+            <div class="field">
+              <label for="c-hyper">Гипервизор</label>
+              <select class="input" id="c-hyper" name="hyper"><option value="">Не знаю, посоветуйте</option><option>Proxmox VE</option><option>VMware</option><option>Hyper-V</option><option>Другой</option></select>
+            </div>
+          </div>
+          <div class="conf-row conf-when" data-when="s1c" hidden>
+            <div class="field"><label for="c-u1c">Пользователей 1С</label><input class="input" id="c-u1c" name="u1c" type="number" min="1" max="10000" inputmode="numeric" placeholder="например, 20"></div>
+            <div class="field">
+              <label for="c-m1c">Режим работы 1С</label>
+              <select class="input" id="c-m1c" name="m1c"><option value="">Не знаю</option><option>Файловый</option><option>Клиент-серверный</option></select>
+            </div>
+            <div class="field">
+              <label for="c-db1c">СУБД</label>
+              <select class="input" id="c-db1c" name="db1c"><option value="">Не знаю, посоветуйте</option><option>PostgreSQL</option><option>MS SQL</option></select>
+            </div>
+          </div>
+          <div class="conf-row conf-when" data-when="db" hidden>
+            <div class="field">
+              <label for="c-dbms">Какая СУБД</label>
+              <select class="input" id="c-dbms" name="dbms"><option value="">Не знаю, посоветуйте</option><option>PostgreSQL</option><option>MS SQL</option><option>MySQL или MariaDB</option><option>Oracle</option><option>Другая</option></select>
+            </div>
+            <div class="field"><label for="c-dbsize">Размер базы, ГБ</label><input class="input" id="c-dbsize" name="dbsize" type="number" min="1" max="1000000" inputmode="numeric" placeholder="например, 300"></div>
+          </div>
+          <div class="conf-row conf-when" data-when="file" hidden>
+            <div class="field">
+              <label for="c-share">Доступ к файлам</label>
+              <select class="input" id="c-share" name="share"><option value="">Не знаю</option><option>Общие папки Windows (SMB)</option><option>NFS</option><option>И то и другое</option></select>
+            </div>
+          </div>
+          <div class="conf-row conf-when" data-when="rdp" hidden>
+            <div class="field"><label for="c-sess">Одновременных сессий</label><input class="input" id="c-sess" name="sess" type="number" min="1" max="10000" inputmode="numeric" placeholder="например, 25"></div>
+            <div class="field">
+              <label for="c-heavy">Тяжёлые программы</label>
+              <select class="input" id="c-heavy" name="heavy"><option value="">Не знаю</option><option>Только офис и браузер</option><option>Есть CAD, графика или видео</option></select>
+            </div>
+          </div>
+          <div class="conf-row conf-when" data-when="ai" hidden>
+            <div class="field">
+              <label for="c-aimode">Что делаем</label>
+              <select class="input" id="c-aimode" name="aimode"><option value="">Не знаю</option><option>Обучение моделей</option><option>Запуск готовых моделей</option><option>И то и другое</option></select>
+            </div>
+            <div class="field">
+              <label for="c-gpu">Видеокарты</label>
+              <select class="input" id="c-gpu" name="gpu"><option value="">Не знаю, посоветуйте</option><option>Нужны</option><option>Не нужны</option><option>Уже есть свои</option></select>
+            </div>
+            <div class="field"><label for="c-model">Модели или фреймворк</label><input class="input" id="c-model" name="model" placeholder="например, PyTorch" maxlength="200"></div>
+          </div>
+          <div class="conf-row conf-when" data-when="backup" hidden>
+            <div class="field"><label for="c-keep">Хранить копии, дней</label><input class="input" id="c-keep" name="keep" type="number" min="1" max="3650" inputmode="numeric" placeholder="например, 30"></div>
+            <div class="field">
+              <label for="c-bplace">Где хранить копии</label>
+              <select class="input" id="c-bplace" name="bplace"><option value="">Не знаю, посоветуйте</option><option>На отдельном сервере</option><option>На дисках этого же сервера</option><option>На ленте</option><option>В облаке</option></select>
+            </div>
+          </div>
+          <div class="conf-row conf-when" data-when="web" hidden>
+            <div class="field"><label for="c-svc">Сервисов или контейнеров, шт.</label><input class="input" id="c-svc" name="svc" type="number" min="1" max="10000" inputmode="numeric" placeholder="например, 8"></div>
           </div>
           <div class="conf-row conf-when" data-when="video" hidden>
             <div class="field"><label for="c-cams">Камер, шт.</label><input class="input" id="c-cams" name="cams" type="number" min="1" max="10000" inputmode="numeric" placeholder="например, 24"></div>
             <div class="field"><label for="c-days">Хранить архив, дней</label><input class="input" id="c-days" name="days" type="number" min="1" max="365" inputmode="numeric" placeholder="например, 30"></div>
+            <div class="field">
+              <label for="c-res">Разрешение камер</label>
+              <select class="input" id="c-res" name="res"><option value="">Не знаю</option><option>2 Мп</option><option>4 Мп</option><option>8 Мп</option><option>Разные</option></select>
+            </div>
+            <div class="field">
+              <label for="c-rec">Запись</label>
+              <select class="input" id="c-rec" name="rec"><option value="">Не знаю</option><option>Круглосуточно</option><option>По движению</option><option>Смешанно</option></select>
+            </div>
+            <div class="field">
+              <label for="c-vms">Программа видеонаблюдения</label>
+              <select class="input" id="c-vms" name="vms"><option value="">Не знаю</option><option>Своя уже есть</option><option>Нужна</option></select>
+            </div>
             <div class="field"><label for="c-bitrate">Поток с камеры, Мбит/с</label><input class="input" id="c-bitrate" name="bitrate" type="number" min="0.5" max="64" step="0.5" inputmode="decimal" value="4"><p class="field-hint">Не знаете, оставьте 4: это ориентир для прикидки, точное значение уточним.</p></div>
           </div>
           <div class="conf-row">

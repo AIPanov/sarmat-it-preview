@@ -13,6 +13,11 @@
   const PHONE_BAD = 'Проверьте номер. Пример: +7 999 123‑45‑67.';
   const EMAIL_BAD = 'Проверьте адрес. Пример: name@company.ru.';
   const $ = id => document.getElementById(id);
+  // Превью на GitHub Pages: PHP там нет, письмо не уйдёт.
+  if (/\.github\.io$/.test(location.hostname)) {
+    const e = $('c-err');
+    if (e) e.textContent = 'Это превью сайта: заявка отсюда не отправляется. На рабочем сайте письмо уходит в Сармат-ИТ.';
+  }
 
   // Правила те же, что в main.js и api/send.php.
   function phoneProblem(v) {
@@ -53,7 +58,14 @@
   function keys() { return new Set(tasks.filter(t => t.checked).map(t => t.dataset.k)); }
   function syncWhen() {
     const k = keys();
-    whens.forEach(w => { w.hidden = !w.dataset.when.split(' ').some(x => k.has(x)); });
+    whens.forEach(w => {
+      const on = w.dataset.when.split(' ').some(x => k.has(x));
+      if (!on && !w.hidden) w.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
+        else el.value = el.defaultValue; // поле с ориентиром возвращается к значению по умолчанию
+      });
+      w.hidden = !on;
+    });
   }
 
   /* ---------- сводка ---------- */
@@ -76,9 +88,45 @@
     if (num('c-data')) scale.push(num('c-data') + ' ТБ данных');
     if (num('c-grow')) scale.push('+' + num('c-grow') + ' ТБ в год');
     if (scale.length) out.push(['Масштаб', scale.join(', ')]);
+    const virt = [];
+    if (val('c-hyper')) virt.push('гипервизор ' + val('c-hyper'));
+    if (virt.length) out.push(['Виртуализация', virt.join(', ')]);
+    const s1c = [];
+    if (num('c-u1c')) s1c.push(plural(num('c-u1c'), 'пользователь', 'пользователя', 'пользователей'));
+    if (val('c-m1c')) s1c.push(val('c-m1c').toLowerCase() + ' режим');
+    if (val('c-db1c')) s1c.push('СУБД ' + val('c-db1c'));
+    if (s1c.length) out.push(['1С', s1c.join(', ')]);
+    const db = [];
+    if (val('c-dbms')) db.push(val('c-dbms'));
+    if (num('c-dbsize')) db.push('база ' + num('c-dbsize') + ' ГБ');
+    if (db.length) out.push(['Базы данных', db.join(', ')]);
+    if (val('c-share')) out.push(['Доступ к файлам', val('c-share')]);
+    const rdp = [];
+    if (num('c-sess')) rdp.push(plural(num('c-sess'), 'сессия', 'сессии', 'сессий'));
+    if (val('c-heavy')) rdp.push(val('c-heavy'));
+    if (rdp.length) out.push(['Удалённые места', rdp.join(', ')]);
+    const ai = [];
+    if (val('c-aimode')) ai.push(val('c-aimode').toLowerCase());
+    if (val('c-gpu')) ai.push('видеокарты: ' + val('c-gpu').toLowerCase());
+    if (val('c-model')) ai.push(val('c-model'));
+    if (ai.length) out.push(['Машинное обучение', ai.join(', ')]);
+    const vid = [];
+    if (val('c-res')) vid.push(val('c-res'));
+    if (val('c-rec')) vid.push('запись ' + val('c-rec').toLowerCase());
+    if (val('c-vms')) vid.push('программа видеонаблюдения: ' + val('c-vms').toLowerCase());
+    if (vid.length) out.push(['Видеонаблюдение', vid.join(', ')]);
+    const bk = [];
+    if (num('c-keep')) bk.push('хранить ' + plural(num('c-keep'), 'день', 'дня', 'дней'));
+    if (val('c-bplace')) bk.push(val('c-bplace').toLowerCase());
+    if (bk.length) out.push(['Резервные копии', bk.join(', ')]);
+    if (num('c-svc')) out.push(['Веб-сервисы', num('c-svc') + ' шт.']);
     if (val('c-count')) out.push(['Серверов', val('c-count')]);
     if (val('c-fail')) out.push(['Простой', val('c-fail')]);
-    const place = ['c-rack', 'c-form', 'c-power', 'c-cool'].map(val).filter(Boolean);
+    const place = [];
+    if (val('c-rack')) place.push('стойка 19 дюймов: ' + val('c-rack'));
+    if (val('c-form')) place.push('исполнение: ' + val('c-form'));
+    if (val('c-power')) place.push('питание: ' + val('c-power'));
+    if (val('c-cool')) place.push('охлаждение: ' + val('c-cool'));
     if (place.length) out.push(['Площадка', place.join(', ')]);
     if (val('c-mount')) out.push(['Монтаж и настройка', val('c-mount')]);
     if (val('c-city')) out.push(['Город или объект', val('c-city')]);
@@ -123,7 +171,12 @@
     }
     const tb = archive();
     est.hidden = !tb;
-    if (tb) est.textContent = 'Видеоархив, оценка по вашим цифрам: около ' + (tb < 10 ? tb.toFixed(1) : Math.round(tb)) + ' ТБ при круглосуточной записи. Точный объём считаем при подборе, с запасом.';
+    if (tb) {
+      const motion = /движению|Смешанно/i.test(val('c-rec'));
+      est.textContent = 'Видеоархив, оценка по вашим цифрам: около ' + (tb < 10 ? tb.toFixed(1) : Math.round(tb)) + ' ТБ при круглосуточной записи.'
+        + (motion ? ' При записи по движению выйдет меньше, насколько, зависит от объекта.' : '')
+        + ' Точный объём считаем при подборе, с запасом.';
+    }
 
     const picked = tasks.filter(t => t.checked).map(t => t.value);
     posField.value = ('Конфигуратор: ' + (picked.join(', ') || 'задача не выбрана')).slice(0, 200);
