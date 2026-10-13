@@ -74,6 +74,16 @@
   const num = id => { const v = parseFloat(val(id)); return isFinite(v) && v > 0 ? v : 0; };
   // 1 камера, 2 камеры, 5 камер
   const plural = (n, one, few, many) => { const a = Math.abs(n) % 100, b = a % 10; return n + ' ' + (a > 10 && a < 20 ? many : b > 1 && b < 5 ? few : b === 1 ? one : many); };
+  // объём везде в ГБ, от тысячи добавляем ТБ в скобках, чтобы не путаться
+  const round1 = n => (n < 10 ? Math.round(n * 10) / 10 : Math.round(n));
+  const ru = n => String(round1(n)).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  // в середине фразы строчная буква, но аббревиатуры (NAS, CAD, SMB) не трогаем
+  const low = v => (/^[A-ZА-Я]{2,}/.test(v) ? v : v.charAt(0).toLowerCase() + v.slice(1));
+  function gb(n) {
+    if (!n) return '';
+    const t = n / 1000;
+    return ru(n) + ' ГБ' + (n >= 1000 ? ' (' + ru(t) + ' ТБ)' : '');
+  }
 
   function rows() {
     const out = [];
@@ -85,20 +95,26 @@
     if (num('c-vm')) scale.push(num('c-vm') + ' ВМ');
     if (num('c-cams')) scale.push(plural(num('c-cams'), 'камера', 'камеры', 'камер'));
     if (num('c-days')) scale.push('архив ' + plural(num('c-days'), 'день', 'дня', 'дней'));
-    if (num('c-data')) scale.push(num('c-data') + ' ТБ данных');
-    if (num('c-grow')) scale.push('+' + num('c-grow') + ' ТБ в год');
+    if (num('c-data')) scale.push(gb(num('c-data')) + ' данных');
+    if (num('c-grow')) scale.push('+' + gb(num('c-grow')) + ' в год');
+    const years = num('c-years');
+    if (years) scale.push('срок ' + plural(years, 'год', 'года', 'лет'));
     if (scale.length) out.push(['Масштаб', scale.join(', ')]);
+    // прирост за срок службы считаем по цифрам заказчика, чтобы объём дисков брали с запасом
+    if (num('c-data') && num('c-grow') && years) {
+      out.push(['Данных к концу срока', gb(num('c-data') + num('c-grow') * years) + ', без запаса']);
+    }
     const virt = [];
     if (val('c-hyper')) virt.push('гипервизор ' + val('c-hyper'));
     if (virt.length) out.push(['Виртуализация', virt.join(', ')]);
     const s1c = [];
     if (num('c-u1c')) s1c.push(plural(num('c-u1c'), 'пользователь', 'пользователя', 'пользователей'));
-    if (val('c-m1c')) s1c.push(val('c-m1c').toLowerCase() + ' режим');
+    if (val('c-m1c')) s1c.push(low(val('c-m1c')) + ' режим');
     if (val('c-db1c')) s1c.push('СУБД ' + val('c-db1c'));
     if (s1c.length) out.push(['1С', s1c.join(', ')]);
     const db = [];
     if (val('c-dbms')) db.push(val('c-dbms'));
-    if (num('c-dbsize')) db.push('база ' + num('c-dbsize') + ' ГБ');
+    if (num('c-dbsize')) db.push('база сейчас ' + gb(num('c-dbsize')));
     if (db.length) out.push(['Базы данных', db.join(', ')]);
     if (val('c-share')) out.push(['Доступ к файлам', val('c-share')]);
     const rdp = [];
@@ -106,20 +122,24 @@
     if (val('c-heavy')) rdp.push(val('c-heavy'));
     if (rdp.length) out.push(['Удалённые места', rdp.join(', ')]);
     const ai = [];
-    if (val('c-aimode')) ai.push(val('c-aimode').toLowerCase());
-    if (val('c-gpu')) ai.push('видеокарты: ' + val('c-gpu').toLowerCase());
+    if (val('c-aimode')) ai.push(low(val('c-aimode')));
+    if (val('c-gpu')) ai.push('видеокарты: ' + low(val('c-gpu')));
     if (val('c-model')) ai.push(val('c-model'));
     if (ai.length) out.push(['Машинное обучение', ai.join(', ')]);
     const vid = [];
     if (val('c-res')) vid.push(val('c-res'));
-    if (val('c-rec')) vid.push('запись ' + val('c-rec').toLowerCase());
-    if (val('c-vms')) vid.push('программа видеонаблюдения: ' + val('c-vms').toLowerCase());
+    if (val('c-rec')) vid.push('запись ' + low(val('c-rec')));
+    if (val('c-vms')) vid.push('программа видеонаблюдения: ' + low(val('c-vms')));
     if (vid.length) out.push(['Видеонаблюдение', vid.join(', ')]);
     const bk = [];
     if (num('c-keep')) bk.push('хранить ' + plural(num('c-keep'), 'день', 'дня', 'дней'));
-    if (val('c-bplace')) bk.push(val('c-bplace').toLowerCase());
+    if (val('c-bplace')) bk.push('основное место: ' + low(val('c-bplace')));
+    if (val('c-bplace2')) bk.push('вторая копия: ' + low(val('c-bplace2')));
     if (bk.length) out.push(['Резервные копии', bk.join(', ')]);
-    if (num('c-svc')) out.push(['Веб-сервисы', num('c-svc') + ' шт.']);
+    const web = [];
+    if (num('c-svc')) web.push(num('c-svc') + ' шт.');
+    if (num('c-webdata')) web.push('данных и баз ' + gb(num('c-webdata')));
+    if (web.length) out.push(['Веб-сервисы', web.join(', ')]);
     if (val('c-count')) out.push(['Серверов', val('c-count')]);
     if (val('c-fail')) out.push(['Простой', val('c-fail')]);
     const place = [];
@@ -133,8 +153,9 @@
     const req = [];
     if (num('c-cores')) req.push(plural(num('c-cores'), 'ядро', 'ядра', 'ядер'));
     if (num('c-ram')) req.push(num('c-ram') + ' ГБ ОЗУ');
-    if (num('c-disk')) req.push(num('c-disk') + ' ТБ дисков');
+    if (num('c-disk')) req.push(gb(num('c-disk')) + ' дисков');
     if (val('c-disktype')) req.push(val('c-disktype'));
+    if (val('c-diskbus')) req.push('интерфейс ' + val('c-diskbus'));
     if (val('c-net')) req.push(val('c-net'));
     if (val('c-os')) req.push(val('c-os'));
     if (req.length) out.push(['Требования заказчика', req.join(', ')]);
@@ -148,7 +169,7 @@
   function archive() {
     const cams = num('c-cams'), days = num('c-days'), br = num('c-bitrate');
     if (!cams || !days || !br) return 0;
-    return cams * br * 86400 * days / 8 / 1e6; // ТБ
+    return cams * br * 86400 * days / 8 / 1000; // ГБ
   }
 
   function render() {
@@ -169,11 +190,11 @@
         wrap.appendChild(dt); wrap.appendChild(dd); sum.appendChild(wrap);
       }
     }
-    const tb = archive();
-    est.hidden = !tb;
-    if (tb) {
+    const arc = archive();
+    est.hidden = !arc;
+    if (arc) {
       const motion = /движению|Смешанно/i.test(val('c-rec'));
-      est.textContent = 'Видеоархив, оценка по вашим цифрам: около ' + (tb < 10 ? tb.toFixed(1) : Math.round(tb)) + ' ТБ при круглосуточной записи.'
+      est.textContent = 'Видеоархив, оценка по вашим цифрам: около ' + gb(arc) + ' при круглосуточной записи.'
         + (motion ? ' При записи по движению выйдет меньше, насколько, зависит от объекта.' : '')
         + ' Точный объём считаем при подборе, с запасом.';
     }
@@ -181,7 +202,7 @@
     const picked = tasks.filter(t => t.checked).map(t => t.value);
     posField.value = ('Конфигуратор: ' + (picked.join(', ') || 'задача не выбрана')).slice(0, 200);
     const text = list.map(([k, v]) => k + ': ' + v).join('\n');
-    sumField.value = (text + (tb ? '\nВидеоархив, оценка по вводным: около ' + Math.round(tb) + ' ТБ' : '')).slice(0, 4000);
+    sumField.value = (text + (arc ? '\nВидеоархив, оценка по вводным: около ' + gb(arc) : '')).slice(0, 4000);
   }
 
   f.addEventListener('input', () => { syncWhen(); render(); });

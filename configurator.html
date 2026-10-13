@@ -13,7 +13,7 @@
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css?v=02ed45ba">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
-<script src="conf.js?v=c04fa55c" defer></script>
+<script src="conf.js?v=901530a1" defer></script>
 </head>
 <body class="doc-body">
 
@@ -77,8 +77,13 @@
             <div class="field conf-when" data-when="virt" hidden><label for="c-vm">Виртуальных машин, шт.</label><input class="input" id="c-vm" name="vm" type="number" min="1" max="10000" inputmode="numeric" placeholder="например, 12"></div>
           </div>
           <div class="conf-row conf-when" data-when="db file backup" hidden>
-            <div class="field"><label for="c-data">Данных сейчас, ТБ</label><input class="input" id="c-data" name="data" type="number" min="0" max="100000" step="0.5" inputmode="decimal" placeholder="например, 8"></div>
-            <div class="field"><label for="c-grow">Прирост за год, ТБ</label><input class="input" id="c-grow" name="grow" type="number" min="0" max="100000" step="0.5" inputmode="decimal" placeholder="например, 3"></div>
+            <div class="field"><label for="c-data">Данных сейчас, ГБ</label><input class="input" id="c-data" name="data" type="number" min="0" max="10000000" step="10" inputmode="decimal" placeholder="например, 500"></div>
+            <div class="field"><label for="c-grow">Прирост за год, ГБ</label><input class="input" id="c-grow" name="grow" type="number" min="0" max="10000000" step="10" inputmode="decimal" placeholder="например, 100"></div>
+            <div class="field">
+              <label for="c-years">Срок эксплуатации, лет</label>
+              <select class="input" id="c-years" name="years"><option value="">Не знаю</option><option>3</option><option>5</option><option>7</option><option>10</option></select>
+              <p class="field-hint">Посчитаем, сколько данных будет к концу срока, и заложим запас.</p>
+            </div>
           </div>
           <div class="conf-row conf-when" data-when="virt" hidden>
             <div class="field">
@@ -102,7 +107,7 @@
               <label for="c-dbms">Какая СУБД</label>
               <select class="input" id="c-dbms" name="dbms"><option value="">Не знаю, посоветуйте</option><option>PostgreSQL</option><option>MS SQL</option><option>MySQL или MariaDB</option><option>Oracle</option><option>Другая</option></select>
             </div>
-            <div class="field"><label for="c-dbsize">Размер базы, ГБ</label><input class="input" id="c-dbsize" name="dbsize" type="number" min="1" max="1000000" inputmode="numeric" placeholder="например, 300"></div>
+            <div class="field"><label for="c-dbsize">Размер базы сейчас, ГБ</label><input class="input" id="c-dbsize" name="dbsize" type="number" min="1" max="10000000" inputmode="numeric" placeholder="например, 300"></div>
           </div>
           <div class="conf-row conf-when" data-when="file" hidden>
             <div class="field">
@@ -131,12 +136,18 @@
           <div class="conf-row conf-when" data-when="backup" hidden>
             <div class="field"><label for="c-keep">Хранить копии, дней</label><input class="input" id="c-keep" name="keep" type="number" min="1" max="3650" inputmode="numeric" placeholder="например, 30"></div>
             <div class="field">
-              <label for="c-bplace">Где хранить копии</label>
-              <select class="input" id="c-bplace" name="bplace"><option value="">Не знаю, посоветуйте</option><option>На отдельном сервере</option><option>На дисках этого же сервера</option><option>На ленте</option><option>В облаке</option></select>
+              <label for="c-bplace">Где хранить копии, основное место</label>
+              <select class="input" id="c-bplace" name="bplace"><option value="">Не знаю, посоветуйте</option><option>На отдельном сервере</option><option>На дисках этого же сервера</option><option>NAS или внешний диск</option><option>В облаке</option></select>
+            </div>
+            <div class="field">
+              <label for="c-bplace2">Вторая копия, где</label>
+              <select class="input" id="c-bplace2" name="bplace2"><option value="">Не знаю, посоветуйте</option><option>На отдельном сервере</option><option>NAS или внешний диск</option><option>В облаке</option><option>В другом здании</option><option>Второй копии не планируем</option></select>
+              <p class="field-hint">Вторая копия в другом месте выручает, когда отказало основное хранилище.</p>
             </div>
           </div>
           <div class="conf-row conf-when" data-when="web" hidden>
             <div class="field"><label for="c-svc">Сервисов или контейнеров, шт.</label><input class="input" id="c-svc" name="svc" type="number" min="1" max="10000" inputmode="numeric" placeholder="например, 8"></div>
+            <div class="field"><label for="c-webdata">Данных и баз, ГБ</label><input class="input" id="c-webdata" name="webdata" type="number" min="0" max="10000000" step="10" inputmode="decimal" placeholder="например, 200"></div>
           </div>
           <div class="conf-row conf-when" data-when="video" hidden>
             <div class="field"><label for="c-cams">Камер, шт.</label><input class="input" id="c-cams" name="cams" type="number" min="1" max="10000" inputmode="numeric" placeholder="например, 24"></div>
@@ -160,7 +171,7 @@
               <label for="c-count">Сколько серверов нужно</label>
               <select class="input" id="c-count" name="count">
                 <option value="">Не знаю, посоветуйте</option>
-                <option>Один</option><option>Два</option><option>Больше двух</option>
+                <option>Один сервер</option><option>Два сервера</option><option>Три и более серверов</option><option>Кластер, отказоустойчивая конфигурация</option>
               </select>
             </div>
             <div class="field">
@@ -184,7 +195,7 @@
             </div>
             <div class="field">
               <label for="c-form">Исполнение</label>
-              <select class="input" id="c-form" name="form"><option value="">Не знаю, посоветуйте</option><option>1U</option><option>2U</option><option>4U</option><option>Напольный</option></select>
+              <select class="input" id="c-form" name="form"><option value="">Не знаю, посоветуйте</option><option>Стоечный сервер 1U</option><option>Стоечный сервер 2U</option><option>Стоечный сервер 4U</option><option>Башенный сервер</option></select>
             </div>
           </div>
           <div class="conf-row">
@@ -212,12 +223,17 @@
           <div class="conf-row">
             <div class="field"><label for="c-cores">Ядер</label><input class="input" id="c-cores" name="cores" type="number" min="1" max="1024" inputmode="numeric" placeholder="например, 32"></div>
             <div class="field"><label for="c-ram">Оперативной памяти, ГБ</label><input class="input" id="c-ram" name="ram" type="number" min="1" max="16384" inputmode="numeric" placeholder="например, 256"></div>
-            <div class="field"><label for="c-disk">Полезный объём дисков, ТБ</label><input class="input" id="c-disk" name="disk" type="number" min="0" max="100000" step="0.5" inputmode="decimal" placeholder="например, 20"></div>
+            <div class="field"><label for="c-disk">Полезный объём дисков, ГБ</label><input class="input" id="c-disk" name="disk" type="number" min="0" max="10000000" step="10" inputmode="decimal" placeholder="например, 20000"><p class="field-hint">1 ТБ = 1000 ГБ.</p></div>
           </div>
           <div class="conf-row">
             <div class="field">
-              <label for="c-disktype">Тип дисков</label>
-              <select class="input" id="c-disktype" name="disktype"><option value="">Не знаю, посоветуйте</option><option>SSD NVMe</option><option>SSD SATA</option><option>HDD</option><option>SSD под базу, HDD под архив</option></select>
+              <label for="c-disktype">Тип накопителей</label>
+              <select class="input" id="c-disktype" name="disktype"><option value="">Не знаю, посоветуйте</option><option>SSD</option><option>HDD</option><option>SSD под базу, HDD под архив</option></select>
+            </div>
+            <div class="field">
+              <label for="c-diskbus">Интерфейс дисков</label>
+              <select class="input" id="c-diskbus" name="diskbus"><option value="">Не знаю, посоветуйте</option><option>NVMe (PCIe)</option><option>SAS</option><option>SATA</option><option>Смешанный</option></select>
+              <p class="field-hint">NVMe быстрее всего, SAS держит постоянную нагрузку, SATA дешевле и идёт под архивы.</p>
             </div>
             <div class="field">
               <label for="c-net">Сеть</label>
