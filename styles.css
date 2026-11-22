@@ -717,7 +717,7 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
 .ws-bad { color: #ffb4a8; background: rgba(255,138,122,.08); border-color: rgba(255,138,122,.32); }
 .ws-ok { color: var(--live); background: rgba(127,224,166,.08); border-color: rgba(127,224,166,.32); }
 .watch-steps b { display: block; font: 600 17px/1.3 var(--sans); }
-.watch-steps span { display: block; margin-top: 4px; color: var(--ink-2); font-size: 15px; }
+.watch-steps li > div > span { display: block; margin-top: 4px; color: var(--ink-2); font-size: 15px; }
 .watch-case { display: flex; align-items: center; gap: 10px; margin: 26px 0 24px; font: 500 14px/1.45 var(--mono); color: var(--ink); }
 .wconsole { padding: 18px 18px 16px; overflow: hidden; }
 .wc-head { display: flex; align-items: center; gap: 10px; font: 500 11.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
@@ -742,7 +742,7 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
 .wconsole.down .wc-site-node rect { stroke: var(--danger); }
 .wconsole.down .wc-l { opacity: 0; }
 .wc-lab { position: absolute; left: 24%; font: 11px/1 var(--mono); color: var(--ink-3); }
-.wc-la { top: 13%; } .wc-lb { top: 80%; }
+.wc-la { top: 29%; left: 17%; }
 .wc-ticks { display: grid; grid-template-columns: repeat(60, minmax(0, 1fr)); gap: 2px; height: 30px; }
 .wc-ticks i { border-radius: 2px; background: rgba(255,255,255,.06); }
 .wc-ticks i.ok { background: rgba(127,224,166,.6); }
@@ -969,3 +969,69 @@ html:not(.js) .dsc-cap .ds-line, .descent.static .dsc-cap .ds-line { font-size: 
   .js .rv { opacity: 1; transform: none; transition: none; }
   .dsc-cap, .wc-msg, .lp-ok { transition: none; }
 }
+
+/* Карточка, к которой привела кнопка на кольце первого экрана */
+.node.is-hl { animation: node-hl 3.2s ease-out; }
+@keyframes node-hl { 0%, 55% { box-shadow: 0 0 0 2px rgba(165,148,255,.9), 0 0 36px rgba(143,208,255,.35); } 100% { box-shadow: 0 0 0 0 rgba(165,148,255,0); } }
+
+/* Макет hub-2026-11: два направления в шапке, текущее подчёркнуто */
+.nav-dir { color: var(--ink) !important; }
+.nav-cur { position: relative; }
+.nav-cur::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; border-radius: 1px; background: var(--sig); }
+
+/* ===== hub-2026-11: первый экран «Цифровых решений» (sol.js) ===== */
+.hero.sol { min-height: 100svh; display: flex; align-items: center; padding: calc(var(--header-h) + 24px) 0 48px; }
+.sol-in { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(28px, 4vw, 64px); align-items: center; }
+.sol .offer { max-width: 560px; }
+.js .hdr .brand { opacity: 0; }
+.brand-on .hdr .brand, .js .hdr.solid .brand { opacity: 1; transform: none; }
+.sp { position: relative; display: grid; grid-template-columns: 1fr 1.25fr 1fr; grid-template-rows: auto auto auto; gap: 18px 14px; align-items: center; min-height: 440px; }
+.sp-beams { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.sp-beams line { stroke: url(#gBeam); stroke: rgba(143,208,255,.32); stroke-width: 1.4; stroke-dasharray: 4 6; animation: spFlow 2.4s linear infinite; opacity: 0; transition: opacity .6s .9s; }
+.sp.on .sp-beams line { opacity: 1; }
+@keyframes spFlow { to { stroke-dashoffset: -20; } }
+.sp-site { grid-column: 2; grid-row: 2; position: relative; z-index: 1; display: block; border-radius: 16px; border: 1px solid var(--sh-line-2); background: linear-gradient(180deg, rgba(28,36,74,.85), rgba(10,15,32,.9)); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9), 0 0 40px -12px rgba(124,231,242,.35); text-decoration: none; color: var(--ink); overflow: hidden; opacity: 0; transform: scale(.92); transition: opacity .7s var(--ease) .2s, transform .7s var(--ease) .2s, border-color .25s; }
+.sp-bar { display: flex; align-items: center; gap: 5px; padding: 9px 12px; border-bottom: 1px solid var(--sh-line); }
+.sp-bar i { width: 7px; height: 7px; border-radius: 50%; background: rgba(168,181,200,.35); }
+.sp-bar em { margin-left: 8px; font: normal 500 11px/1 var(--mono); color: var(--ink-3); }
+.sp-body { display: grid; justify-items: center; gap: 4px; padding: 18px 14px 16px; text-align: center; }
+.sp-body b { font: 600 18px/1.2 var(--sans); margin-top: 6px; }
+.sp-body > span { font-size: 12.5px; color: var(--ink-3); line-height: 1.35; }
+.sp-body u { display: block; width: 80%; height: 6px; border-radius: 3px; background: rgba(143,208,255,.14); margin-top: 6px; }
+.sp-body u + u { width: 64%; } .sp-body u + u + u { width: 72%; }
+.sp-node { position: relative; z-index: 1; display: grid; justify-items: center; gap: 3px; padding: 12px 8px; border-radius: 14px; text-align: center; text-decoration: none; color: var(--ink); transition: background .25s, transform .25s var(--ease); }
+.sp-node b { font: 600 14.5px/1.2 var(--sans); margin-top: 6px; opacity: 0; transition: opacity .5s; }
+.sp-node span { font-size: 12px; color: var(--ink-3); line-height: 1.3; opacity: 0; transition: opacity .5s; }
+.sp-node:hover { background: rgba(124,231,242,.06); transform: translateY(-2px); }
+.sp-node:hover .ico { border-color: var(--sh-a); box-shadow: 0 0 0 6px rgba(124,231,242,.1); }
+.sp .ico { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; background: #081226; border: 1.5px solid rgba(143,208,255,.55); font-style: normal; transition: border-color .2s, box-shadow .2s; }
+.sp .ico svg { width: 26px; height: 26px; fill: none; stroke: #e8eef7; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.sp-ico { width: 44px !important; height: 44px !important; }
+.sp-ico svg { width: 22px !important; height: 22px !important; }
+.sp .ico.mo-in + b, .sp .ico.mo-in ~ span, .mo-off .sp-node b, .mo-off .sp-node span { opacity: 1; }
+.sp.on .sp-site, .mo-off .sp-site { opacity: 1; transform: none; }
+.sp-site:hover { border-color: var(--sh-a); }
+.n1 { grid-column: 1; grid-row: 1; } .n2 { grid-column: 3; grid-row: 1; }
+.n3 { grid-column: 1; grid-row: 3; } .n4 { grid-column: 3; grid-row: 3; }
+.n5 { grid-column: 2; grid-row: 3; align-self: start; }
+.sl-fly-b svg { padding: 22%; box-sizing: border-box; fill: none; stroke: #e8eef7; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; background: #081226; border: 1.5px solid rgba(143,208,255,.55); border-radius: 50%; }
+@media (max-width: 999px) {
+  .hero.sol { min-height: auto; align-items: flex-start; }
+  .sol-in { grid-template-columns: 1fr; }
+  .sp { min-height: 0; margin-top: 8px; }
+}
+@media (max-width: 560px) {
+  .sp { grid-template-columns: 1fr 1fr 1fr; gap: 10px 6px; }
+  .sp-site { grid-column: 1 / -1; grid-row: 1; }
+  .n1 { grid-column: 1; grid-row: 2; } .n2 { grid-column: 2; grid-row: 2; } .n3 { grid-column: 3; grid-row: 2; }
+  .n4 { grid-column: 1; grid-row: 3; } .n5 { grid-column: 2; grid-row: 3; }
+  .sp-beams { display: none; }
+  .sp .ico { width: 44px; height: 44px; } .sp .ico svg { width: 22px; height: 22px; }
+  .sp-node b { font-size: 13px; } .sp-node span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .sp-site, .sp-node b, .sp-node span, .sp-beams line { opacity: 1 !important; transform: none !important; } }
+
+/* hub-2026-11: шапка в одну строку */
+.nav a, .brand span { white-space: nowrap; }
+.nav { gap: 22px; }
+@media (max-width: 1340px) { .hdr-phone { display: none; } }

@@ -1,0 +1,40 @@
+/* Логотип (sarmat-logo.js) и переходы между страницами (transit.js). Общий файл для всех страниц макета.
+   Стили логотипа те же, что у .si-logo на боевом сайте */
+html.tr-in body { visibility: hidden; }
+html.tr-in { background: #03050b; }
+
+.sl { position: absolute; left: 0; top: 0; width: 620px; height: 690px; transform-origin: 0 0; pointer-events: none; }
+.sl > * { position: absolute; left: 0; top: 0; }
+.sl-svg { width: 620px; height: 690px; overflow: visible; }
+.sl-over { width: 620px; height: 690px; }
+.sl-3d { width: 620px; height: 690px; perspective: 1500px; perspective-origin: 305px 310px; }
+.sl-ch { position: absolute; left: 0; top: 0; font-family: "Tinos", "Times New Roman", serif; line-height: 1; white-space: pre; color: #e8eef7; will-change: transform; text-shadow: 0 0 28px rgba(143,208,255,.35); }
+.sl-back .sl-ch { color: #34507a; text-shadow: none; }
+.sl-line2 { position: absolute; left: 0; top: 0; font-family: "Tinos", "Times New Roman", serif; line-height: 1; white-space: pre; color: #a8c4e4; }
+.sl-rule { position: absolute; background: #e8eef7; transform-origin: 50% 50%; box-shadow: 0 0 18px rgba(143,208,255,.4); }
+.sl-glow { transform-box: fill-box; transform-origin: center; animation: slPulse 3.6s ease-in-out infinite; }
+@keyframes slPulse { 50% { transform: scale(1.1); opacity: .65; } }
+/* Слой, где логотип живёт во время сборки и пересборки */
+.sl-layer { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+
+/* Спутник в полёте к значку следующей картинки */
+.sl-fly { position: fixed; left: 0; top: 0; z-index: 10001; pointer-events: none; transform-origin: 50% 50%; will-change: transform; }
+.sl-fly > svg, .sl-fly-b { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sl-fly-b { display: grid; place-items: center; }
+.sl-fly-b svg { width: 100%; height: 100%; }
+/* Значки, в которые прилетают спутники: до прилёта не видны */
+html.js:not(.mo-off) [data-morph]:not(.mo-in) { visibility: hidden; }
+
+.tr { position: fixed; inset: 0; z-index: 9999; background: rgba(3,5,11,0); transition: background .35s ease; pointer-events: all; }
+.tr::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 46%, rgba(40,90,190,.22), transparent 55%); opacity: 0; transition: opacity .35s; }
+.tr.tr-show { background: rgba(3,5,11,1); }
+.tr.tr-show::before { opacity: 1; }
+.tr.tr-now, .tr.tr-now::before { transition: none; }
+.tr-stage { position: absolute; inset: 0; }
+.tr-cap { position: absolute; left: 0; right: 0; margin: 0; text-align: center; font: 500 13px/1 "JetBrains Mono", ui-monospace, Menlo, monospace; letter-spacing: .22em; text-transform: uppercase; color: #8fd0ff; opacity: 0; transition: opacity .3s; }
+.tr-named .tr-cap { opacity: 1; }
+/* Приход: фон уходит, логотип остаётся и пересобирается в страницу */
+.tr.tr-clear { background: rgba(3,5,11,0); transition: background .5s ease; pointer-events: none; }
+.tr.tr-clear::before, .tr.tr-clear .tr-cap { opacity: 0; transition: opacity .4s; }
+.tr.tr-leave { opacity: 0; transition: opacity .5s ease; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .tr { display: none; } html.tr-in body { visibility: visible; } .sl-glow { animation: none; } }

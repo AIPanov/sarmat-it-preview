@@ -3,801 +3,234 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Сармат-ИТ: сайты для компаний, серверы и сеть в Москве</title>
-<meta name="description" content="Делаем сайты для компаний: лендинг от 59 000 ₽. Дальше запись и оплата, CRM, своё ПО, а под ними серверы, сеть и связь. Домен и код остаются у вас.">
-<!-- Концепт shell-2026-11 для показа: не индексируется, счётчика Метрики нет -->
+<title>Сармат-ИТ: цифровые решения для компании и оборудование под задачу</title>
+<meta name="description" content="Два направления: программы и сайты для компании и оборудование под её задачу. Пишем код, разрабатываем ТЗ и проект, поставляем оборудование, ведём технадзор за монтажом.">
+<!-- Макет hub-2026-11, версия 3 (22.11.2026): два направления и связка между ними. Не индексируется, счётчика Метрики нет -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#03050b">
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="favicon.png" type="image/png" sizes="120x120">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<script>document.documentElement.classList.add('js')</script>
+<script>document.documentElement.classList.add('js');try{if(sessionStorage.getItem('sarmat-transit')){document.documentElement.classList.add('tr-in');window.__trArrive=1}}catch(e){}setTimeout(function(){document.documentElement.classList.remove('tr-in')},2000)</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=shell-2026-11">
-<script src="cookie.js?v=7b3fe5ad" defer></script>
-<!-- Anime.js 4.3.6 (MIT): таймлайн сборки лендинга, счётчик цены, появление слоёв. Без него страница целиком видна и работает.
-     Перед выкладкой положить файл в site/vendor/: CDN за рубежом передаёт IP посетителя (ревизия, п. 10.6) -->
-<script src="https://cdn.jsdelivr.net/npm/animejs@4.3.6/dist/bundles/anime.umd.min.js" defer></script>
-<script src="main.js?v=shell-2026-11" defer></script>
+<link rel="stylesheet" href="transit.css?v=2">
+<link rel="stylesheet" href="hub.css?v=4">
+<script src="sarmat-logo.js?v=1" defer></script>
+<script src="transit.js?v=2" defer></script>
+<script src="hub.js?v=4" defer></script>
 </head>
 <body>
 
 <canvas id="sky" aria-hidden="true"></canvas>
 
-<!-- Градиенты цифрового слоя для SVG (лучи «что тянется от сайта», значки) -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <defs>
-    <linearGradient id="gSig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a594ff"/><stop offset=".55" stop-color="#7ce7f2"/><stop offset="1" stop-color="#5fb0e8"/></linearGradient>
-    <linearGradient id="gBeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a594ff" stop-opacity="0"/><stop offset=".35" stop-color="#a594ff"/><stop offset=".7" stop-color="#7ce7f2"/><stop offset="1" stop-color="#7ce7f2" stop-opacity="0"/></linearGradient>
-  </defs>
-</svg>
-
 <header class="hdr" id="hdr">
-  <div class="hdr-in">
-    <a class="brand" href="#hero" aria-label="Сармат-ИТ, в начало">
+  <div class="wrap hdr-in">
+    <a class="brand" href="#top" aria-label="Сармат-ИТ, в начало">
       <img src="img/logo.png?v=09bfd983" width="48" height="40" alt="" decoding="async">
       <span>САРМАТ-ИТ</span>
     </a>
     <nav class="nav" id="nav" aria-label="Разделы">
-      <a href="#landing">Сайты</a>
-      <a href="#grows">Что дальше</a>
-      <a href="#infra">Серверы и сеть</a>
+      <a class="nav-dir" href="solutions.html">Цифровые решения</a>
+      <a class="nav-dir" href="oborudovanie/index.html">Оборудование под задачу</a>
+      <a href="#link">Как это связано</a>
       <a href="#works">Работы</a>
-      <a href="#team">Команда</a>
-      <a href="#faq">Вопросы</a>
-      <a href="#request">Контакты</a>
     </nav>
     <a class="hdr-phone" href="tel:+74994606265">+7 (499) 460-62-65</a>
-    <a class="hdr-call" href="tel:+74994606265" aria-label="Позвонить: +7 (499) 460-62-65">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
-    </a>
-    <a class="btn btn-sig btn-sm hdr-req" href="#request">Обсудить сайт</a>
+    <a class="btn btn-sig btn-sm hdr-req" href="#request">Обсудить задачу</a>
     <button class="burger" id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="nav"><i></i><i></i></button>
   </div>
 </header>
 
-<main>
-  <!-- 1. HERO. Логотип собирается (2,5 с, прокрутка пропускает), оффер появляется через 0,5-1,2 с слева.
-       Потом знак и надпись улетают в шапку, Земля остаётся справа внутри цифровой оболочки:
-       внешнее кольцо = сайт и всё цифровое, внутреннее = инфраструктура (main.js, hero). Прокрутку не перехватываем. -->
-  <section class="hero" id="hero" aria-labelledby="hero-title">
-    <div class="si-track">
-      <div class="si-stage">
-        <canvas class="ds-cv" aria-hidden="true"></canvas>
-        <div class="si-logo" aria-hidden="true"></div>
-        <div class="wrap hero-in">
-          <div class="offer" id="offer">
-            <p class="offer-eyebrow" style="--i:0"><i class="live" aria-hidden="true"></i>Сармат-ИТ</p>
-            <h1 class="offer-h1" id="hero-title" style="--i:1">Сайт, с которого <span class="tx-shine">заявки доходят</span></h1>
-            <p class="offer-sub" style="--i:2">Лендинг <b>от 59&nbsp;000&nbsp;₽</b> за 10 рабочих дней. Форму проверяем тестовыми заявками до сдачи. После запуска подключаем сторожа: он открывает сайт каждую минуту и сразу пишет о сбое.</p>
-            <p class="offer-more" style="--i:3">Сайт становится основой. Когда его станет мало, достроим запись и оплату, CRM, своё ПО, а под ними серверы и сеть.</p>
-            <div class="offer-cta" style="--i:4">
-              <a class="btn btn-sig" href="#request" data-prefill="Лендинг">Заказать лендинг <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-              <a class="btn btn-glass" href="#landing">Что входит в 59&nbsp;000&nbsp;₽</a>
-            </div>
-          </div>
-        </div>
-        <button class="si-hint" type="button">
-          <span class="si-hint-ico" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="si-hint-txt">Листайте вниз: от сайта до серверной</span>
-        </button>
-        <div class="si-bar" aria-hidden="true"></div>
-      </div>
-    </div>
-  </section>
-  <div class="first-screen-end" id="firstScreenEnd" aria-hidden="true"></div>
+<main id="top">
 
-  <!-- 2. LANDING. Цифровой слой: слева окно браузера, в нём лендинг собирается по шагам (как сервер в 3D ниже), справа состав пакета -->
-  <section class="sec shell" id="landing" aria-labelledby="landing-title">
+  <!-- 1. ПЕРВЫЙ ЭКРАН. Два направления по сторонам, эмблема между ними как связка.
+       Человек сразу выбирает свою половину. Пункты внутри ведут прямо в нужный блок страницы направления -->
+  <section class="hero" aria-labelledby="hero-title">
     <div class="wrap">
-      <p class="layer-tag" aria-hidden="true"><i></i>Оболочка · слой 01 · сайт</p>
-      <h2 class="h2" id="landing-title">Лендинг под ключ <span class="tx-grad">от 59&nbsp;000&nbsp;₽</span></h2>
-      <p class="lede">Одна страница под одно действие посетителя: позвонить, оставить заявку, записаться. Срок 10 рабочих дней.</p>
-
-      <div class="lp" id="lp">
-        <div class="lp-demo" aria-hidden="true">
-          <div class="bw gl">
-            <div class="bw-bar"><i></i><i></i><i></i><span class="bw-url">ваша-компания.ru</span><span class="bw-state" id="lpState">сборка</span></div>
-            <div class="bw-body">
-              <div class="lp-b lp-nav" data-am><b></b><span></span><span></span><span></span><em></em></div>
-              <div class="lp-b lp-hero" data-am><i class="l1"></i><i class="l2"></i><i class="l3"></i><span class="lp-btn"></span><span class="lp-pic"></span></div>
-              <div class="lp-b lp-cards" data-am><i></i><i></i><i></i></div>
-              <div class="lp-b lp-form" data-am><i></i><i></i><span class="lp-btn"></span><em class="lp-ok">заявка дошла</em></div>
-            </div>
-          </div>
-          <ol class="lp-log gl" id="lpLog">
-            <li data-am><span>01</span>Разбор: кто клиент</li>
-            <li data-am><span>02</span>Структура, 6-10 блоков</li>
-            <li data-am><span>03</span>Тексты на ваших фактах</li>
-            <li data-am><span>04</span>Дизайн и телефон</li>
-            <li data-am><span>05</span>Код</li>
-            <li data-am><span>06</span>Тестовая заявка <b>ok</b></li>
-            <li data-am><span>07</span>Метрика с целями <b>ok</b></li>
-            <li data-am><span>08</span>Ждёт вашего «да»</li>
-          </ol>
-          <div class="lp-price gl"><span class="k">Лендинг</span><b>от <span class="tick" data-to="59000">59&nbsp;000</span>&nbsp;₽</b><span class="k">10 рабочих дней</span></div>
-        </div>
-
-        <div class="lp-cols">
-          <div class="lp-col">
-            <h3 class="col-k">Делаем</h3>
-            <ul class="ticks">
-              <li>Разбираем, что вы продаёте, кому и с какими сомнениями к вам приходят</li>
-              <li>Собираем структуру страницы: 6-10 блоков</li>
-              <li>Пишем тексты на ваших фактах</li>
-              <li>Рисуем дизайн под ваш бренд, сразу для компьютера и телефона</li>
-              <li>Вносим 2 круга правок</li>
-              <li>Пишем код и выкладываем после вашего «да»</li>
-            </ul>
-          </div>
-          <div class="lp-col lp-got">
-            <h3 class="col-k">Получаете</h3>
-            <ul class="ticks ticks-ok">
-              <li>Форму, проверенную тестовыми заявками</li>
-              <li>Заявки на почту и в мессенджер</li>
-              <li>Политику, согласие и уведомление о cookie по 152-ФЗ</li>
-              <li>Яндекс Метрику с целями: видно, сколько заявок пришло с сайта</li>
-              <li>Домен и аккаунты на ваше имя, код у вас</li>
-              <li>Отчёт при сдаче: скорость загрузки, проверка формы, где что лежит</li>
-            </ul>
-          </div>
-          <aside class="lp-diff">
-            <p>За эти деньги на рынке обычно дают дизайн, вёрстку и форму. Мы отвечаем ещё и за то, что заявка дойдёт, данные посетителей собраны по закону, а сайт остаётся вашим.</p>
-          </aside>
-          <a class="btn btn-sig" href="#request" data-prefill="Лендинг">Заказать лендинг <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-        </div>
+      <div class="hero-head">
+        <p class="eyebrow">Сармат-ИТ, Москва</p>
+        <h1 id="hero-title">Цифровые решения для компании <span class="tx-grad">и оборудование, на котором они работают</span></h1>
       </div>
-    </div>
-  </section>
 
-  <!-- 3. WATCH. Сторож как услуга (решение Антона 17.11.2026, цену не ставим). Тексты блока предварительные, финал у копирайтера.
-       Факты: каждую минуту, две площадки, Макс и Telegram, второе сообщение «снова работает», пустой экран тоже сбой, 8 адресов parhai.club -->
-  <section class="sec shell watch" id="watch" aria-labelledby="watch-title">
-    <div class="wrap">
-      <p class="layer-tag" aria-hidden="true"><i></i>Оболочка · сторож</p>
-      <div class="watch-grid">
-        <div class="watch-text">
-          <h2 class="h2" id="watch-title">О сбое вы узнаете не&nbsp;от&nbsp;клиентов</h2>
-          <p class="lede">Сторож открывает сайт каждую минуту. Если страница не загрузилась или пришла пустой, команде сразу приходит сообщение, и мы начинаем разбираться.</p>
-          <ol class="watch-steps">
-            <li><span class="ws-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span><div><b>Каждую минуту, с двух площадок</b><span>Сайт проверяется с двух площадок, а не из одной точки.</span></div></li>
-            <li><span class="ws-ico ws-bad" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4.5M12 17.2v.1"/></svg></span><div><b>Сообщение команде в Макс и Telegram</b><span>Что сломалось и что не работает у клиентов.</span></div></li>
-            <li><span class="ws-ico ws-ok" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.2l2.4 2.4 4.8-5"/></svg></span><div><b>Второе сообщение: снова работает</b><span>Не нужно проверять руками, поднялся ли сайт.</span></div></li>
-          </ol>
-          <p class="watch-case"><i class="live" aria-hidden="true"></i>Так уже работает за нашим проектом parhai.club.</p>
-          <a class="btn btn-sig" href="#request" data-prefill="Сторож для сайта">Подключить сторожа <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-        </div>
+      <div class="duo" id="duo">
 
-        <!-- Консоль сторожа: две площадки шлют проверки к сайту, лента минут, сбой, два сообщения. Пример, не живые данные -->
-        <div class="wconsole gl" id="wconsole" aria-hidden="true">
-          <div class="wc-head"><span class="wc-dot"></span>сторож · пример<span class="wc-site">parhai.club</span></div>
-          <div class="wc-map">
-            <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid meet">
-              <path class="wc-link" d="M70 50 C170 50 200 95 300 95"/>
-              <path class="wc-link" d="M70 140 C170 140 200 95 300 95"/>
-              <path class="wc-ping" d="M70 50 C170 50 200 95 300 95" pathLength="100"/>
-              <path class="wc-ping wc-ping2" d="M70 140 C170 140 200 95 300 95" pathLength="100"/>
-              <g class="wc-node"><circle cx="70" cy="50" r="22"/><text x="70" y="54">A</text></g>
-              <g class="wc-node"><circle cx="70" cy="140" r="22"/><text x="70" y="144">B</text></g>
-              <g class="wc-site-node"><circle class="wc-halo" cx="300" cy="95" r="44"/><rect x="262" y="68" width="76" height="54" rx="8"/><path d="M262 80h76"/><path class="wc-l" d="M272 92h40M272 102h52M272 112h30"/></g>
-            </svg>
-            <span class="wc-lab wc-la">площадка A</span><span class="wc-lab wc-lb">площадка B</span>
-          </div>
-          <div class="wc-strip"><div class="wc-ticks" id="wcTicks"></div><span class="wc-k">последние 60 минут</span></div>
-          <div class="wc-msgs">
-            <div class="wc-msg wc-msg-bad"><b>Сбой</b><span>parhai.club не открывается</span><em>Макс, Telegram</em></div>
-            <div class="wc-msg wc-msg-ok"><b>Снова работает</b><span>parhai.club отвечает</span><em>Макс, Telegram</em></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4. GROWS. От сайта вниз тянутся лучи к следующим слоям. Лучи рисует main.js (grows) по положению карточек -->
-  <section class="sec shell" id="grows" aria-labelledby="grows-title">
-    <div class="wrap">
-      <p class="layer-tag" aria-hidden="true"><i></i>Оболочка · что растёт от сайта</p>
-      <h2 class="h2" id="grows-title">С сайта всё начинается</h2>
-      <p class="lede">Сначала клиент находит вас на сайте. Потом сайт начинает работать за вашу команду. Достраиваем по шагам, когда это нужно бизнесу.</p>
-
-      <div class="tree" id="tree">
-        <svg class="tree-beams" id="treeBeams" aria-hidden="true" focusable="false"></svg>
-
-        <article class="node node-root gl spot" data-node="root">
-          <div class="node-txt">
-            <span class="node-n">01</span>
-            <h3>Сайт</h3>
-            <p>Клиент узнаёт, чем вы заняты, и оставляет заявку.</p>
-            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: sarmat-it.ru, parhai.club</p>
-          </div>
-          <div class="mv mv-site" aria-hidden="true"><div class="mv-bar"><i></i><i></i><i></i></div><b></b><span></span><span></span><em></em></div>
+        <article class="dir dir-soft">
+          <p class="dir-k"><span>01</span>Программное обеспечение</p>
+          <h2><a class="dir-link" href="solutions.html">Цифровые решения</a></h2>
+          <p class="dir-sub">Программы берут на себя рутину команды. Код пишем сами и передаём вам.</p>
+          <ul class="dir-list">
+            <li><a href="solutions.html#landing"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 8.5h18M6.5 12.5h6M6.5 15.5h9"/></svg></i><span>Сайты и лендинги</span><em>от 59&nbsp;000&nbsp;₽</em></a></li>
+            <li><a href="solutions.html#grow-crm"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="4.6" height="16" rx="1"/><rect x="9.7" y="4" width="4.6" height="11" rx="1"/><rect x="15.9" y="4" width="4.6" height="7" rx="1"/></svg></i><span>Заявки и CRM</span></a></li>
+            <li><a href="solutions.html#grow-pay"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M8.5 14.5l2.2 2.2 4.8-4.8"/></svg></i><span>Запись, оплата, чеки</span></a></li>
+            <li><a href="solutions.html#grow-soft"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></i><span>Кабинеты и связка с 1С</span></a></li>
+            <li><a href="solutions.html#grow-conf"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></i><span>Конфигураторы</span></a></li>
+          </ul>
+          <p class="dir-note">Начать можно с сайта: это визитная карточка компании, к ней потом подключаются остальные программы.</p>
+          <a class="btn btn-sig dir-btn" href="solutions.html">Смотреть решения <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
         </article>
 
-        <div class="tree-row">
-          <article class="node gl spot" data-node="n2">
-            <div class="mv mv-crm" aria-hidden="true"><div><span>новая</span><i class="c c1"></i><i class="c"></i></div><div><span>в работе</span><i class="c"></i></div><div><span>готово</span><i class="c"></i><i class="c"></i></div></div>
-            <span class="node-n">02</span>
-            <h3>Заявки и CRM</h3>
-            <p>Заявка не теряется в почте. Видно, кто обратился и на каком он этапе.</p>
-            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: parhai.club, своя книжка гостей</p>
-          </article>
-          <article class="node gl spot" data-node="n3">
-            <div class="mv mv-book" aria-hidden="true"><i>10:00</i><i>12:00</i><i class="sel">14:00</i><i>16:00</i><i>18:00</i><i>20:00</i><b>оплачено · чек</b></div>
-            <span class="node-n">03</span>
-            <h3>Запись и оплата</h3>
-            <p>Клиент сам выбирает время, платит и получает чек. Администратор не сидит в переписке.</p>
-            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: parhai.club, оплаты с 28.09.2026</p>
-          </article>
-          <article class="node gl spot" data-node="n4">
-            <div class="mv mv-chat" aria-hidden="true"><i class="in"></i><i class="out"></i><i class="in short"></i><b><s></s><s></s><s></s></b></div>
-            <span class="node-n">04</span>
-            <h3>Личные кабинеты и свои программы</h3>
-            <p>Клиент видит свои заказы и документы. Ручную работу между системами делает программа.</p>
-            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: parhai.club, кабинет гостя и чат команды</p>
-          </article>
-          <article class="node gl spot" data-node="n5">
-            <div class="mv mv-conf" aria-hidden="true"><div class="st4"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><span></span><span></span><span class="short"></span></div>
-            <span class="node-n">05</span>
-            <h3>Конфигураторы и калькуляторы</h3>
-            <p>Клиент сам собирает заказ по шагам и приходит с готовой задачей.</p>
-            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: <a href="configurator.html">конфигуратор сервера на этом сайте</a></p>
-          </article>
+        <div class="duo-core" aria-hidden="true">
+          <div class="duo-em" id="duoEmblem"></div>
         </div>
 
-        <div class="tree-down" data-node="down">
-          <p class="tree-down-txt">Всё это работает на серверах и сети. Их мы тоже собираем.</p>
-          <ul class="tree-chips" aria-label="Слои под сайтом">
-            <li>Хостинг и почта на домене</li><li>Серверы</li><li>Сеть, связь, камеры</li>
+        <article class="dir dir-hw">
+          <p class="dir-k"><span>02</span>Оборудование</p>
+          <h2><a class="dir-link" href="oborudovanie/index.html">Оборудование под задачу</a></h2>
+          <p class="dir-sub">Пишем ТЗ и проект, подбираем и поставляем оборудование, ведём технадзор за монтажом.</p>
+          <ul class="dir-list">
+            <li><a href="oborudovanie/index.html#catalog"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="5" rx="1"/><rect x="4" y="10" width="16" height="5" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/></svg></i><span>Серверы</span><em>3D-сборки</em></a></li>
+            <li><a href="oborudovanie/index.html#turnkey"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="1"/><path d="M8 6h8M8 9.5h8M8 13h8M8 16.5h8"/></svg></i><span>Серверная</span></a></li>
+            <li><a href="oborudovanie/index.html#video"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8l12-3.5 2 6L5 14z"/><path d="M17 9l4 .5v4l-4-1"/><path d="M8 13.5l1 4H5v3"/></svg></i><span>Видеонаблюдение</span></a></li>
+            <li><a href="oborudovanie/index.html#net"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9.5a13 13 0 0 1 18 0"/><path d="M6 13a8.5 8.5 0 0 1 12 0"/><path d="M9 16.5a4 4 0 0 1 6 0"/><circle cx="12" cy="19.6" r="1"/></svg></i><span>Сеть и связь</span></a></li>
+            <li><a href="oborudovanie/index.html#workplaces"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg></i><span>Рабочие места</span></a></li>
           </ul>
-          <a class="btn btn-glass" href="#request">Обсудить, что нужно мне <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-        </div>
+          <a class="btn btn-glass dir-btn" href="oborudovanie/index.html">Смотреть оборудование <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+        </article>
+      </div>
+
+      <a class="hero-more" href="#link">Нужно и то и другое? <b>Как это связано</b> <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a>
+    </div>
+  </section>
+
+  <!-- 2. КАК ЭТО СВЯЗАНО. Одна задача в разрезе: программа сверху, объект снизу. Пример из нашего КП по ТЗ (серверная на 50 мест) -->
+  <section class="sec" id="link" aria-labelledby="link-title">
+    <div class="wrap">
+      <p class="eyebrow">Как это связано</p>
+      <h2 class="h2" id="link-title">Одна задача, все слои</h2>
+      <p class="lede">Пример из нашего КП: компания на 50 рабочих мест работает в 1С. Программа и оборудование под ней проектируются вместе, поэтому работают вместе.</p>
+
+      <ol class="layers">
+        <li class="ly ly-soft">
+          <span class="ly-tag">Цифровые решения</span>
+          <h3>Программы</h3>
+          <p>1С на 20 пользователей, общий доступ к файлам и базам по группам сотрудников.</p>
+        </li>
+        <li class="ly ly-hw">
+          <span class="ly-tag">Оборудование</span>
+          <h3>Серверы</h3>
+          <p>Два одинаковых сервера: если один откажет, работу переводим на второй. Отдельное хранилище резервных копий.</p>
+        </li>
+        <li class="ly ly-hw">
+          <span class="ly-tag">Оборудование</span>
+          <h3>Сеть</h3>
+          <p>Два коммутатора работают как один, межсетевой экран закрывает вход из интернета.</p>
+        </li>
+        <li class="ly ly-hw">
+          <span class="ly-tag">Оборудование</span>
+          <h3>Рабочие места</h3>
+          <p>50 мест, вход под доменной учётной записью, профили переносим.</p>
+        </li>
+        <li class="ly ly-site">
+          <span class="ly-tag">Объект</span>
+          <h3>Стойка и монтаж</h3>
+          <p>Стойка, ИБП, кабель. Монтаж выполняют партнёры, мы ведём технадзор и принимаем работу.</p>
+        </li>
+      </ol>
+      <div class="link-cta">
+        <a class="btn btn-glass" href="oborudovanie/index.html#turnkey">Смотреть сцену серверной <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+        <a class="btn btn-sig" href="#request" data-topic="Всё вместе">Обсудить задачу целиком <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
       </div>
     </div>
   </section>
 
-  <!-- 5. DESCENT. Спуск сквозь слои к планете: прокрутка ведёт камеру, колесо не перехватывается (ревизия, п. 2.1).
-       Кольца слоёв и планету рисует main.js (descent). Без JS и при reduced motion блока нет, подписи читаются списком -->
-  <section class="descent" id="descent" aria-label="От сайта к серверам: слои">
-    <div class="dsc-track">
-      <div class="dsc-stage">
-        <canvas class="dsc-cv" aria-hidden="true"></canvas>
-        <ol class="dsc-caps">
-          <li class="dsc-cap" data-dig><span class="ds-eyebrow">Слой 01 из 07</span><span class="ds-line">Сайт</span></li>
-          <li class="dsc-cap" data-dig><span class="ds-eyebrow">Слой 02 из 07</span><span class="ds-line">Заявки и CRM</span></li>
-          <li class="dsc-cap" data-dig><span class="ds-eyebrow">Слой 03 из 07</span><span class="ds-line">Запись и оплата</span></li>
-          <li class="dsc-cap" data-dig><span class="ds-eyebrow">Слой 04 из 07</span><span class="ds-line">Свои программы</span></li>
-          <li class="dsc-cap"><span class="ds-eyebrow">Слой 05 из 07</span><span class="ds-line">Хостинг и почта на домене</span></li>
-          <li class="dsc-cap"><span class="ds-eyebrow">Слой 06 из 07</span><span class="ds-line">Серверы</span></li>
-          <li class="dsc-cap"><span class="ds-eyebrow">Слой 07 из 07</span><span class="ds-line">Сеть, связь, камеры</span></li>
-        </ol>
-        <p class="dsc-msk" aria-hidden="true"><span class="ds-eyebrow">55°45′ с. ш., 37°37′ в. д.</span><span class="ds-line">Москва</span></p>
-        <div class="dsc-rail" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b></b></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6. INFRA. Посадка: под сайтом серверы и сеть. Ниже без изменений 3D-сборки и сцена серверной -->
-  <section class="sec land" id="infra" aria-labelledby="infra-title">
-    <div class="horizon" aria-hidden="true"></div>
-    <div class="wrap infra">
-      <div>
-        <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Планета · серверы и сеть</p>
-        <h2 class="h2" id="infra-title">Под сайтом: серверы и сеть</h2>
-        <p class="lede">С этого начинался Сармат-ИТ. Подбираем сервер под задачу, проверяем совместимость до заказа, собираем и тестируем до отправки.</p>
-        <div class="infra-cta">
-          <a class="btn btn-primary" href="configurator.html">Собрать сервер под задачу <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-          <a class="btn btn-ghost" href="#request" data-prefill="Пока не знаю, нужен разбор">Отправить задачу инженеру</a>
-        </div>
-      </div>
-      <ol class="infra-steps">
-        <li><span>01</span><b>Подбор</b>совместимость до заказа</li>
-        <li><span>02</span><b>Спецификация</b>модель по каждой строке</li>
-        <li><span>03</span><b>Сборка и тест</b>до отправки</li>
-        <li><span>04</span><b>Монтаж и сдача</b>с документами</li>
+  <!-- 3. КАК РАБОТАЕМ. Наша роль: ТЗ, проект, поставка, технадзор. Монтаж у партнёров (Антон, 22.11.2026) -->
+  <section class="sec" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <p class="eyebrow">Как работаем</p>
+      <h2 class="h2" id="how-title">Отвечаем за результат целиком</h2>
+      <ol class="how">
+        <li><span>01</span><h3>Разбираем задачу</h3><p>Смотрим объект и то, как работает команда. Выясняем, что нужно бизнесу.</p></li>
+        <li><span>02</span><h3>Пишем ТЗ и проект</h3><p>Схема, состав и смета до начала работ. Вы видите результат и цену заранее.</p></li>
+        <li><span>03</span><h3>Делаем и поставляем</h3><p>Пишем программы. Подбираем оборудование, проверяем совместимость, серверы собираем и тестируем.</p></li>
+        <li><span>04</span><h3>Ведём технадзор</h3><p>Монтаж и прокладку выполняют партнёры. Мы проверяем каждый этап по проекту.</p></li>
+        <li><span>05</span><h3>Сдаём</h3><p>Запускаем, проверяем, передаём документы и доступы на ваше имя.</p></li>
       </ol>
     </div>
   </section>
 
-  <!-- 7. CATALOG -->
-  <section class="sec sec-catalog sec-tight" id="catalog" aria-labelledby="catalog-title">
-    <div class="wrap">
-      <h2 class="h3x" id="catalog-title">Готовые конфигурации</h2>
-      <p class="lede">Три сервера в 3D. Смотрите, как детали встают на места и загружается система.</p>
-
-      <!-- Галерея: вкладки и стрелки строит main.js (gallery). Все карточки: одна и та же 3D-сцена (serverScene), модели и тайминги в SCENES.
-           Сборка идёт сама, когда карточка открыта и на экране. Без JS карточки стоят списком, шаги видны.
-           Источники характеристик: mockups/configurations.md -->
-      <div class="gal" id="gal1" aria-label="Готовые конфигурации">
-        <div class="gal-view"><div class="gal-track">
-        <!-- card 1. Конфигурация от Антона 29.09.2026: 8-12 ядер от 3,0 ГГц, 64 ГБ ECC (до 128), 2 × NVMe под базы, SSD под ОС, опционально SATA под копии, 2 × 1 GbE.
-             Процессор для модели: Xeon E-2488 (intel.com: 8/16, 3,2-5,6 ГГц, 24 МБ, 95 Вт, LGA1700, DDR5-4800 ECC, до 128 ГБ). Корпус 1U условный -->
-        <article class="gal-card sc" id="card1" data-tab="Сервер для 1С" data-short="1С" data-scene="c1" aria-labelledby="card1-title">
-          <canvas role="img" aria-label="Трёхмерная модель сервера для 1С: детали встают на места по шагам"></canvas>
-          <div class="bar" aria-hidden="true"></div>
-          <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
-          <div class="sc-side">
-            <div class="sc-head">
-              <div class="card-num">01 <span>/ 03</span></div>
-              <h3 class="card-title" id="card1-title">Сервер для 1С</h3>
-              <p class="card-desc">До 20 одновременных пользователей 1С. Упор на частоту процессора: 1С она важнее числа ядер.</p>
-              <button class="btn btn-primary btn-sm js-pick" type="button" data-pos="Сервер для 1С">Отправить на проработку <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
-            </div>
-            <div class="build">
-              <h4 class="build-title">Сборка</h4>
-              <ol class="steps">
-                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>Сокет LGA1700, DDR5 ECC, 2 × 1 GbE</span></div><small>Основа сервера. По заказу ставим сетевую карту 10 GbE.</small></li>
-                <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор</b><span>Intel Xeon E-2488, 8 ядер</span></div><small>8 ядер, 16 потоков, 3,2-5,6 ГГц. Под задачу подойдёт и Xeon Silver или Gold на 8-12 ядер от 3 ГГц.</small></li>
-                <li class="step" data-key="cooler"><div class="dot" aria-hidden="true"></div><div><b>Радиатор</b><span>обдув вентиляторами корпуса</span></div><small>Держит высокую частоту процессора под нагрузкой 1С.</small></li>
-                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>64 GB DDR5 ECC, 2 × 32 ГБ</span></div><small>ECC исправляет ошибки памяти на лету. Расширяется до 128 ГБ.</small></li>
-                <li class="step" data-key="nvme"><div class="dot" aria-hidden="true"></div><div><b>NVMe под базы 1С</b><span>2 × 0,96-1,92 ТБ, RAID 1</span></div><small>Базы и файлы 1С на быстрых дисках в зеркале: отказ одного не останавливает работу.</small></li>
-                <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>SSD под систему</b><span>480-960 ГБ</span></div><small>Операционная система отдельно от баз.</small></li>
-                <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Диски под копии</b><span>опция: 2-4 × SATA 2-4 ТБ</span></div><small>Резервные копии баз хранятся на отдельных дисках.</small></li>
-                <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>1U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
-                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>ОС и СУБД</b><span>Windows Server 2022/2025 или Linux</span></div><small>СУБД PostgreSQL или MS SQL, по лицензии заказчика.</small></li>
-              </ol>
-            </div>
-          </div>
-          <div class="tag" aria-hidden="true"></div>
-          <div class="boot" aria-hidden="true">
-            <div class="os">1С:Предприятие <em class="bootState">загрузка</em></div>
-            <div class="pbar"><i></i></div>
-            <div class="bootText">Подготовка системы</div>
-            <ul class="bootList"></ul>
-          </div>
-        </article>
-
-        <!-- card 2. Примерная конфигурация под сайт, 28.09.2026. E-2336: intel.com. RAID 10 вместо RAID 5: правка Антона 29.09.2026. Открыто: ОС -->
-        <article class="gal-card sc" id="card2" data-tab="Файловый сервер" data-short="Файловый" data-scene="fs" aria-labelledby="card2-title">
-          <canvas role="img" aria-label="Трёхмерная модель файлового сервера: детали встают на места по шагам, в конце показан отказ и замена диска"></canvas>
-          <div class="bar" aria-hidden="true"></div>
-          <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
-          <div class="sc-side">
-            <div class="sc-head">
-              <div class="card-num">02 <span>/ 03</span></div>
-              <h3 class="card-title" id="card2-title">Файловый сервер</h3>
-              <p class="card-desc">Общие папки для офиса. 16 ТБ под файлы, данные сохраняются при отказе диска.</p>
-              <button class="btn btn-primary btn-sm js-pick" type="button" data-pos="Файловый сервер">Отправить на проработку <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
-            </div>
-            <div class="build">
-              <h4 class="build-title">Сборка</h4>
-              <ol class="steps">
-                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Серверная плата</b><span>Чипсет C252, сокет LGA1200, 2 канала DDR4</span></div><small>Основа сервера в корпусе 2U на 8 дисков.</small></li>
-                <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор и радиатор</b><span>Intel Xeon E-2336, 6 ядер</span></div><small>6 ядер, 12 потоков, 2,9-4,8 ГГц. Поддерживает память ECC.</small></li>
-                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>32 GB DDR4 ECC, 2 × 16 ГБ</span></div><small>По модулю на каждый из двух каналов процессора, без потери пропускной способности.</small></li>
-                <li class="step" data-key="raid"><div class="dot" aria-hidden="true"></div><div><b>RAID-контроллер</b><span>Аппаратный, с кэшем</span></div><small>Собирает диски в массив без нагрузки на процессор. Кэш защищён от отключения питания.</small></li>
-                <li class="step" data-key="nic"><div class="dot" aria-hidden="true"></div><div><b>Сетевая карта</b><span>2 × 10 Гбит/с</span></div><small>Два порта: можно объединить для скорости или развести на два коммутатора.</small></li>
-                <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>Системные SSD</b><span>2 × 480 GB, RAID 1</span></div><small>Windows на зеркале из двух SSD. Отказ одного не останавливает сервер.</small></li>
-                <li class="step" data-key="hdd"><div class="dot" aria-hidden="true"></div><div><b>Диски под файлы</b><span>4 × 8 TB HDD, RAID 10</span></div><small>16 ТБ под файлы. Переживает отказ любого диска, после замены массив восстанавливается быстрее, чем RAID 5. 4 отсека свободны.</small></li>
-                <li class="step" data-key="psu"><div class="dot" aria-hidden="true"></div><div><b>Блоки питания</b><span>2 шт, горячая замена</span></div><small>Если один блок откажет, сервер работает на втором. Замена без выключения.</small></li>
-                <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>2U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
-                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>Windows Server 2025</b><span>общие папки, теневые копии</span></div><small>Доступ по отделам. Прошлую версию файла сотрудник восстанавливает сам.</small></li>
-              </ol>
-            </div>
-          </div>
-          <div class="tag" aria-hidden="true"></div>
-          <div class="boot" aria-hidden="true">
-            <div class="os">Windows Server 2025 <em class="bootState">загрузка</em></div>
-            <div class="pbar"><i></i></div>
-            <div class="bootText">Подготовка системы</div>
-            <ul class="bootList"></ul>
-          </div>
-        </article>
-
-        <!-- card 3. Основа: узел Hyper-V из нашей сделки 09.2026 (docs/03-deals/.../конфигурация.md). Память и ВМ по расчёту Антона 29.09.2026: 8 + 32 + 48 = 88 ГБ, с запасом 128 ГБ. Имя заказчика на сайт не выносим -->
-        <article class="gal-card sc" id="card3" data-tab="Сервер виртуализации" data-short="Виртуализация" data-scene="vs" aria-labelledby="card3-title">
-          <canvas role="img" aria-label="Трёхмерная модель сервера виртуализации: детали встают на места, в конце над сервером появляются виртуальные машины"></canvas>
-          <div class="bar" aria-hidden="true"></div>
-          <p class="model-note">Модель условная: корпус, плата и внешний вид деталей нарисованы, характеристики как в конфигурации.</p>
-          <div class="sc-side">
-            <div class="sc-head">
-              <div class="card-num">03 <span>/ 03</span></div>
-              <h3 class="card-title" id="card3-title">Сервер виртуализации</h3>
-              <p class="card-desc">Домен, сервер 1С и СУБД на одном сервере, каждая система в своей виртуальной машине. 16 быстрых ядер, второй процессор и память добавляются без замены сервера.</p>
-              <button class="btn btn-primary btn-sm js-pick" type="button" data-pos="Сервер виртуализации">Отправить на проработку <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
-            </div>
-            <div class="build">
-              <h4 class="build-title">Сборка</h4>
-              <ol class="steps">
-                <li class="step" data-key="board"><div class="dot" aria-hidden="true"></div><div><b>Двухпроцессорная плата</b><span>2 сокета, DDR5 RDIMM</span></div><small>Основа сервера 2U. Занят один сокет, второй оставлен под рост.</small></li>
-                <li class="step" data-key="cpu"><div class="dot" aria-hidden="true"></div><div><b>Процессор и радиатор</b><span>Intel Xeon Gold 6544Y, 16 ядер</span></div><small>16 ядер, 32 потока, 3,6-4,1 ГГц: высокая частота на ядро нужна 1С. Под 270 Вт стоит усиленный радиатор.</small></li>
-                <li class="step" data-key="ram"><div class="dot" aria-hidden="true"></div><div><b>Оперативная память</b><span>128 GB DDR5 ECC, 8 × 16 ГБ</span></div><small>Расчёт: машины 8 + 32 + 48 = 88 ГБ, с запасом 128 ГБ. По модулю на каждый из 8 каналов процессора.</small></li>
-                <li class="step" data-key="boss"><div class="dot" aria-hidden="true"></div><div><b>Загрузочный модуль</b><span>2 × 960 GB NVMe M.2, RAID 1</span></div><small>Гипервизор на отдельном зеркале. Передние отсеки остаются под данные.</small></li>
-                <li class="step" data-key="raid"><div class="dot" aria-hidden="true"></div><div><b>RAID-контроллер</b><span>С кэшем и защитой кэша</span></div><small>Держит массив под машины и базы. Кэш защищён от отключения питания.</small></li>
-                <li class="step" data-key="nic"><div class="dot" aria-hidden="true"></div><div><b>Сеть</b><span>2 × 10/25 GbE SFP28</span></div><small>Трафик машин, реплики и резервных копий разводим по отдельным виртуальным сетям (VLAN).</small></li>
-                <li class="step" data-key="ssd"><div class="dot" aria-hidden="true"></div><div><b>SSD под машины и базы</b><span>4 × 1,92 TB, RAID 10</span></div><small>3,84 ТБ, диски рассчитаны на частую перезапись под базы. 12 отсеков свободны. Резервные копии держим на отдельном хранилище, не на этом сервере.</small></li>
-                <li class="step" data-key="psu"><div class="dot" aria-hidden="true"></div><div><b>Блоки питания</b><span>2 шт, горячая замена</span></div><small>Если один блок откажет, сервер работает на втором. Замена без выключения.</small></li>
-                <li class="step" data-key="lid"><div class="dot" aria-hidden="true"></div><div><b>Корпус</b><span>2U, стоечный</span></div><small>Крышка закрыта, сервер готов к установке в стойку.</small></li>
-                <li class="step" data-key="os"><div class="dot" aria-hidden="true"></div><div><b>3 виртуальные машины</b><span>Hyper-V, Windows Server 2025</span></div><small>Контроллер домена: 2 vCPU, 8 ГБ. Сервер 1С: 6 vCPU, 32 ГБ. СУБД PostgreSQL или MS SQL: 4 vCPU, 48 ГБ.</small></li>
-              </ol>
-            </div>
-          </div>
-          <div class="tag" aria-hidden="true"></div>
-          <div class="boot" aria-hidden="true">
-            <div class="os">Windows Server 2025, Hyper-V <em class="bootState">загрузка</em></div>
-            <div class="pbar"><i></i></div>
-            <div class="bootText">Подготовка системы</div>
-            <ul class="bootList"></ul>
-          </div>
-        </article>
-        </div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4. TURNKEY: server room from our proposal + video surveillance -->
-  <section class="sec sec-catalog sec-tight" id="turnkey" aria-labelledby="turnkey-title">
-    <div class="wrap">
-      <h2 class="h3x" id="turnkey-title">Объекты под ключ</h2>
-      <p class="lede">Серверная на 50 рабочих мест. Один сервер отказывает, работа переходит на второй. Для такого проекта мы пишем схему, расчёт отказов и программу из 19 тестов.</p>
-
-      <!-- #video из меню открывает вторую карточку (main.js, gallery) -->
-      <div class="anchor" id="video" data-slide="card5" aria-hidden="true"></div>
-      <div class="gal" id="gal2" aria-label="Объекты под ключ">
-        <div class="gal-view"><div class="gal-track">
-        <!-- card 4. Объект из нашего КП по ТЗ (сделка 2026-09, КП v3, схема «Архитектура» и таблица отказов). Заказчика, цены и даты на сайт не выносим.
-             Факты: стойка 42U, ИБП онлайн 6 кВА, 2 сервера Hyper-V (16 ядер, 256 ГБ), NAS 2U 6 × 8 ТБ RAID 6 (32 ТБ, рост до 80), 2 коммутатора L3 10 GbE,
-             межсетевой экран, 50 ПК. ВМ: DC01/DC02, APP01 (1С и файлы, Hyper-V Replica 5 мин), DB01/DB02 (PostgreSQL на Linux, потоковая реплика), MON01. Переключение при отказе вручную -->
-        <article class="gal-card sc" id="card4" data-tab="Серверная" data-short="Серверная" data-scene="rk" aria-labelledby="card4-title">
-          <canvas role="img" aria-label="Трёхмерная модель серверной: стойка заполняется оборудованием, подключаются рабочие места, в конце отказ одного сервера и запуск копии на втором"></canvas>
-          <div class="bar" aria-hidden="true"></div>
-          <p class="model-note">Модель условная: пропорции и внешний вид оборудования нарисованы, состав как в КП.</p>
-          <div class="sc-side">
-            <div class="sc-head">
-              <div class="card-num">01 <span>/ 02</span></div>
-              <h3 class="card-title" id="card4-title">Серверная под ключ</h3>
-              <p class="card-desc">Пример из нашего КП по ТЗ: 50 рабочих мест, 1С на 20 пользователей. Запас до 200 пользователей без замены серверов.</p>
-              <button class="btn btn-primary btn-sm js-pick" type="button" data-pos="Серверная под ключ">Отправить на проработку <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
-            </div>
-            <div class="build">
-              <h4 class="build-title">Монтаж</h4>
-              <ol class="steps">
-                <li class="step" data-key="rack"><div class="dot" aria-hidden="true"></div><div><b>Стойка</b><span>19", 42U</span></div><small>Оборудование займёт меньше половины юнитов, остальное под рост.</small></li>
-                <li class="step" data-key="ups"><div class="dot" aria-hidden="true"></div><div><b>ИБП</b><span>онлайн, 6 кВА</span></div><small>У каждого сервера два блока питания на разные линии. При долгом отключении серверы выключаются штатно.</small></li>
-                <li class="step" data-key="srv"><div class="dot" aria-hidden="true"></div><div><b>Серверы HV01 и HV02</b><span>Hyper-V, 16 ядер, 256 ГБ</span></div><small>Два одинаковых сервера: каждый может принять нагрузку второго.</small></li>
-                <li class="step" data-key="nas"><div class="dot" aria-hidden="true"></div><div><b>Хранилище копий</b><span>NAS 2U, 6 × 8 ТБ, RAID 6</span></div><small>32 ТБ под резервные копии, рост до 80 ТБ. Отдельный сегмент сети, копию нельзя стереть до срока.</small></li>
-                <li class="step" data-key="net"><div class="dot" aria-hidden="true"></div><div><b>Ядро сети и защита</b><span>2 коммутатора L3 10 GbE, межсетевой экран</span></div><small>Коммутаторы работают как один: отказ одного не рвёт связь. Экран закрывает вход из интернета и делит сеть на сегменты.</small></li>
-                <li class="step" data-key="pcs"><div class="dot" aria-hidden="true"></div><div><b>50 рабочих мест</b><span>вход под доменной учётной записью</span></div><small>Вводим ПК в домен и переносим профили. Диски и доступ к 1С выдаются по группам.</small></li>
-                <li class="step" data-key="vms"><div class="dot" aria-hidden="true"></div><div><b>Виртуальные машины</b><span>домен, 1С и файлы, база, мониторинг</span></div><small>DC01 и DC02 на разных серверах. База 1С в отдельной машине на Linux, реплика на втором сервере отстаёт на секунды. Копия APP01 с 1С и файлами обновляется каждые 5 минут.</small></li>
-                <li class="step" data-key="fail"><div class="dot" aria-hidden="true"></div><div><b>Проверка отказа</b><span>HV01 выключен</span></div><small>Переводим базу на реплику DB02 и запускаем копию APP01 на HV02. База теряет секунды, файлы не больше 5 минут. Домен работает на DC02.</small></li>
-              </ol>
-            </div>
-          </div>
-          <div class="tag" aria-hidden="true"></div>
-          <div class="boot" aria-hidden="true">
-            <div class="os">Hyper-V, 2 сервера <em class="bootState">проверка</em></div>
-            <div class="pbar"><i></i></div>
-            <div class="bootText">Запуск машин</div>
-            <ul class="bootList"></ul>
-          </div>
-        </article>
-
-        <!-- card 5. Видеонаблюдение: объект условный, без марок и цифр (решение Антона 28.09.2026).
-             TODO: состав услуги (IP или аналог, регистратор или сервер с ПО), свой монтаж или партнёр, марки, реальные объекты. PoE в шаге «кабель» подтвердить -->
-        <article class="gal-card sc" id="card5" data-tab="Видеонаблюдение" data-short="Видеонаблюдение" data-scene="cv" aria-labelledby="card5-title">
-          <canvas role="img" aria-label="Трёхмерный план объекта: расстановка камер с секторами обзора, прокладка кабеля к шкафу, запуск записи"></canvas>
-          <div class="bar" aria-hidden="true"></div>
-          <p class="model-note">Объект на схеме условный: планировка и число камер для примера.</p>
-          <div class="sc-side">
-            <div class="sc-head">
-              <div class="card-num">02 <span>/ 02</span></div>
-              <h3 class="card-title" id="card5-title">Видеонаблюдение под ключ</h3>
-              <p class="card-desc">Проектируем, прокладываем кабель, ставим камеры и запись, сдаём с документами.</p>
-              <button class="btn btn-primary btn-sm js-pick" type="button" data-pos="Видеонаблюдение">Отправить на проработку <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
-            </div>
-            <div class="build">
-              <h4 class="build-title">Работы</h4>
-              <ol class="steps">
-                <li class="step" data-key="obj"><div class="dot" aria-hidden="true"></div><div><b>Обследование</b><span>зоны контроля</span></div><small>Отмечаем, что нужно видеть: входы, склад, ворота, парковку.</small></li>
-                <li class="step" data-key="cams"><div class="dot" aria-hidden="true"></div><div><b>Проект и камеры</b><span>сектор обзора у каждой</span></div><small>Для каждой зоны подбираем камеру и угол обзора. Слепые зоны видно на схеме до монтажа.</small></li>
-                <li class="step" data-key="cable"><div class="dot" aria-hidden="true"></div><div><b>Прокладка кабеля</b><span>по стенам и лоткам</span></div><small>Ведём трассы от камер к шкафу. Камера получает питание по тому же кабелю (PoE).</small></li>
-                <li class="step" data-key="cab"><div class="dot" aria-hidden="true"></div><div><b>Шкаф и запись</b><span>коммутатор, запись, ИБП</span></div><small>Архив пишется в шкафу на регистратор или сервер. ИБП держит запись при отключении света, пока хватает батарей.</small></li>
-                <li class="step" data-key="launch"><div class="dot" aria-hidden="true"></div><div><b>Запуск</b><span>все камеры на одном экране</span></div><small>Настраиваем углы обзора и архив, проверяем изображение с каждой камеры.</small></li>
-                <li class="step" data-key="hand"><div class="dot" aria-hidden="true"></div><div><b>Сдача</b><span>доступ с телефона, схема</span></div><small>Настраиваем просмотр с телефона, передаём схему расстановки камер и трасс.</small></li>
-              </ol>
-            </div>
-          </div>
-          <div class="tag" aria-hidden="true"></div>
-          <div class="boot" aria-hidden="true">
-            <div class="os">Видеонаблюдение <em class="bootState">запуск</em></div>
-            <div class="pbar"><i></i></div>
-            <div class="bootText">Подключение камер</div>
-            <ul class="bootList"></ul>
-          </div>
-        </article>
-        </div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Остальные направления: одной строкой, без отдельных блоков (решение Антона 17.11.2026) -->
-  <div class="also">
-    <div class="wrap">
-      <ul class="also-list">
-        <li class="also-k">Ещё делаем</li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l12-3.5 2 6L5 14z"/><path d="M17 9l4 .5v4l-4-1"/><path d="M8 13.5l1 4H5v3"/></svg>Видеонаблюдение</li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5a13 13 0 0 1 18 0"/><path d="M6 13a8.5 8.5 0 0 1 12 0"/><path d="M9 16.5a4 4 0 0 1 6 0"/><circle cx="12" cy="19.6" r="1"/></svg>Усиление сотовой связи и Wi-Fi</li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v4M15 3v4"/><path d="M6 7h12v4a6 6 0 0 1-12 0z"/><path d="M12 17v4"/></svg>Кабельная сеть в офисе (СКС)</li>
-      </ul>
-      <p class="also-note">Объекты заказчиков под NDA. Сцены на сайте собраны по мотивам.</p>
-    </div>
-  </div>
-
-  <!-- 8. WORKS. Только свои проекты (решение Антона 17.11.2026). Факты Пархай на 05.11.2026 (copy.md, раздел 4) -->
+  <!-- 4. РАБОТЫ: только свои проекты, объекты заказчиков под NDA -->
   <section class="sec" id="works" aria-labelledby="works-title">
     <div class="wrap">
-      <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Доказательства</p>
+      <p class="eyebrow">Работы</p>
       <h2 class="h2" id="works-title">Что уже работает</h2>
-      <p class="lede">Два проекта, сделанные нашими руками. Один вы сейчас листаете.</p>
       <div class="works">
-        <article class="wk gl spot">
-          <div class="wk-vis wk-vis-self" aria-hidden="true">
-            <img src="img/logo.png?v=09bfd983" width="96" height="80" alt="" decoding="async" loading="lazy">
-            <div class="wk-orbit"><i></i><i></i><i></i></div>
-            <span class="wk-badge"><i class="live"></i>вы здесь</span>
-          </div>
-          <div class="wk-body">
-            <h3>sarmat-it.ru</h3>
-            <p class="wk-k">Вы на нём</p>
-            <ul class="ticks ticks-ok">
-              <li>Свой код, без конструктора и фреймворков</li>
-              <li>Три сервера в 3D и сцена серверной с отказом</li>
-              <li>Конфигуратор: задача по шагам, справа собирается сводка</li>
-              <li>Форма с файлом до 10 МБ: ошибку в телефоне видно до отправки, от ботов стоит защита</li>
-            </ul>
-            <a class="wk-link" href="configurator.html">Открыть конфигуратор <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-          </div>
+        <article class="work gl">
+          <span class="work-k k-soft">Цифровые решения</span>
+          <h3>Пархай, parhai.club</h3>
+          <p>Сайт, запись, оплата и чек по 54-ФЗ, кабинет гостя, свой чат, код от двери, сторож для сайта.</p>
+          <a class="work-go" href="https://parhai.club" target="_blank" rel="noopener">Открыть parhai.club</a>
         </article>
-        <article class="wk gl spot">
-          <div class="wk-vis wk-vis-ph" aria-hidden="true">
-            <ol class="ph-flow"><li>Вход без пароля</li><li>Запись</li><li>Оплата</li><li>Чек 54-ФЗ</li><li>Код от двери</li></ol>
-            <div class="ph-watch"><span>сторож</span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><em>8 адресов</em></div>
-          </div>
-          <div class="wk-body">
-            <h3>Пархай, parhai.club</h3>
-            <p class="wk-k">Две камерные бани в Москве. Сайт, вокруг которого работает бизнес.</p>
-            <ul class="ticks ticks-ok">
-              <li>Сайт перевезли с конструктора в своё облако в России</li>
-              <li>Вход без пароля: Макс, Яндекс ID, VK ID</li>
-              <li>Запись, оплата и чек по 54-ФЗ</li>
-              <li>Код от двери приходит гостю в кабинет, на замок его ставит приложение</li>
-              <li>Свой чат с гостями и входящие команды</li>
-              <li>Сторож проверяет 8 адресов каждую минуту. Пустой экран для него тоже сбой. Сообщение приходит в Макс и Telegram</li>
-            </ul>
-            <p class="asof">Факты на 05.11.2026</p>
-            <a class="wk-link" href="https://parhai.club" target="_blank" rel="noopener">Открыть parhai.club <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3h8v8M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-          </div>
+        <article class="work gl">
+          <span class="work-k k-soft">Цифровые решения</span>
+          <h3>sarmat-it.ru</h3>
+          <p>Свой код, 3D-сборки серверов, конфигуратор, где заказчик по шагам описывает задачу.</p>
+          <a class="work-go" href="oborudovanie/configurator.html">Открыть конфигуратор</a>
+        </article>
+        <article class="work gl">
+          <span class="work-k k-hw">Оборудование</span>
+          <h3>Серверная на 50 рабочих мест</h3>
+          <p>Схема, расчёт отказов и программа из 19 тестов по ТЗ заказчика.</p>
+          <a class="work-go" href="oborudovanie/index.html#turnkey">Смотреть сцену</a>
         </article>
       </div>
-      <div class="sec-cta"><a class="btn btn-sig" href="#request">Хочу так же <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a></div>
+      <p class="note">Объекты заказчиков под NDA. Сцены на сайте собраны по мотивам реальных проектов.</p>
     </div>
   </section>
 
-  <!-- 9. TEAM. Два варианта из copy.md переключателем, Антон выбирает. Без имён и фото -->
-  <section class="sec" id="team" aria-labelledby="team-title">
-    <div class="wrap">
-      <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Команда</p>
-      <div class="team-head">
-        <h2 class="h2" id="team-title">Кто делает ваш сайт</h2>
-        <div class="seg" role="tablist" aria-label="Как показать команду">
-          <button class="seg-b" type="button" role="tab" id="tabA" aria-controls="teamA" aria-selected="true">Кто что делает</button>
-          <button class="seg-b" type="button" role="tab" id="tabB" aria-controls="teamB" aria-selected="false">Что сделано руками</button>
-        </div>
-      </div>
-
-      <div class="team-pane" id="teamA" role="tabpanel" aria-labelledby="tabA">
-        <p class="lede">Сайт не отдаём по кускам разным подрядчикам. Каждую часть закрывает свой человек, отвечает за целое одна команда.</p>
-        <ol class="pipe">
-          <li class="pipe-i gl spot"><span class="pipe-n">01</span><h3>Разбор продукта</h3><p>Выясняет, что вы продаёте, кому и где теряются заявки.</p><p class="pipe-got"><span>На руках</span>разбор на 1-2 страницы</p></li>
-          <li class="pipe-i gl spot"><span class="pipe-n">02</span><h3>Тексты</h3><p>Пишет только на ваших фактах. Чего не знаем, спрашиваем.</p><p class="pipe-got"><span>На руках</span>тексты по блокам на согласование</p></li>
-          <li class="pipe-i gl spot"><span class="pipe-n">03</span><h3>Дизайн и код</h3><p>Рисует макет для компьютера и телефона. Код пишем после вашего одобрения.</p><p class="pipe-got"><span>На руках</span>макет по ссылке, потом страница на тестовом адресе</p></li>
-          <li class="pipe-i gl spot"><span class="pipe-n">04</span><h3>Хостинг, почта, проверки</h3><p>Настраивает домен, почту, Метрику. Отправляет тестовые заявки.</p><p class="pipe-got"><span>На руках</span>список проверок и доступы на ваше имя</p></li>
-          <li class="pipe-i pipe-hw gl spot"><span class="pipe-n">05</span><h3>Серверы и сеть</h3><p>Нужен, когда сайту нужен свой сервер или в офисе нужна сеть.</p><p class="pipe-got"><span>На руках</span>спецификация с моделью по каждой строке</p></li>
-        </ol>
-        <p class="team-note">Объекты заказчиков под NDA, поэтому показываем свои проекты: этот сайт и Пархай.</p>
-        <a class="btn btn-sig" href="#request">Начать с разбора <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-      </div>
-
-      <div class="team-pane" id="teamB" role="tabpanel" aria-labelledby="tabB">
-        <p class="lede">Мы не ставим фото и должности. Смотрите, что сделали своими руками.</p>
-        <ul class="bento">
-          <li class="bt bt-wide gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 8.5h18M6.5 12h6M6.5 15h9"/></svg></span><h3>Этот сайт</h3><p>Код, дизайн, тексты, форма. Без конструктора.</p><span class="bt-link"><i class="live" aria-hidden="true"></i>Вы на нём</span></li>
-          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="5" rx="1"/><rect x="4" y="10" width="16" height="5" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/><path d="M7 6.5h1M7 12.5h1M7 18h1"/></svg></span><h3>3D-сборки серверов</h3><p>Три сервера, детали встают по шагам. Своим кодом, без сторонних библиотек.</p><a class="bt-link" href="#catalog">Смотреть сборки</a></li>
-          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></span><h3>Сцена серверной</h3><p>50 рабочих мест, отказ одного сервера и переход на второй.</p><a class="bt-link" href="#turnkey">Смотреть сцену</a></li>
-          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 6h9M18 6h1M5 12h3M12 12h7M5 18h11M20 18h-1"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span><h3>Конфигуратор</h3><p>Заказчик по шагам описывает задачу, справа собирается сводка.</p><a class="bt-link" href="configurator.html">Открыть конфигуратор</a></li>
-          <li class="bt bt-wide gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8.5 14.5l2.2 2.2 4.8-4.8"/></svg></span><h3>Пархай</h3><p>Сайт, запись, оплата, кабинеты, свой чат, коды от двери, сторож.</p><a class="bt-link" href="https://parhai.club" target="_blank" rel="noopener">Открыть parhai.club</a></li>
-          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.3-2.9 8-7 9.5-4.1-1.5-7-5.2-7-9.5V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span><h3>Проект серверной</h3><p>Схема, расчёт отказов, программа из 19 тестов.</p><span class="bt-link bt-muted">По NDA, показываем на встрече</span></li>
-        </ul>
-        <p class="team-note">Над этим работали одни и те же люди. Они же сделают ваш сайт.</p>
-        <a class="btn btn-sig" href="#request">Обсудить сайт <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 10. FAQ. Возражения покупателя (copy.md, раздел 10) -->
-  <section class="sec" id="faq" aria-labelledby="faq-title">
-    <div class="wrap faq-wrap">
-      <div>
-        <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Перед заказом</p>
-        <h2 class="h2" id="faq-title">Вопросы перед заказом</h2>
-        <a class="btn btn-ghost faq-btn" href="#request">Задать свой вопрос</a>
-      </div>
-      <div class="faq">
-        <details><summary>Почему не сайт на конструкторе за 20 тысяч?</summary><div><p>На конструкторе сайт живёт в аренду: перестали платить тариф или конструктор закрыли, сайта нет. У нас свой код, он ваш. В цену входит то, что на конструкторе делают отдельно или не делают: проверка формы тестовыми заявками, документы по 152-ФЗ, Метрика с целями, отчёт при сдаче.</p></div></details>
-        <details><summary>Что будет, если сайт упадёт?</summary><div><p>Хостинг, почту и домен настраиваем сами, поэтому знаем, где искать. На сопровождении ставим сторожа: он проверяет сайт каждую минуту и пишет в Макс и Telegram, что сломалось и что не работает у клиентов. Такой сторож уже смотрит за parhai.club.</p></div></details>
-        <details><summary>Кому принадлежит сайт?</summary><div><p>Вам. Домен, хостинг и аккаунты оформляем на ваше имя, код передаём. Уйдёте к другому подрядчику, всё останется у вас.</p></div></details>
-        <details><summary>Сколько ждать?</summary><div><p>Лендинг: 10 рабочих дней. Сроки для сайта с записью, оплатой или кабинетами называем после разбора, до начала работ.</p></div></details>
-        <details><summary>Сколько стоит, если нужно больше лендинга?</summary><div><p>Лендинг от 59 000 ₽. Остальное считаем после разбора продукта: цена зависит от того, что сайт должен делать. Итог называем до начала работ.</p></div></details>
-        <details><summary>Что я получу при сдаче?</summary><div><p>Работающий сайт, доступы на ваше имя, код и отчёт: что сделано, что проверено, где что лежит.</p></div></details>
-      </div>
-    </div>
-  </section>
-
-  <!-- 11. REQUEST FORM. Поля и обработчик api/send.php как на боевом сайте -->
+  <!-- 5. ЗАЯВКА: одна форма, тема ставится сама по кнопке, с которой пришли -->
   <section class="sec" id="request" aria-labelledby="request-title">
     <div class="wrap req">
-      <div>
-        <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Заявка</p>
+      <div class="req-txt">
+        <p class="eyebrow">Заявка</p>
         <h2 class="h2" id="request-title">Расскажите о задаче</h2>
-        <p class="lede">Оставьте телефон и пару слов: что продаёте и что нужно. Перезвоним и договоримся о разговоре.</p>
-        <ul class="contacts">
-          <li><span class="k">Телефон</span><a href="tel:+74994606265">+7 (499) 460-62-65</a></li>
-          <li><span class="k">Почта</span><a href="mailto:info@sarmat-it.ru">info@sarmat-it.ru</a></li>
-          <li><span class="k">Адрес</span><span class="v">г. Москва, Карамышевская наб., д. 48, корп. 3</span></li>
-        </ul>
+        <p class="lede">Оставьте телефон и пару слов. Перезвоним и договоримся, когда обсудить подробно. Если есть ТЗ, пришлите его на почту.</p>
+        <p class="req-alt">Или позвоните: <a href="tel:+74994606265">+7 (499) 460-62-65</a><br><a href="mailto:info@sarmat-it.ru">info@sarmat-it.ru</a></p>
       </div>
-      <form class="form" id="reqForm" method="post" action="api/send.php" enctype="multipart/form-data" novalidate>
-        <noscript><p class="form-noscript">Форма работает с включённым JavaScript. Позвоните по номеру +7 (499) 460-62-65 или напишите на info@sarmat-it.ru.</p></noscript>
-        <div class="field"><label for="f-name">Имя</label><input class="input" id="f-name" name="name" placeholder="Как к вам обращаться" autocomplete="name" maxlength="200"></div>
-        <div class="row2">
-          <div class="field">
-            <label for="f-phone">Телефон <span class="req-mark" aria-hidden="true">*</span></label>
-            <input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" placeholder="+7 999 123-45-67" autocomplete="tel" maxlength="40" required aria-describedby="f-phone-err">
-            <p class="field-err" id="f-phone-err" hidden>Укажите телефон.</p>
-          </div>
-          <div class="field">
-            <label for="f-email">E-mail <span class="req-mark" aria-hidden="true">*</span></label>
-            <input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required aria-describedby="f-email-err">
-            <p class="field-err" id="f-email-err" hidden>Укажите e-mail.</p>
-          </div>
-        </div>
-        <div class="field"><label for="f-pos">Что нужно</label>
-          <select class="input" id="f-pos" name="pos">
-            <option selected>Пока не знаю, нужен разбор</option>
-            <optgroup label="Сайты">
-              <option>Лендинг</option><option>Сайт компании</option><option>Сайт с записью и оплатой</option><option>Кабинеты, CRM, своя программа</option><option>Сторож для сайта</option>
-            </optgroup>
-            <optgroup label="Серверы и сеть">
-              <option>Сервер для 1С</option><option>Файловый сервер</option><option>Сервер виртуализации</option><option>Серверная под ключ</option><option>Видеонаблюдение</option><option>Интернет, связь, СКС</option><option>Своя конфигурация под задачу</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="field"><label for="f-msg">Комментарий</label><textarea class="input" id="f-msg" name="msg" placeholder="Что продаёте, есть ли сайт сейчас, что нужно"></textarea></div>
+      <form class="form gl" id="reqForm" novalidate>
         <div class="field">
-          <label for="f-file">Файл с задачей или спецификацией</label>
-          <input class="input input-file" id="f-file" name="file" type="file" accept=".doc,.docx,.xls,.xlsx,.pdf" aria-describedby="f-file-hint f-file-err">
-          <p class="field-hint" id="f-file-hint">Word, Excel или PDF, до 10 МБ.</p>
-          <p class="field-err" id="f-file-err" hidden></p>
+          <span class="lbl" id="topicLbl">Что нужно</span>
+          <div class="chips" role="radiogroup" aria-labelledby="topicLbl">
+            <label><input type="radio" name="topic" value="Цифровые решения" checked><span>Программа или сайт</span></label>
+            <label><input type="radio" name="topic" value="Оборудование"><span>Оборудование</span></label>
+            <label><input type="radio" name="topic" value="Всё вместе"><span>Всё вместе</span></label>
+            <label><input type="radio" name="topic" value="Не знаю"><span>Пока не знаю</span></label>
+          </div>
         </div>
-        <div class="field field-check">
-          <label class="check" for="f-consent">
-            <input id="f-consent" name="consent" type="checkbox" value="yes" required aria-describedby="f-consent-err">
-            <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике обработки персональных данных</a> <span class="req-mark" aria-hidden="true">*</span></span>
-          </label>
-          <p class="field-err" id="f-consent-err" hidden>Без согласия на обработку данных заявку отправить нельзя.</p>
+        <div class="row2">
+          <div class="field"><label for="f-name">Имя</label><input class="input" id="f-name" name="name" placeholder="Как к вам обращаться" autocomplete="name"></div>
+          <div class="field"><label for="f-phone">Телефон</label><input class="input" id="f-phone" name="phone" type="tel" placeholder="+7 999 123-45-67" autocomplete="tel" required></div>
         </div>
-        <div class="hp" aria-hidden="true"><label for="f-site">Сайт</label><input id="f-site" name="site" type="text" tabindex="-1" autocomplete="off"></div>
-        <button class="btn btn-primary" type="submit">Отправить заявку</button>
-        <div aria-live="polite">
-          <p class="form-msg ok" id="msgOk" tabindex="-1" hidden>Заявка принята. Мы свяжемся с вами по указанному телефону или почте.</p>
-          <p class="form-msg err" id="msgErr" hidden>Не получилось отправить заявку. Попробуйте ещё раз или позвоните нам: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
-        </div>
+        <div class="field"><label for="f-msg">Пара слов о задаче</label><textarea class="input" id="f-msg" name="msg" rows="3" placeholder="Например: нужна запись клиентов на сайте и сервер под 1С"></textarea></div>
+        <label class="check"><input type="checkbox" required> <span>Согласен на обработку персональных данных в соответствии с <a href="privacy.html">политикой</a>.</span></label>
+        <button class="btn btn-sig" type="submit">Отправить</button>
+        <p class="form-msg" id="reqMsg" role="status" hidden></p>
       </form>
     </div>
   </section>
 </main>
 
-<footer class="ftr" id="contacts">
+<footer class="ftr">
   <div class="wrap ftr-in">
-    <div class="ftr-brand">
-      <a class="ftr-logo" href="#hero" aria-label="Сармат-ИТ, в начало">
-        <img src="img/logo.png?v=09bfd983" width="57" height="48" alt="" decoding="async">
-        <span>САРМАТ-ИТ</span>
-      </a>
-      <p>Сайты для компаний и всё, что под ними: свои программы, серверы, сеть, связь.</p>
-      <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, КПП 773401001, ОГРН 1257700007113</p>
+    <div>
+      <a class="brand brand-ftr" href="#top"><img src="img/logo.png?v=09bfd983" width="48" height="40" alt=""><span>САРМАТ-ИТ</span></a>
+      <p>Цифровые решения для компании и оборудование под её задачу.</p>
+      <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, ОГРН 1257700007113</p>
     </div>
-    <nav class="ftr-nav" aria-label="Разделы (подвал)">
-      <a href="#landing">Лендинг от 59 000 ₽</a>
-      <a href="#watch">Сторож для сайта</a>
-      <a href="#grows">Что вырастает из сайта</a>
-      <a href="#infra">Серверы и сеть</a>
+    <nav aria-label="Разделы (подвал)">
+      <a href="solutions.html">Цифровые решения</a>
+      <a href="oborudovanie/index.html">Оборудование под задачу</a>
+      <a href="#link">Как это связано</a>
       <a href="#works">Работы</a>
-      <a href="#faq">Вопросы перед заказом</a>
-      <a href="#request">Контакты</a>
       <a href="privacy.html">Политика обработки персональных данных</a>
     </nav>
-    <address class="ftr-contacts">
-      <a class="ftr-phone" href="tel:+74994606265">+7 (499) 460-62-65</a>
+    <address>
+      <a href="tel:+74994606265">+7 (499) 460-62-65</a>
       <a href="mailto:info@sarmat-it.ru">info@sarmat-it.ru</a>
       <span>г. Москва, Карамышевская наб., д. 48, корп. 3</span>
     </address>
   </div>
-  <!-- Реквизиты: ЕГРЮЛ, 10.10.2026 -->
 </footer>
-
-<!-- 4. ASSISTANT (appears after the first screen) -->
-<!-- Окно «отправить конфигурацию на проработку»: открывает кнопка на карточке сборки -->
-<dialog class="modal" id="pickModal" aria-labelledby="pickTitle">
-  <form class="modal-in" id="pickForm" method="post" action="api/send.php" novalidate>
-    <button class="modal-x" id="pickClose" type="button" aria-label="Закрыть">&#x2715;</button>
-    <h2 class="modal-title" id="pickTitle">Отправить конфигурацию на проработку</h2>
-    <p class="modal-sub">Разберём вашу задачу, подгоним конфигурацию под неё и пришлём спецификацию с моделями, ценами и сроком поставки.</p>
-    <p class="modal-chip" id="pickName"></p>
-    <div class="field"><label for="p-name">Имя</label><input class="input" id="p-name" name="name" placeholder="Как к вам обращаться" autocomplete="name" maxlength="200"></div>
-    <div class="row2">
-      <div class="field">
-        <label for="p-phone">Телефон <span class="req-mark" aria-hidden="true">*</span></label>
-        <input class="input" id="p-phone" name="phone" type="tel" inputmode="tel" placeholder="+7 999 123-45-67" autocomplete="tel" maxlength="40" required aria-describedby="p-phone-err">
-        <p class="field-err" id="p-phone-err" hidden>Укажите телефон.</p>
-      </div>
-      <div class="field">
-        <label for="p-email">Почта <span class="req-mark" aria-hidden="true">*</span></label>
-        <input class="input" id="p-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required aria-describedby="p-email-err">
-        <p class="field-err" id="p-email-err" hidden>Укажите e-mail.</p>
-      </div>
-    </div>
-    <div class="field"><label for="p-msg">Что поправить под вашу задачу</label><textarea class="input" id="p-msg" name="comment" placeholder="Сколько пользователей, какой объём данных, сроки" maxlength="2000"></textarea></div>
-    <div class="field field-check">
-      <label class="check check-sm">
-        <input id="p-consent" name="consent" type="checkbox" value="yes" required aria-describedby="p-consent-err">
-        <span>Согласен на обработку персональных данных в соответствии с <a href="privacy.html">политикой</a>.</span>
-      </label>
-      <p class="field-err" id="p-consent-err" hidden>Без согласия заявку отправить нельзя.</p>
-    </div>
-    <div class="hp" aria-hidden="true"><label for="p-site">Сайт</label><input id="p-site" name="site" type="text" tabindex="-1" autocomplete="off"></div>
-    <input type="hidden" name="pos" id="p-pos">
-    <input type="hidden" name="msg" id="p-sum">
-    <button class="btn btn-primary" type="submit">Отправить</button>
-    <p class="form-msg ok" id="p-ok" tabindex="-1" hidden>Заявка принята. Свяжемся с вами по указанному телефону или почте.</p>
-    <p class="form-msg err" id="p-err" hidden>Не получилось отправить. Попробуйте ещё раз или позвоните нам: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
-  </form>
-</dialog>
-
-<div class="asst" id="asst">
-  <div class="asst-panel" id="asstPanel" role="dialog" aria-labelledby="asstTitle" hidden>
-    <header><h3 id="asstTitle">Вопрос сотруднику</h3><button class="asst-x" id="asstClose" type="button" aria-label="Закрыть">&#x2715;</button></header>
-    <form class="asst-form" id="asstForm" method="post" action="api/send.php" novalidate>
-      <div>
-        <textarea class="input" id="asstQ" name="question" placeholder="Опишите задачу или задайте вопрос" aria-label="Вопрос" maxlength="4000" required aria-describedby="asstQErr"></textarea>
-        <p class="field-err" id="asstQErr" hidden>Напишите вопрос.</p>
-      </div>
-      <div>
-        <input class="input" id="asstContact" name="contact" type="text" placeholder="Телефон или почта для ответа" aria-label="Телефон или почта для ответа" autocomplete="tel" maxlength="254" required aria-describedby="asstContactErr">
-        <p class="field-err" id="asstContactErr" hidden>Укажите телефон или почту, иначе мы не сможем ответить.</p>
-      </div>
-      <label class="check check-sm" for="asstConsent">
-        <input id="asstConsent" name="consent" type="checkbox" value="yes" required aria-describedby="asstConsentErr">
-        <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике</a></span>
-      </label>
-      <p class="field-err" id="asstConsentErr" hidden>Без согласия вопрос отправить нельзя.</p>
-      <div class="hp" aria-hidden="true"><label for="asstSite">Сайт</label><input id="asstSite" name="site" type="text" tabindex="-1" autocomplete="off"></div>
-      <button class="btn btn-primary" type="submit">Спросить</button>
-      <p class="form-msg err" id="asstErr" hidden>Не получилось отправить вопрос. Попробуйте ещё раз или позвоните: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
-    </form>
-    <!-- TODO: часы работы помощника и срок ответа. Антон пока не назвал, конкретное время не пишем. Когда появится: "Вопрос получили. Ответим <когда>." -->
-    <p class="asst-done" id="asstDone" role="status" hidden>Вопрос получили. Если вопрос срочный, позвоните: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
-  </div>
-  <button class="asst-bubble" id="asstBubble" type="button">Есть вопрос? Напишите, ответит сотрудник.</button>
-  <button class="asst-fab" id="asstFab" type="button" aria-label="Вопрос сотруднику" aria-expanded="false" aria-controls="asstPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></button>
-</div>
-
-<!-- Cookie notice: показывает cookie.js -->
-<div class="cookie" id="cookieNote" role="region" aria-label="Уведомление о cookie" hidden>
-  <p>Сайт использует cookie и Яндекс Метрику. Продолжая пользоваться сайтом, вы соглашаетесь с <a href="privacy.html">политикой обработки персональных данных</a>.</p>
-  <button class="btn btn-primary btn-sm" type="button">Понятно</button>
-</div>
-<!-- /Cookie notice -->
 
 </body>
 </html>

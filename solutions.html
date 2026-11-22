@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Сармат-ИТ: программы и цифровые решения для компании</title>
+<meta name="description" content="Пишем программы для компаний: заявки и CRM, запись и оплата, личные кабинеты, связка с 1С. Начать можно с сайта: лендинг от 59 000 ₽. Код остаётся у вас.">
+<!-- Концепт shell-2026-11 для показа: не индексируется, счётчика Метрики нет -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#03050b">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="favicon.png" type="image/png" sizes="120x120">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css?v=shell-2026-11">
+<script src="cookie.js?v=7b3fe5ad" defer></script>
+<!-- Anime.js 4.3.6 (MIT): таймлайн сборки лендинга, счётчик цены, появление слоёв. Без него страница целиком видна и работает.
+     Перед выкладкой положить файл в site/vendor/: CDN за рубежом передаёт IP посетителя (ревизия, п. 10.6) -->
+<script src="https://cdn.jsdelivr.net/npm/animejs@4.3.6/dist/bundles/anime.umd.min.js" defer></script>
+<script src="main.js?v=shell-2026-11" defer></script>
+<script>try{if(sessionStorage.getItem('sarmat-transit')){document.documentElement.classList.add('tr-in');window.__trArrive=1}}catch(e){}setTimeout(function(){document.documentElement.classList.remove('tr-in')},2000)</script>
+<link rel="stylesheet" href="transit.css?v=2">
+<script src="sarmat-logo.js?v=1" defer></script>
+<script src="transit.js?v=2" defer></script>
+<script src="sol.js?v=1" defer></script>
+</head>
+<body>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<!-- Градиенты цифрового слоя для SVG (лучи «что тянется от сайта», значки) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gSig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a594ff"/><stop offset=".55" stop-color="#7ce7f2"/><stop offset="1" stop-color="#5fb0e8"/></linearGradient>
+    <linearGradient id="gBeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a594ff" stop-opacity="0"/><stop offset=".35" stop-color="#a594ff"/><stop offset=".7" stop-color="#7ce7f2"/><stop offset="1" stop-color="#7ce7f2" stop-opacity="0"/></linearGradient>
+  </defs>
+</svg>
+
+<header class="hdr" id="hdr">
+  <div class="hdr-in">
+    <a class="brand" href="index.html" aria-label="Сармат-ИТ, на главную">
+      <img src="img/logo.png?v=09bfd983" width="48" height="40" alt="" decoding="async">
+      <span>САРМАТ-ИТ</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Разделы">
+      <a class="nav-dir nav-cur" href="#grows" aria-current="page">Цифровые решения</a>
+      <a class="nav-dir" href="oborudovanie/index.html">Оборудование под задачу</a>
+      <a href="#landing">С чего начать</a>
+      <a href="#works">Работы</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a class="hdr-phone" href="tel:+74994606265">+7 (499) 460-62-65</a>
+    <a class="hdr-call" href="tel:+74994606265" aria-label="Позвонить: +7 (499) 460-62-65">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+    </a>
+    <a class="btn btn-sig btn-sm hdr-req" href="#request">Обсудить задачу</a>
+    <button class="burger" id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="nav"><i></i><i></i></button>
+  </div>
+</header>
+
+<main>
+  <!-- 1. ПЕРВЫЙ ЭКРАН (hub-2026-11, 22.11.2026). Старое кольцо со спутниками и планетой убрано: оно про серверы.
+       Картинка: сайт в центре, вокруг программы, которые к нему подключаются. Пришли с другой страницы:
+       спутники собранного логотипа разлетаются по значкам этой картинки (sol.js). Каждый узел ведёт в свой блок -->
+  <section class="hero sol" id="hero" aria-labelledby="hero-title">
+    <div class="wrap sol-in">
+      <div class="offer" id="offer">
+        <p class="offer-eyebrow" style="--i:0"><i class="live" aria-hidden="true"></i>Цифровые решения</p>
+        <h1 class="offer-h1" id="hero-title" style="--i:1">Программы под то, как работает <span class="tx-shine">ваша компания</span></h1>
+        <p class="offer-sub" style="--i:2">Начинаем с сайта, дальше подключаем то, что снимает рутину с команды: заявки, запись и оплату, кабинеты, связку с 1С. Код пишем сами и передаём вам.</p>
+        <p class="offer-more" style="--i:3">Лендинг <b>от 59&nbsp;000&nbsp;₽</b> за 10 рабочих дней. Остальное считаем после разбора задачи и называем цену до начала работ.</p>
+        <div class="offer-cta" style="--i:4">
+          <a class="btn btn-sig" href="#request">Обсудить задачу <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+          <a class="btn btn-glass" href="#landing">С чего начать</a>
+        </div>
+      </div>
+
+      <div class="sp" id="solPic">
+        <svg class="sp-beams" id="spBeams" aria-hidden="true" focusable="false"></svg>
+        <a class="sp-site" href="#landing" aria-label="Сайт: с него начинается, лендинг от 59 000 ₽">
+          <span class="sp-bar"><i></i><i></i><i></i><em>ваша-компания.ru</em></span>
+          <span class="sp-body"><i class="ico sp-ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 8.5h18M6.5 12.5h6M6.5 15.5h9"/></svg></i><b>Сайт</b><span>визитная карточка, с него начинается</span><u></u><u></u><u></u></span>
+        </a>
+        <a class="sp-node n1" href="#grow-crm"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="4.6" height="16" rx="1"/><rect x="9.7" y="4" width="4.6" height="11" rx="1"/><rect x="15.9" y="4" width="4.6" height="7" rx="1"/></svg></i><b>Заявки и CRM</b><span>заявка не теряется</span></a>
+        <a class="sp-node n2" href="#grow-pay"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M8.5 14.5l2.2 2.2 4.8-4.8"/></svg></i><b>Запись и оплата</b><span>клиент сам платит</span></a>
+        <a class="sp-node n3" href="#grow-soft"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></i><b>Кабинеты и 1С</b><span>без ручного переноса</span></a>
+        <a class="sp-node n4" href="#grow-conf"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></i><b>Конфигураторы</b><span>заказ по шагам</span></a>
+        <a class="sp-node n5" href="#watch"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></i><b>Сторож</b><span>пишет, если сайт упал</span></a>
+      </div>
+    </div>
+  </section>
+  <div class="first-screen-end" id="firstScreenEnd" aria-hidden="true"></div>
+
+  <section class="sec shell" id="grows" aria-labelledby="grows-title">
+    <div class="wrap">
+      <p class="layer-tag" aria-hidden="true"><i></i>Решения</p>
+      <h2 class="h2" id="grows-title">Цифровые решения для компании</h2>
+      <p class="lede">Начинаем с сайта: по нему клиент находит вас. Дальше программы берут на себя рутину команды: заявки, запись, оплату, документы. Достраиваем по шагам, когда это нужно бизнесу.</p>
+
+      <div class="tree" id="tree">
+        <svg class="tree-beams" id="treeBeams" aria-hidden="true" focusable="false"></svg>
+
+        <article class="node node-root gl spot" data-node="root">
+          <div class="node-txt">
+            <span class="node-n">01</span>
+            <h3>Сайт</h3>
+            <p>Клиент узнаёт, чем вы занимаетесь, и оставляет заявку.</p>
+            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: sarmat-it.ru, parhai.club</p>
+          </div>
+          <div class="mv mv-site" aria-hidden="true"><div class="mv-bar"><i></i><i></i><i></i></div><b></b><span></span><span></span><em></em></div>
+        </article>
+
+        <div class="tree-row">
+          <article class="node gl spot" data-node="n2" id="grow-crm">
+            <div class="mv mv-crm" aria-hidden="true"><div><span>новая</span><i class="c c1"></i><i class="c"></i></div><div><span>в работе</span><i class="c"></i></div><div><span>готово</span><i class="c"></i><i class="c"></i></div></div>
+            <span class="node-n">02</span>
+            <h3>Заявки и CRM</h3>
+            <p>Заявка не теряется в почте. Видно, кто обратился и на каком он этапе.</p>
+            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: parhai.club, своя база гостей</p>
+          </article>
+          <article class="node gl spot" data-node="n3" id="grow-pay">
+            <div class="mv mv-book" aria-hidden="true"><i>10:00</i><i>12:00</i><i class="sel">14:00</i><i>16:00</i><i>18:00</i><i>20:00</i><b>оплачено · чек</b></div>
+            <span class="node-n">03</span>
+            <h3>Запись и оплата</h3>
+            <p>Клиент сам выбирает время, платит и получает чек. Администратор не сидит в переписке.</p>
+            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: parhai.club, оплаты с 28.09.2026</p>
+          </article>
+          <article class="node gl spot" data-node="n4" id="grow-soft">
+            <div class="mv mv-chat" aria-hidden="true"><i class="in"></i><i class="out"></i><i class="in short"></i><b><s></s><s></s><s></s></b></div>
+            <span class="node-n">04</span>
+            <h3>Личные кабинеты и свои программы</h3>
+            <p>Клиент видит свои заказы и документы. Данные из одной системы в другую переносит программа, сотруднику не нужно делать это руками.</p>
+            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: parhai.club, кабинет гостя и чат с гостями</p>
+          </article>
+          <article class="node gl spot" data-node="n5" id="grow-conf">
+            <div class="mv mv-conf" aria-hidden="true"><div class="st4"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><span></span><span></span><span class="short"></span></div>
+            <span class="node-n">05</span>
+            <h3>Конфигураторы и калькуляторы</h3>
+            <p>Клиент сам собирает заказ по шагам и приходит с готовой задачей.</p>
+            <p class="node-live"><i class="live" aria-hidden="true"></i>Работает: <a href="oborudovanie/configurator.html">конфигуратор сервера на этом сайте</a></p>
+          </article>
+        </div>
+
+        <div class="tree-down" data-node="down">
+          <p class="tree-down-txt">Программам нужны серверы, сеть и рабочие места. Их мы тоже берём на себя: пишем ТЗ, подбираем и поставляем, ведём технадзор за монтажом.</p>
+          <ul class="tree-chips" aria-label="Слои под сайтом">
+            <li>Хостинг и почта на домене</li><li>Серверы</li><li>Сеть, связь, камеры</li>
+          </ul>
+          <a class="btn btn-glass" href="oborudovanie/index.html">Оборудование под ваше ТЗ <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. LANDING. Цифровой слой: слева окно браузера, в нём лендинг собирается по шагам (как сервер в 3D ниже), справа состав пакета -->
+  <section class="sec shell" id="landing" aria-labelledby="landing-title">
+    <div class="wrap">
+      <p class="layer-tag" aria-hidden="true"><i></i>С чего начать</p>
+      <h2 class="h2" id="landing-title">Начните с сайта: лендинг <span class="tx-grad">от 59&nbsp;000&nbsp;₽</span></h2>
+      <p class="lede">Сайт это визитная карточка компании. Одна страница под одно действие посетителя: позвонить, оставить заявку, записаться. Срок 10 рабочих дней.</p>
+
+      <div class="lp" id="lp">
+        <div class="lp-demo" aria-hidden="true">
+          <div class="bw gl">
+            <div class="bw-bar"><i></i><i></i><i></i><span class="bw-url">ваша-компания.ru</span><span class="bw-state" id="lpState">сборка</span></div>
+            <div class="bw-body">
+              <div class="lp-b lp-nav" data-am><b></b><span></span><span></span><span></span><em></em></div>
+              <div class="lp-b lp-hero" data-am><i class="l1"></i><i class="l2"></i><i class="l3"></i><span class="lp-btn"></span><span class="lp-pic"></span></div>
+              <div class="lp-b lp-cards" data-am><i></i><i></i><i></i></div>
+              <div class="lp-b lp-form" data-am><i></i><i></i><span class="lp-btn"></span><em class="lp-ok">заявка дошла</em></div>
+            </div>
+          </div>
+          <ol class="lp-log gl" id="lpLog">
+            <li data-am><span>01</span>Разбор: кто клиент</li>
+            <li data-am><span>02</span>Структура, 6-10 блоков</li>
+            <li data-am><span>03</span>Тексты на ваших фактах</li>
+            <li data-am><span>04</span>Дизайн для компьютера и телефона</li>
+            <li data-am><span>05</span>Код</li>
+            <li data-am><span>06</span>Тестовая заявка <b>ok</b></li>
+            <li data-am><span>07</span>Метрика с целями <b>ok</b></li>
+            <li data-am><span>08</span>Ждёт вашего «да»</li>
+          </ol>
+          <div class="lp-price gl"><span class="k">Лендинг</span><b>от <span class="tick" data-to="59000">59&nbsp;000</span>&nbsp;₽</b><span class="k">10 рабочих дней</span></div>
+        </div>
+
+        <div class="lp-cols">
+          <div class="lp-col">
+            <h3 class="col-k">Делаем</h3>
+            <ul class="ticks">
+              <li>Разбираем, что вы продаёте, кому и с какими сомнениями к вам приходят</li>
+              <li>Собираем структуру страницы: 6-10 блоков</li>
+              <li>Пишем тексты на ваших фактах</li>
+              <li>Рисуем дизайн под ваш бренд, сразу для компьютера и телефона</li>
+              <li>Вносим 2 круга правок</li>
+              <li>Пишем код и выкладываем после вашего «да»</li>
+            </ul>
+          </div>
+          <div class="lp-col lp-got">
+            <h3 class="col-k">Получаете</h3>
+            <ul class="ticks ticks-ok">
+              <li>Форму, проверенную тестовыми заявками</li>
+              <li>Заявки на почту и в мессенджер</li>
+              <li>Политику, согласие и уведомление о cookie по 152-ФЗ</li>
+              <li>Яндекс Метрику с целями: видно, сколько заявок пришло с сайта</li>
+              <li>Домен и аккаунты на ваше имя, код у вас</li>
+              <li>Отчёт при сдаче: скорость загрузки, проверка формы, где что лежит</li>
+            </ul>
+          </div>
+          <aside class="lp-diff">
+            <p>За эти деньги на рынке обычно дают дизайн, вёрстку и форму. Мы отвечаем ещё и за то, чтобы заявка дошла, данные посетителей собирались по закону, а сайт остался вашим.</p>
+          </aside>
+          <a class="btn btn-sig" href="#request" data-prefill="Лендинг">Заказать лендинг <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. WATCH. Сторож как услуга (решение Антона 17.11.2026, цену не ставим). Тексты блока предварительные, финал у копирайтера.
+       Факты (Антон, 19.11.2026): сайт на российском сервере, сторож на отдельном сервере, каждую минуту, сообщения в группы Telegram и Макс, состав групп назначает владелец, второе сообщение «снова работает», пустой экран тоже сбой, 8 адресов parhai.club -->
+  <section class="sec shell watch" id="watch" aria-labelledby="watch-title">
+    <div class="wrap">
+      <p class="layer-tag" aria-hidden="true"><i></i>Сторож</p>
+      <div class="watch-grid">
+        <div class="watch-text">
+          <h2 class="h2" id="watch-title">О сбое вы узнаете не&nbsp;от&nbsp;клиентов</h2>
+          <p class="lede">Мы сделали сторожа для сайтов на российских серверах. Он открывает сайт каждую минуту и сразу пишет команде, если сайт не открылся. Следить за новостями о сбоях не нужно: о проблеме сообщит сторож.</p>
+          <ol class="watch-steps">
+            <li><span class="ws-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span><div><b>Каждую минуту, круглые сутки</b><span>Пустая страница для сторожа тоже сбой.</span></div></li>
+            <li><span class="ws-ico ws-bad" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4.5M12 17.2v.1"/></svg></span><div><b>Сообщение в группу в Telegram и Макс</b><span>Кто в группе и получает сообщения, решаете вы.</span></div></li>
+            <li><span class="ws-ico ws-ok" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.2l2.4 2.4 4.8-5"/></svg></span><div><b>Второе сообщение: снова работает</b><span>Не нужно проверять руками, поднялся ли сайт.</span></div></li>
+          </ol>
+          <p class="watch-case"><i class="live" aria-hidden="true"></i>Такой сторож уже следит за нашим проектом parhai.club.</p>
+          <a class="btn btn-sig" href="#request" data-prefill="Сторож для сайта">Подключить сторожа <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+        </div>
+
+        <!-- Консоль сторожа: две площадки шлют проверки к сайту, лента минут, сбой, два сообщения. Пример, не живые данные -->
+        <div class="wconsole gl" id="wconsole" aria-hidden="true">
+          <div class="wc-head"><span class="wc-dot"></span>сторож · пример<span class="wc-site">parhai.club</span></div>
+          <div class="wc-map">
+            <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid meet">
+              <path class="wc-link" d="M70 95 C170 95 200 95 300 95"/>
+              <path class="wc-ping" d="M70 95 C170 95 200 95 300 95" pathLength="100"/>
+              <g class="wc-node"><circle cx="70" cy="95" r="22"/><text x="70" y="99">С</text></g>
+              <g class="wc-site-node"><circle class="wc-halo" cx="300" cy="95" r="44"/><rect x="262" y="68" width="76" height="54" rx="8"/><path d="M262 80h76"/><path class="wc-l" d="M272 92h40M272 102h52M272 112h30"/></g>
+            </svg>
+            <span class="wc-lab wc-la">сторож</span>
+          </div>
+          <div class="wc-strip"><div class="wc-ticks" id="wcTicks"></div><span class="wc-k">последние 60 минут</span></div>
+          <div class="wc-msgs">
+            <div class="wc-msg wc-msg-bad"><b>Сбой</b><span>parhai.club не открывается</span><em>Макс, Telegram</em></div>
+            <div class="wc-msg wc-msg-ok"><b>Снова работает</b><span>parhai.club отвечает</span><em>Макс, Telegram</em></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. GROWS. От сайта вниз тянутся лучи к следующим слоям. Лучи рисует main.js (grows) по положению карточек -->
+
+  <!-- 8. WORKS. Только свои проекты (решение Антона 17.11.2026). Факты Пархай на 05.11.2026 (copy.md, раздел 4) -->
+  <section class="sec" id="works" aria-labelledby="works-title">
+    <div class="wrap">
+      <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Работы</p>
+      <h2 class="h2" id="works-title">Что уже работает</h2>
+      <p class="lede">Два проекта, сделанные нашими руками. Один вы сейчас листаете.</p>
+      <div class="works">
+        <article class="wk gl spot">
+          <div class="wk-vis wk-vis-self" aria-hidden="true">
+            <img src="img/logo.png?v=09bfd983" width="96" height="80" alt="" decoding="async" loading="lazy">
+            <div class="wk-orbit"><i></i><i></i><i></i></div>
+            <span class="wk-badge"><i class="live"></i>вы здесь</span>
+          </div>
+          <div class="wk-body">
+            <h3>sarmat-it.ru</h3>
+            <p class="wk-k">Вы на нём</p>
+            <ul class="ticks ticks-ok">
+              <li>Свой код, без конструктора и фреймворков</li>
+              <li>Три сервера в 3D и сцена серверной с отказом</li>
+              <li>Конфигуратор: задача по шагам, справа собирается сводка</li>
+              <li>Форма с файлом до 10 МБ: ошибку в номере телефона видно до отправки, от ботов стоит защита</li>
+            </ul>
+            <a class="wk-link" href="oborudovanie/configurator.html">Открыть конфигуратор <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+          </div>
+        </article>
+        <article class="wk gl spot">
+          <div class="wk-vis wk-vis-ph" aria-hidden="true">
+            <ol class="ph-flow"><li>Вход без пароля</li><li>Запись</li><li>Оплата</li><li>Чек 54-ФЗ</li><li>Код от двери</li></ol>
+            <div class="ph-watch"><span>сторож</span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><em>8 адресов</em></div>
+          </div>
+          <div class="wk-body">
+            <h3>Пархай, parhai.club</h3>
+            <p class="wk-k">Две камерные бани в Москве. Сайт, вокруг которого работает бизнес.</p>
+            <ul class="ticks ticks-ok">
+              <li>Сайт перевезли с конструктора в своё облако в России</li>
+              <li>Вход без пароля: Макс, Яндекс ID, VK ID</li>
+              <li>Запись, оплата и чек по 54-ФЗ</li>
+              <li>Код от двери приходит гостю в кабинет, в замок его записывает программа</li>
+              <li>Свой чат с гостями и общий ящик входящих для команды</li>
+              <li>Сторож проверяет 8 адресов каждую минуту. Пустой экран для него тоже сбой. Сообщение приходит в Макс и Telegram</li>
+            </ul>
+            <p class="asof">Факты на 05.11.2026</p>
+            <a class="wk-link" href="https://parhai.club" target="_blank" rel="noopener">Открыть parhai.club <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3h8v8M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+          </div>
+        </article>
+      </div>
+      <div class="sec-cta"><a class="btn btn-sig" href="#request">Хочу так же <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a></div>
+    </div>
+  </section>
+
+  <!-- 9. TEAM. Два варианта из copy.md переключателем, Антон выбирает. Без имён и фото -->
+  <section class="sec" id="team" aria-labelledby="team-title">
+    <div class="wrap">
+      <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Команда</p>
+      <div class="team-head">
+        <h2 class="h2" id="team-title">Кто делает ваш проект</h2>
+        <div class="seg" role="tablist" aria-label="Как показать команду">
+          <button class="seg-b" type="button" role="tab" id="tabA" aria-controls="teamA" aria-selected="true">Кто что делает</button>
+          <button class="seg-b" type="button" role="tab" id="tabB" aria-controls="teamB" aria-selected="false">Что сделано руками</button>
+        </div>
+      </div>
+
+      <div class="team-pane" id="teamA" role="tabpanel" aria-labelledby="tabA">
+        <p class="lede">Проект не отдаём по кускам разным подрядчикам. Каждую часть закрывает свой человек, отвечает за целое одна команда.</p>
+        <ol class="pipe">
+          <li class="pipe-i gl spot"><span class="pipe-n">01</span><h3>Разбор продукта</h3><p>Выясняем, что вы продаёте, кому и где теряются заявки.</p><p class="pipe-got"><span>На руках</span>разбор на 1-2 страницы</p></li>
+          <li class="pipe-i gl spot"><span class="pipe-n">02</span><h3>Тексты</h3><p>Пишем только на ваших фактах. Чего не знаем, спрашиваем у вас.</p><p class="pipe-got"><span>На руках</span>тексты по блокам на согласование</p></li>
+          <li class="pipe-i gl spot"><span class="pipe-n">03</span><h3>Дизайн и код</h3><p>Рисуем макет для компьютера и телефона. Код пишем после вашего одобрения.</p><p class="pipe-got"><span>На руках</span>макет по ссылке, потом страница на тестовом адресе</p></li>
+          <li class="pipe-i gl spot"><span class="pipe-n">04</span><h3>Хостинг, почта, проверки</h3><p>Настраиваем домен, почту, Метрику. Отправляем тестовые заявки.</p><p class="pipe-got"><span>На руках</span>список проверок и доступы на ваше имя</p></li>
+          <li class="pipe-i pipe-hw gl spot"><span class="pipe-n">05</span><h3>Серверы и сеть</h3><p>Подключается, когда сайту нужен свой сервер или офису нужна сеть.</p><p class="pipe-got"><span>На руках</span>спецификация с моделью по каждой строке</p></li>
+        </ol>
+        <p class="team-note">Объекты заказчиков под NDA, поэтому показываем свои проекты: этот сайт и Пархай.</p>
+        <a class="btn btn-sig" href="#request">Начать с разбора <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+      </div>
+
+      <div class="team-pane" id="teamB" role="tabpanel" aria-labelledby="tabB">
+        <p class="lede">Смотрите, что мы сделали сами.</p>
+        <ul class="bento">
+          <li class="bt bt-wide gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 8.5h18M6.5 12h6M6.5 15h9"/></svg></span><h3>Этот сайт</h3><p>Код, дизайн, тексты, форма. Без конструктора.</p><span class="bt-link"><i class="live" aria-hidden="true"></i>Вы на нём</span></li>
+          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="5" rx="1"/><rect x="4" y="10" width="16" height="5" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/><path d="M7 6.5h1M7 12.5h1M7 18h1"/></svg></span><h3>3D-сборки серверов</h3><p>Три сервера, детали встают по шагам. 3D написано своим кодом.</p><a class="bt-link" href="oborudovanie/index.html#catalog">Смотреть сборки</a></li>
+          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></span><h3>Сцена серверной</h3><p>50 рабочих мест, отказ одного сервера и переход на второй.</p><a class="bt-link" href="oborudovanie/index.html#turnkey">Смотреть сцену</a></li>
+          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 6h9M18 6h1M5 12h3M12 12h7M5 18h11M20 18h-1"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span><h3>Конфигуратор</h3><p>Заказчик по шагам описывает задачу, справа собирается сводка.</p><a class="bt-link" href="oborudovanie/configurator.html">Открыть конфигуратор</a></li>
+          <li class="bt bt-wide gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8.5 14.5l2.2 2.2 4.8-4.8"/></svg></span><h3>Пархай</h3><p>Сайт, запись, оплата, кабинеты, свой чат, коды от двери, сторож.</p><a class="bt-link" href="https://parhai.club" target="_blank" rel="noopener">Открыть parhai.club</a></li>
+          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.3-2.9 8-7 9.5-4.1-1.5-7-5.2-7-9.5V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span><h3>Проект серверной</h3><p>Схема, расчёт отказов, программа из 19 тестов.</p><span class="bt-link bt-muted">Под NDA, покажем на встрече</span></li>
+        </ul>
+        <p class="team-note">Над этим работали одни и те же люди. Они же сделают ваш проект.</p>
+        <a class="btn btn-sig" href="#request">Обсудить задачу <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. FAQ. Возражения покупателя (copy.md, раздел 10) -->
+  <section class="sec" id="faq" aria-labelledby="faq-title">
+    <div class="wrap faq-wrap">
+      <div>
+        <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Перед заказом</p>
+        <h2 class="h2" id="faq-title">Вопросы перед заказом</h2>
+        <a class="btn btn-ghost faq-btn" href="#request">Задать свой вопрос</a>
+      </div>
+      <div class="faq">
+        <details><summary>Почему не сайт на конструкторе за 20 тысяч?</summary><div><p>На конструкторе сайт живёт в аренду: перестали платить тариф или конструктор закрыли, сайта нет. Код пишем сами и передаём вам. В цену входит то, что на конструкторе делают отдельно или не делают: проверка формы тестовыми заявками, документы по 152-ФЗ, Метрика с целями, отчёт при сдаче.</p></div></details>
+        <details><summary>Что будет, если сайт упадёт?</summary><div><p>Хостинг, почту и домен настраиваем сами, поэтому знаем, где искать. Можно подключить сторожа: он открывает сайт каждую минуту и пишет в Telegram и Макс, если сайт не открылся или пришёл пустым. Такой сторож уже следит за parhai.club.</p></div></details>
+        <details><summary>Кому принадлежит сайт?</summary><div><p>Вам. Домен, хостинг и аккаунты оформляем на ваше имя, код передаём. Уйдёте к другому подрядчику, всё останется у вас.</p></div></details>
+        <details><summary>Сколько ждать?</summary><div><p>Лендинг: 10 рабочих дней. Сроки для сайта с записью, оплатой или кабинетами называем после разбора, до начала работ.</p></div></details>
+        <details><summary>Сколько стоит, если нужно больше лендинга?</summary><div><p>Лендинг от 59 000 ₽. Остальное считаем после разбора продукта: цена зависит от того, что сайт должен делать. Итог называем до начала работ.</p></div></details>
+        <details><summary>Что я получу при сдаче?</summary><div><p>Работающий сайт, доступы на ваше имя, код и отчёт: что сделано, что проверено, где что лежит.</p></div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. REQUEST FORM. Поля и обработчик api/send.php как на боевом сайте -->
+  <section class="sec" id="request" aria-labelledby="request-title">
+    <div class="wrap req">
+      <div>
+        <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Заявка</p>
+        <h2 class="h2" id="request-title">Расскажите о задаче</h2>
+        <p class="lede">Оставьте телефон, почту и пару слов: что продаёте и что нужно. Перезвоним и договоримся, когда обсудить задачу подробно.</p>
+        <ul class="contacts">
+          <li><span class="k">Телефон</span><a href="tel:+74994606265">+7 (499) 460-62-65</a></li>
+          <li><span class="k">Почта</span><a href="mailto:info@sarmat-it.ru">info@sarmat-it.ru</a></li>
+          <li><span class="k">Адрес</span><span class="v">г. Москва, Карамышевская наб., д. 48, корп. 3</span></li>
+        </ul>
+      </div>
+      <form class="form" id="reqForm" method="post" action="api/send.php" enctype="multipart/form-data" novalidate>
+        <noscript><p class="form-noscript">Форма работает с включённым JavaScript. Позвоните по номеру +7 (499) 460-62-65 или напишите на info@sarmat-it.ru.</p></noscript>
+        <div class="field"><label for="f-name">Имя</label><input class="input" id="f-name" name="name" placeholder="Как к вам обращаться" autocomplete="name" maxlength="200"></div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-phone">Телефон <span class="req-mark" aria-hidden="true">*</span></label>
+            <input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" placeholder="+7 999 123-45-67" autocomplete="tel" maxlength="40" required aria-describedby="f-phone-err">
+            <p class="field-err" id="f-phone-err" hidden>Укажите телефон.</p>
+          </div>
+          <div class="field">
+            <label for="f-email">Почта <span class="req-mark" aria-hidden="true">*</span></label>
+            <input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required aria-describedby="f-email-err">
+            <p class="field-err" id="f-email-err" hidden>Укажите почту.</p>
+          </div>
+        </div>
+        <div class="field"><label for="f-pos">Что нужно</label>
+          <select class="input" id="f-pos" name="pos">
+            <option selected>Пока не знаю, нужен разбор</option>
+            <optgroup label="Сайты">
+              <option>Лендинг</option><option>Сайт компании</option><option>Сайт с записью и оплатой</option><option>Кабинеты, CRM, свои программы</option><option>Сторож для сайта</option>
+            </optgroup>
+            <optgroup label="Серверы и сеть">
+              <option>Сервер для 1С</option><option>Файловый сервер</option><option>Сервер виртуализации</option><option>Серверная под ключ</option><option>Видеонаблюдение</option><option>Интернет, связь, СКС</option><option>Своя конфигурация под задачу</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field"><label for="f-msg">Комментарий</label><textarea class="input" id="f-msg" name="msg" placeholder="Что продаёте, есть ли сайт сейчас, что нужно"></textarea></div>
+        <div class="field">
+          <label for="f-file">Файл с задачей или спецификацией</label>
+          <input class="input input-file" id="f-file" name="file" type="file" accept=".doc,.docx,.xls,.xlsx,.pdf" aria-describedby="f-file-hint f-file-err">
+          <p class="field-hint" id="f-file-hint">Word, Excel или PDF, до 10 МБ.</p>
+          <p class="field-err" id="f-file-err" hidden></p>
+        </div>
+        <div class="field field-check">
+          <label class="check" for="f-consent">
+            <input id="f-consent" name="consent" type="checkbox" value="yes" required aria-describedby="f-consent-err">
+            <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике обработки персональных данных</a> <span class="req-mark" aria-hidden="true">*</span></span>
+          </label>
+          <p class="field-err" id="f-consent-err" hidden>Без согласия на обработку данных заявку отправить нельзя.</p>
+        </div>
+        <div class="hp" aria-hidden="true"><label for="f-site">Сайт</label><input id="f-site" name="site" type="text" tabindex="-1" autocomplete="off"></div>
+        <button class="btn btn-primary" type="submit">Отправить заявку</button>
+        <div aria-live="polite">
+          <p class="form-msg ok" id="msgOk" tabindex="-1" hidden>Заявка принята. Свяжемся с вами по указанному телефону или почте.</p>
+          <p class="form-msg err" id="msgErr" hidden>Не получилось отправить заявку. Попробуйте ещё раз или позвоните нам: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr" id="contacts">
+  <div class="wrap ftr-in">
+    <div class="ftr-brand">
+      <a class="ftr-logo" href="index.html" aria-label="Сармат-ИТ, в начало">
+        <img src="img/logo.png?v=09bfd983" width="57" height="48" alt="" decoding="async">
+        <span>САРМАТ-ИТ</span>
+      </a>
+      <p>Цифровые решения для компании: от программ до серверной.</p>
+      <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, КПП 773401001, ОГРН 1257700007113</p>
+    </div>
+    <nav class="ftr-nav" aria-label="Разделы (подвал)">
+      <a href="#grows">Цифровые решения</a>
+      <a href="#landing">Лендинг от 59&nbsp;000&nbsp;₽</a>
+      <a href="#watch">Сторож для сайта</a>
+      <a href="oborudovanie/index.html">Оборудование под ваше ТЗ</a>
+      <a href="#works">Работы</a>
+      <a href="#faq">Вопросы перед заказом</a>
+      <a href="#request">Контакты</a>
+      <a href="privacy.html">Политика обработки персональных данных</a>
+    </nav>
+    <address class="ftr-contacts">
+      <a class="ftr-phone" href="tel:+74994606265">+7 (499) 460-62-65</a>
+      <a href="mailto:info@sarmat-it.ru">info@sarmat-it.ru</a>
+      <span>г. Москва, Карамышевская наб., д. 48, корп. 3</span>
+    </address>
+  </div>
+  <!-- Реквизиты: ЕГРЮЛ, 10.10.2026 -->
+</footer>
+
+<!-- 4. ASSISTANT (appears after the first screen) -->
+<!-- Окно «отправить конфигурацию на проработку»: открывает кнопка на карточке сборки -->
+<dialog class="modal" id="pickModal" aria-labelledby="pickTitle">
+  <form class="modal-in" id="pickForm" method="post" action="api/send.php" novalidate>
+    <button class="modal-x" id="pickClose" type="button" aria-label="Закрыть">&#x2715;</button>
+    <h2 class="modal-title" id="pickTitle">Отправить конфигурацию на проработку</h2>
+    <p class="modal-sub">Разберём вашу задачу, подберём под неё конфигурацию и пришлём спецификацию с моделями, ценами и сроком поставки.</p>
+    <p class="modal-chip" id="pickName"></p>
+    <div class="field"><label for="p-name">Имя</label><input class="input" id="p-name" name="name" placeholder="Как к вам обращаться" autocomplete="name" maxlength="200"></div>
+    <div class="row2">
+      <div class="field">
+        <label for="p-phone">Телефон <span class="req-mark" aria-hidden="true">*</span></label>
+        <input class="input" id="p-phone" name="phone" type="tel" inputmode="tel" placeholder="+7 999 123-45-67" autocomplete="tel" maxlength="40" required aria-describedby="p-phone-err">
+        <p class="field-err" id="p-phone-err" hidden>Укажите телефон.</p>
+      </div>
+      <div class="field">
+        <label for="p-email">Почта <span class="req-mark" aria-hidden="true">*</span></label>
+        <input class="input" id="p-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required aria-describedby="p-email-err">
+        <p class="field-err" id="p-email-err" hidden>Укажите почту.</p>
+      </div>
+    </div>
+    <div class="field"><label for="p-msg">Что поправить под вашу задачу</label><textarea class="input" id="p-msg" name="comment" placeholder="Сколько пользователей, какой объём данных, сроки" maxlength="2000"></textarea></div>
+    <div class="field field-check">
+      <label class="check check-sm">
+        <input id="p-consent" name="consent" type="checkbox" value="yes" required aria-describedby="p-consent-err">
+        <span>Согласен на обработку персональных данных в соответствии с <a href="privacy.html">политикой</a>.</span>
+      </label>
+      <p class="field-err" id="p-consent-err" hidden>Без согласия заявку отправить нельзя.</p>
+    </div>
+    <div class="hp" aria-hidden="true"><label for="p-site">Сайт</label><input id="p-site" name="site" type="text" tabindex="-1" autocomplete="off"></div>
+    <input type="hidden" name="pos" id="p-pos">
+    <input type="hidden" name="msg" id="p-sum">
+    <button class="btn btn-primary" type="submit">Отправить</button>
+    <p class="form-msg ok" id="p-ok" tabindex="-1" hidden>Заявка принята. Свяжемся с вами по указанному телефону или почте.</p>
+    <p class="form-msg err" id="p-err" hidden>Не получилось отправить. Попробуйте ещё раз или позвоните нам: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
+  </form>
+</dialog>
+
+<div class="asst" id="asst">
+  <div class="asst-panel" id="asstPanel" role="dialog" aria-labelledby="asstTitle" hidden>
+    <header><h3 id="asstTitle">Вопрос сотруднику</h3><button class="asst-x" id="asstClose" type="button" aria-label="Закрыть">&#x2715;</button></header>
+    <form class="asst-form" id="asstForm" method="post" action="api/send.php" novalidate>
+      <div>
+        <textarea class="input" id="asstQ" name="question" placeholder="Опишите задачу или задайте вопрос" aria-label="Вопрос" maxlength="4000" required aria-describedby="asstQErr"></textarea>
+        <p class="field-err" id="asstQErr" hidden>Напишите вопрос.</p>
+      </div>
+      <div>
+        <input class="input" id="asstContact" name="contact" type="text" placeholder="Телефон или почта для ответа" aria-label="Телефон или почта для ответа" autocomplete="tel" maxlength="254" required aria-describedby="asstContactErr">
+        <p class="field-err" id="asstContactErr" hidden>Укажите телефон или почту, иначе мы не сможем ответить.</p>
+      </div>
+      <label class="check check-sm" for="asstConsent">
+        <input id="asstConsent" name="consent" type="checkbox" value="yes" required aria-describedby="asstConsentErr">
+        <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике</a></span>
+      </label>
+      <p class="field-err" id="asstConsentErr" hidden>Без согласия вопрос отправить нельзя.</p>
+      <div class="hp" aria-hidden="true"><label for="asstSite">Сайт</label><input id="asstSite" name="site" type="text" tabindex="-1" autocomplete="off"></div>
+      <button class="btn btn-primary" type="submit">Спросить</button>
+      <p class="form-msg err" id="asstErr" hidden>Не получилось отправить вопрос. Попробуйте ещё раз или позвоните: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
+    </form>
+    <!-- TODO: часы работы помощника и срок ответа. Антон пока не назвал, конкретное время не пишем. Когда появится: "Вопрос получили. Ответим <когда>." -->
+    <p class="asst-done" id="asstDone" role="status" hidden>Вопрос получили. Если срочно, позвоните: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
+  </div>
+  <button class="asst-bubble" id="asstBubble" type="button">Есть вопрос? Напишите, ответит сотрудник.</button>
+  <button class="asst-fab" id="asstFab" type="button" aria-label="Вопрос сотруднику" aria-expanded="false" aria-controls="asstPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></button>
+</div>
+
+<!-- Cookie notice: показывает cookie.js -->
+<div class="cookie" id="cookieNote" role="region" aria-label="Уведомление о cookie" hidden>
+  <p>Сайт использует cookie и Яндекс Метрику. Продолжая пользоваться сайтом, вы соглашаетесь с <a href="privacy.html">политикой обработки персональных данных</a>.</p>
+  <button class="btn btn-primary btn-sm" type="button">Понятно</button>
+</div>
+<!-- /Cookie notice -->
+
+</body>
+</html>
