@@ -14,31 +14,37 @@
 <script>document.documentElement.classList.add('js');try{if(sessionStorage.getItem('sarmat-transit')){document.documentElement.classList.add('tr-in');window.__trArrive=1}}catch(e){}setTimeout(function(){document.documentElement.classList.remove('tr-in')},2000)</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="transit.css?v=2">
-<link rel="stylesheet" href="hub.css?v=4">
-<script src="sarmat-logo.js?v=1" defer></script>
-<script src="transit.js?v=2" defer></script>
-<script src="hub.js?v=4" defer></script>
+<link rel="stylesheet" href="transit.css?v=3">
+<link rel="stylesheet" href="site-header.css?v=5">
+<link rel="stylesheet" href="hub.css?v=7">
+<script src="site-header.js?v=2" defer></script>
+<script src="sarmat-logo.js?v=2" defer></script>
+<script src="transit.js?v=4" defer></script>
+<script src="hub.js?v=7" defer></script>
 </head>
 <body>
 
 <canvas id="sky" aria-hidden="true"></canvas>
 
-<header class="hdr" id="hdr">
-  <div class="wrap hdr-in">
-    <a class="brand" href="#top" aria-label="Сармат-ИТ, в начало">
-      <img src="img/logo.png?v=09bfd983" width="48" height="40" alt="" decoding="async">
+<!-- Единая шапка сайта (site-header.css, site-header.js): одинаковая на всех страницах -->
+<header class="sh" id="hdr">
+  <div class="sh-in">
+    <a class="sh-brand" href="index.html" aria-label="Сармат-ИТ, на главную">
+      <img src="img/logo.png?v=09bfd983" width="46" height="38" alt="" decoding="async">
       <span>САРМАТ-ИТ</span>
     </a>
-    <nav class="nav" id="nav" aria-label="Разделы">
-      <a class="nav-dir" href="solutions.html">Цифровые решения</a>
-      <a class="nav-dir" href="oborudovanie/index.html">Оборудование под задачу</a>
-      <a href="#link">Как это связано</a>
-      <a href="#works">Работы</a>
+    <nav class="sh-nav" id="shNav" aria-label="Разделы сайта">
+      <a href="index.html" aria-current="page">Главная</a>
+      <a href="solutions.html">Цифровые решения</a>
+      <a href="oborudovanie/index.html">Оборудование под задачу</a>
+      <a href="index.html#works">Работы</a>
+      <a href="index.html#request">Контакты</a>
+      <div class="sh-panel-extra"><a href="tel:+74994606265">+7 (499) 460-62-65</a><a href="mailto:info@sarmat-it.ru">info@sarmat-it.ru</a></div>
     </nav>
-    <a class="hdr-phone" href="tel:+74994606265">+7 (499) 460-62-65</a>
-    <a class="btn btn-sig btn-sm hdr-req" href="#request">Обсудить задачу</a>
-    <button class="burger" id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="nav"><i></i><i></i></button>
+    <a class="sh-phone" href="tel:+74994606265">+7 (499) 460-62-65</a>
+    <a class="sh-cta" href="#request">Обсудить задачу</a>
+    <a class="sh-call" href="tel:+74994606265" aria-label="Позвонить: +7 (499) 460-62-65"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></a>
+    <button class="sh-burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="shNav"><i></i><i></i></button>
   </div>
 </header>
 
@@ -64,9 +70,10 @@
             <li><a href="solutions.html#grow-crm"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="4.6" height="16" rx="1"/><rect x="9.7" y="4" width="4.6" height="11" rx="1"/><rect x="15.9" y="4" width="4.6" height="7" rx="1"/></svg></i><span>Заявки и CRM</span></a></li>
             <li><a href="solutions.html#grow-pay"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M8.5 14.5l2.2 2.2 4.8-4.8"/></svg></i><span>Запись, оплата, чеки</span></a></li>
             <li><a href="solutions.html#grow-soft"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></i><span>Кабинеты и связка с 1С</span></a></li>
+            <li><a href="https://sarmat-it.ru/stengazeta/" target="_blank" rel="noopener"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/><path d="M7 8h4M7 11h7"/><circle cx="16" cy="9" r="1.6"/></svg></i><span>Готовая программа «Стенгазета»</span><em>инфоэкран</em></a></li>
             <li><a href="solutions.html#grow-conf"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></i><span>Конфигураторы</span></a></li>
           </ul>
-          <p class="dir-note">Начать можно с сайта: это визитная карточка компании, к ней потом подключаются остальные программы.</p>
+          <p class="dir-note">Начать можно с сайта: это визитная карточка компании. Дальше на его основе по шагам добавляем CRM, оплату, кабинеты и связку с 1С.</p>
           <a class="btn btn-sig dir-btn" href="solutions.html">Смотреть решения <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
         </article>
 
@@ -104,7 +111,7 @@
         <li class="ly ly-soft">
           <span class="ly-tag">Цифровые решения</span>
           <h3>Программы</h3>
-          <p>1С на 20 пользователей, общий доступ к файлам и базам по группам сотрудников.</p>
+          <p>1С для 20 сотрудников из 50, общий доступ к файлам и базам по группам.</p>
         </li>
         <li class="ly ly-hw">
           <span class="ly-tag">Оборудование</span>
@@ -128,7 +135,7 @@
         </li>
       </ol>
       <div class="link-cta">
-        <a class="btn btn-glass" href="oborudovanie/index.html#turnkey">Смотреть сцену серверной <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+        <a class="btn btn-glass" href="oborudovanie/index.html#turnkey">Смотреть 3D-сцену серверной <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
         <a class="btn btn-sig" href="#request" data-topic="Всё вместе">Обсудить задачу целиком <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
       </div>
     </div>
@@ -140,11 +147,11 @@
       <p class="eyebrow">Как работаем</p>
       <h2 class="h2" id="how-title">Отвечаем за результат целиком</h2>
       <ol class="how">
-        <li><span>01</span><h3>Разбираем задачу</h3><p>Смотрим объект и то, как работает команда. Выясняем, что нужно бизнесу.</p></li>
-        <li><span>02</span><h3>Пишем ТЗ и проект</h3><p>Схема, состав и смета до начала работ. Вы видите результат и цену заранее.</p></li>
-        <li><span>03</span><h3>Делаем и поставляем</h3><p>Пишем программы. Подбираем оборудование, проверяем совместимость, серверы собираем и тестируем.</p></li>
-        <li><span>04</span><h3>Ведём технадзор</h3><p>Монтаж и прокладку выполняют партнёры. Мы проверяем каждый этап по проекту.</p></li>
-        <li><span>05</span><h3>Сдаём</h3><p>Запускаем, проверяем, передаём документы и доступы на ваше имя.</p></li>
+        <li><span>01</span> <h3>Разбираем задачу</h3><p>Смотрим объект и то, как работает команда. Выясняем, что нужно бизнесу.</p></li>
+        <li><span>02</span> <h3>Пишем ТЗ и проект</h3><p>Схема, состав и смета до начала работ. Вы видите результат и цену заранее.</p></li>
+        <li><span>03</span> <h3>Делаем и поставляем</h3><p>Пишем программы. Подбираем оборудование, проверяем совместимость, серверы собираем и тестируем.</p></li>
+        <li><span>04</span> <h3>Ведём технадзор</h3><p>Монтаж и прокладку выполняют партнёры. Мы проверяем каждый этап по проекту.</p></li>
+        <li><span>05</span> <h3>Сдаём</h3><p>Запускаем, проверяем, передаём документы и доступы на ваше имя.</p></li>
       </ol>
     </div>
   </section>
@@ -158,11 +165,17 @@
         <article class="work gl">
           <span class="work-k k-soft">Цифровые решения</span>
           <h3>Пархай, parhai.club</h3>
-          <p>Сайт, запись, оплата и чек по 54-ФЗ, кабинет гостя, свой чат, код от двери, сторож для сайта.</p>
+          <p>Сайт, запись, оплата и чек по 54-ФЗ, кабинет гостя, свой чат, код от двери. Сторож проверяет сайт каждую минуту и пишет команде о сбое.</p>
           <a class="work-go" href="https://parhai.club" target="_blank" rel="noopener">Открыть parhai.club</a>
         </article>
         <article class="work gl">
-          <span class="work-k k-soft">Цифровые решения</span>
+          <span class="work-k k-soft">Готовая программа</span>
+          <h3>«Стенгазета»</h3>
+          <p>Информационный экран для офиса: часы, курсы ЦБ, погода, новости, поздравления сотрудников из Excel. Для Windows, 14 дней бесплатно.</p>
+          <a class="work-go" href="https://sarmat-it.ru/stengazeta/" target="_blank" rel="noopener">Открыть страницу программы</a>
+        </article>
+        <article class="work gl">
+          <span class="work-k k-soft">Собственный проект</span>
           <h3>sarmat-it.ru</h3>
           <p>Свой код, 3D-сборки серверов, конфигуратор, где заказчик по шагам описывает задачу.</p>
           <a class="work-go" href="oborudovanie/configurator.html">Открыть конфигуратор</a>
@@ -170,8 +183,8 @@
         <article class="work gl">
           <span class="work-k k-hw">Оборудование</span>
           <h3>Серверная на 50 рабочих мест</h3>
-          <p>Схема, расчёт отказов и программа из 19 тестов по ТЗ заказчика.</p>
-          <a class="work-go" href="oborudovanie/index.html#turnkey">Смотреть сцену</a>
+          <p>Схема и расчёт отказов. 19 тестов: 12 приёмочных по ТЗ (вход в домен, права, доступ к 1С) и 7 проверок переключения на второй сервер и восстановления из копий.</p>
+          <a class="work-go" href="oborudovanie/index.html#turnkey">Смотреть 3D-сцену серверной</a>
         </article>
       </div>
       <p class="note">Объекты заказчиков под NDA. Сцены на сайте собраны по мотивам реальных проектов.</p>
@@ -199,9 +212,10 @@
         </div>
         <div class="row2">
           <div class="field"><label for="f-name">Имя</label><input class="input" id="f-name" name="name" placeholder="Как к вам обращаться" autocomplete="name"></div>
-          <div class="field"><label for="f-phone">Телефон</label><input class="input" id="f-phone" name="phone" type="tel" placeholder="+7 999 123-45-67" autocomplete="tel" required></div>
+          <div class="field"><label for="f-phone">Телефон <span class="req-mark" aria-hidden="true">*</span></label><input class="input" id="f-phone" name="phone" type="tel" placeholder="+7 999 123-45-67" autocomplete="tel" required></div>
         </div>
-        <div class="field"><label for="f-msg">Пара слов о задаче</label><textarea class="input" id="f-msg" name="msg" rows="3" placeholder="Например: нужна запись клиентов на сайте и сервер под 1С"></textarea></div>
+        <div class="field"><label for="f-msg">Пара слов о задаче</label><textarea class="input" id="f-msg" name="msg" rows="3" placeholder="Например: нужна запись клиентов на сайте и сервер под 1С"></textarea>
+          <div class="quick" aria-label="Подставить пример"><button type="button" data-q="Сервер под 1С">Сервер под 1С</button><button type="button" data-q="Сайт с записью и оплатой">Сайт с записью и оплатой</button><button type="button" data-q="Видеонаблюдение для офиса или склада">Видеонаблюдение</button><button type="button" data-q="Инфоэкран «Стенгазета» для офиса">«Стенгазета»</button></div></div>
         <label class="check"><input type="checkbox" required> <span>Согласен на обработку персональных данных в соответствии с <a href="privacy.html">политикой</a>.</span></label>
         <button class="btn btn-sig" type="submit">Отправить</button>
         <p class="form-msg" id="reqMsg" role="status" hidden></p>
@@ -216,6 +230,7 @@
       <a class="brand brand-ftr" href="#top"><img src="img/logo.png?v=09bfd983" width="48" height="40" alt=""><span>САРМАТ-ИТ</span></a>
       <p>Цифровые решения для компании и оборудование под её задачу.</p>
       <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, ОГРН 1257700007113</p>
+      <p class="ftr-offer">Цены на сайте справочные и не являются публичной офертой (ст. 437 ГК РФ). Точную цену называем после разбора задачи.</p>
     </div>
     <nav aria-label="Разделы (подвал)">
       <a href="solutions.html">Цифровые решения</a>

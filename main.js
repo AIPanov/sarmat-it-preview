@@ -1272,7 +1272,7 @@ function phoneProblem(v) {
 }
 function emailProblem(v) {
   v = v.trim();
-  if (!v) return 'Укажите e-mail.';
+  if (!v) return ''; // почта необязательна, обязателен только телефон (24.11.2026)
   return v.length <= 254 && /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[^\s@.]{2,}$/.test(v) ? '' : EMAIL_BAD;
 }
 // Показать или убрать ошибку под полем. Возвращает true, если ошибка есть.

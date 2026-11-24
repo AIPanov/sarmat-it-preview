@@ -24,7 +24,8 @@
   }
   build(); draw(0);
   addEventListener('resize', () => { build(); draw(performance.now()); });
-  if (!REDUCE) { let on = true; const loop = t => { if (on) draw(t); requestAnimationFrame(loop); }; requestAnimationFrame(loop); document.addEventListener('visibilitychange', () => { on = !document.hidden; }); }
+  // на телефоне небо рисуется один раз: меньше нагрева и рывков при прокрутке
+  if (!REDUCE && !matchMedia('(max-width: 760px)').matches) { let on = true; const loop = t => { if (on) draw(t); requestAnimationFrame(loop); }; requestAnimationFrame(loop); document.addEventListener('visibilitychange', () => { on = !document.hidden; }); }
 
   // Первый экран. Логотип собирается крупно по центру, как на боевом сайте. Потом знак уходит в круг
   // между направлениями, а спутники разлетаются по значкам двух списков: из логотипа собирается главная.
@@ -46,20 +47,31 @@
     const r = holder.getBoundingClientRect();
     return Promise.all([
       logo.moveTo({ left: r.left, top: r.top, width: r.width, height: r.height }, 'core', 1000),
-      new Promise(res => setTimeout(res, 120)).then(() => SarmatLogo.morph(logo, targets, { dur: 1150 }))
+      // глобус приедет в центр круга: спутники втягиваются туда и оттуда вылетают к значкам
+      new Promise(res => setTimeout(res, 120)).then(() => SarmatLogo.morph(logo, targets, { dur: 1500, via: { x: r.left + r.width / 2, y: r.top + r.height / 2, r: r.width * 99 / 628 } }))
     ]).then(() => settle(logo));
   }
   function finishAll() { hero.classList.add('on'); duo.classList.add('on', 'core-on'); targets.forEach(t => t.classList.add('mo-in')); }
-  window.SarmatPage = { arrive(logo, ov) { ov.clear(); rebuild(logo).then(() => ov.end()); } };
-  if (!window.SarmatLogo || REDUCE) {
+  // переход сразу на блок главной (например, «Работы»): круг не на экране, логотип просто уходит
+  window.SarmatPage = { arrive(logo, ov) { ov.clear(); if (location.hash) { finishAll(); const l = SarmatLogo.create(); l.mount(holder); l.set(1); settle(l); ov.end(); return; } rebuild(logo).then(() => ov.end()); } };
+  // Телефон: заголовок и направления видны сразу. Знак собирается маленьким прямо в круге, 1,4 с,
+  // один раз за посещение; после перехода с другой страницы уже собран (мобильная ревизия 24.11.2026)
+  const NARROW = matchMedia('(max-width: 760px)').matches;
+  if (NARROW && window.SarmatLogo && !REDUCE) {
     finishAll();
-    if (window.SarmatLogo) { const l = SarmatLogo.create(); l.mount(holder); l.set(1); const r = holder.getBoundingClientRect(); l.fit({ left: 0, top: 0, width: r.width, height: r.height }, 'core'); }
+    const l = SarmatLogo.create(); l.mount(holder);
+    const fitCore = () => { const r = holder.getBoundingClientRect(); l.fit({ left: 0, top: 0, width: r.width, height: r.height }, 'core'); };
+    fitCore(); addEventListener('resize', fitCore);
+    let seen = window.__trArrive; try { seen = seen || sessionStorage.getItem('sarmat-intro'); sessionStorage.setItem('sarmat-intro', '1'); } catch (e) {}
+    if (seen) { l.set(1); l.orbit(true); } else { l.set(0); setTimeout(() => l.play(1400).then(() => l.orbit(true)), 200); }
+  } else if (!window.SarmatLogo || REDUCE || (!window.__trArrive && (location.hash || scrollY > 40))) {
+    // открыли главную сразу на нужном блоке: без сборки во весь экран, знак сразу в круге
+    finishAll();
+    if (window.SarmatLogo) { const l = SarmatLogo.create(); l.mount(holder); l.set(1); settle(l); }
   } else if (!window.__trArrive) {
     const layer = document.createElement('div'); layer.className = 'sl-layer'; document.body.appendChild(layer);
     const logo = SarmatLogo.create(); logo.mount(layer);
-    const hh = document.getElementById('hdr').offsetHeight;
-    const s = Math.min((innerHeight - hh) * 0.8, innerWidth * 0.8, 600);
-    logo.fit({ left: (innerWidth - s) / 2, top: hh + (innerHeight - hh - s) / 2, width: s, height: s }, 'full');
+    logo.fit(SarmatLogo.stageBox(), 'full');
     logo.set(0);
     // любое действие посетителя досрочно заканчивает сборку
     const skip = () => { logo.skip = true; };
@@ -69,16 +81,6 @@
   // запасной выход: что бы ни случилось, через 9 секунд всё видно
   setTimeout(() => { document.documentElement.classList.add('mo-off'); finishAll(); }, 9000);
 
-  // Шапка
-  const hdr = document.getElementById('hdr');
-  const upd = () => hdr.classList.toggle('solid', scrollY > innerHeight * .55);
-  addEventListener('scroll', upd, { passive: true }); upd();
-
-  const burger = document.getElementById('burger'), nav = document.getElementById('nav');
-  const close = () => { nav.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); };
-  burger.addEventListener('click', () => { const o = nav.classList.toggle('open'); burger.setAttribute('aria-expanded', String(o)); });
-  nav.addEventListener('click', e => { if (e.target.closest('a')) close(); });
-  addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 
   // Блоки ниже первого экрана появляются один раз
   const els = document.querySelectorAll('.sec .h2, .ly, .how li, .work, .form');
@@ -91,6 +93,9 @@
   document.querySelectorAll('a[data-topic]').forEach(a => a.addEventListener('click', () => {
     const r = document.querySelector(`input[name="topic"][value="${a.dataset.topic}"]`); if (r) r.checked = true;
   }));
+
+  // Подсказки под полем «Пара слов о задаче»: нажатие подставляет пример
+  document.querySelectorAll('.quick button').forEach(b => b.addEventListener('click', () => { const t = document.getElementById('f-msg'); t.value = t.value ? t.value.replace(/\s*$/, '. ') + b.dataset.q : b.dataset.q; t.focus(); }));
 
   // Форма в макете не отправляет: только проверка полей
   const form = document.getElementById('reqForm'), msg = document.getElementById('reqMsg');

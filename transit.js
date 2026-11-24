@@ -10,11 +10,8 @@
   const NAMES = [[/oborudovanie\/configurator\.html$/, 'Конфигуратор'], [/oborudovanie\/(index\.html)?$/, 'Оборудование под задачу'], [/solutions\.html$/, 'Цифровые решения'], [/privacy\.html$/, 'Документы'], [/(index\.html)?$/, 'Сармат-ИТ']];
   const nameOf = u => { for (const [re, n] of NAMES) if (re.test(u.pathname)) return n; return 'Сармат-ИТ'; };
 
-  // Где стоит логотип перехода: по центру экрана, одинаково на уходе и на приходе
-  function box() {
-    const s = Math.min(innerHeight * 0.56, innerWidth * 0.74, 520);
-    return { left: (innerWidth - s) / 2, top: (innerHeight - s) / 2 - 24, width: s, height: s };
-  }
+  // Логотип перехода стоит там же, где собирается при загрузке страницы (SarmatLogo.stageBox)
+  const box = () => SarmatLogo.stageBox();
   function overlay(label) {
     const o = document.createElement('div'); o.className = 'tr'; o.setAttribute('aria-hidden', 'true');
     const stage = document.createElement('div'); stage.className = 'tr-stage'; o.appendChild(stage);
@@ -25,10 +22,13 @@
     return { o, logo };
   }
 
+  // Телефон: короткий переход 0,5 с, логотип уже собран, только затемнение и название раздела (мобильная ревизия 24.11.2026)
+  const narrow = () => matchMedia('(max-width: 760px)').matches;
   function go(url) {
     const { o, logo } = overlay(nameOf(url));
-    logo.set(0);
     try { sessionStorage.setItem(KEY, nameOf(url)); } catch (e) {}
+    if (narrow()) { logo.set(1); requestAnimationFrame(() => o.classList.add('tr-show', 'tr-named')); setTimeout(() => { location.href = url.href; }, 420); return; }
+    logo.set(0);
     requestAnimationFrame(() => o.classList.add('tr-show'));
     logo.play(1500).then(() => { o.classList.add('tr-named'); setTimeout(() => { location.href = url.href; }, 260); });
   }
@@ -59,7 +59,8 @@
     const clear = () => { o.classList.add('tr-clear'); };
     const end = () => { o.classList.add('tr-leave'); setTimeout(() => o.remove(), 700); };
     const P = window.SarmatPage;
-    if (P && P.arrive) { requestAnimationFrame(() => P.arrive(logo, { clear, end, overlay: o })); }
+    if (narrow()) { setTimeout(() => { clear(); end(); }, 60); }
+    else if (P && P.arrive) { requestAnimationFrame(() => P.arrive(logo, { clear, end, overlay: o })); }
     else { setTimeout(() => { clear(); end(); }, 150); }
   }
   if (document.readyState === 'complete') arrive(); else addEventListener('DOMContentLoaded', arrive);

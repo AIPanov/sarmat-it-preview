@@ -13,73 +13,71 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=02ed45ba">
+<link rel="stylesheet" href="styles.css?v=hub6">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
-<script>
-/* hub-2026-11: пришли с другой страницы. Логотип перехода встаёт ровно на место логотипа этой страницы
-   (он сразу собран, main.js: intro), дальше обычный путь: прокрутка ведёт в глобус и вниз к Земле */
-window.SarmatPage = { arrive(logo, ov) {
-  const own = document.querySelector('.si-logo');
-  const m = own && scrollY < 40 && /translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/.exec(own.style.transform || '');
-  ov.clear();
-  if (!m) { ov.end(); return; }
-  if (own) own.style.opacity = 0;
-  logo.glide(+m[3], +m[1], +m[2], 700).then(() => { if (own) own.style.opacity = ''; ov.end(); });
-} };
-</script>
-<script src="tasks.js?v=1" defer></script>
-<script src="main.js?v=38cb4204" defer></script>
+<script src="tasks.js?v=2" defer></script>
+<script src="main.js?v=hub4" defer></script>
 <script>try{if(sessionStorage.getItem('sarmat-transit')){document.documentElement.classList.add('tr-in');window.__trArrive=1}}catch(e){}setTimeout(function(){document.documentElement.classList.remove('tr-in')},2000)</script>
-<link rel="stylesheet" href="../transit.css?v=2">
-<script src="../sarmat-logo.js?v=1" defer></script>
-<script src="../transit.js?v=2" defer></script>
+<link rel="stylesheet" href="../transit.css?v=3">
+<link rel="stylesheet" href="../site-header.css?v=5">
+<link rel="stylesheet" href="../pagehero.css?v=4">
+<script src="../site-header.js?v=2" defer></script>
+<script src="../sarmat-logo.js?v=2" defer></script>
+<script src="../transit.js?v=4" defer></script>
+<script src="../pagehero.js?v=4" defer></script>
 </head>
 <body>
 
 <canvas id="sky" aria-hidden="true"></canvas>
 
-<header class="hdr" id="hdr">
-  <div class="hdr-in">
-    <a class="brand" href="../index.html" aria-label="Сармат-ИТ, на главную">
-      <img src="img/logo.png?v=09bfd983" width="48" height="40" alt="" decoding="async">
+<!-- Единая шапка сайта (site-header.css, site-header.js): одинаковая на всех страницах -->
+<header class="sh" id="hdr">
+  <div class="sh-in">
+    <a class="sh-brand" href="../index.html" aria-label="Сармат-ИТ, на главную">
+      <img src="../img/logo.png?v=09bfd983" width="46" height="38" alt="" decoding="async">
       <span>САРМАТ-ИТ</span>
     </a>
-    <nav class="nav" aria-label="Разделы">
-      <a class="nav-dir" href="../solutions.html">Цифровые решения</a>
-      <a class="nav-dir nav-cur" href="#tasks" aria-current="page">Оборудование под задачу</a>
-      <a href="#process">Как работаем</a>
-      <a href="#request">Заявка</a>
+    <nav class="sh-nav" id="shNav" aria-label="Разделы сайта">
+      <a href="../index.html">Главная</a>
+      <a href="../solutions.html">Цифровые решения</a>
+      <a href="../oborudovanie/index.html" aria-current="page">Оборудование под задачу</a>
+      <a href="../index.html#works">Работы</a>
+      <a href="#request">Контакты</a>
+      <div class="sh-panel-extra"><a href="tel:+74994606265">+7 (499) 460-62-65</a><a href="mailto:info@sarmat-it.ru">info@sarmat-it.ru</a></div>
     </nav>
-    <!-- Вместо номера одна кнопка: нажатие сразу набирает номер -->
-    <a class="hdr-call" href="tel:+74994606265" aria-label="Позвонить: +7 (499) 460-62-65">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
-      <span>Позвонить</span>
-    </a>
-    <a class="btn btn-primary btn-sm hdr-req" href="#request"><span class="lg">Отправить ТЗ</span><span class="sm">ТЗ</span></a>
+    <a class="sh-phone" href="tel:+74994606265">+7 (499) 460-62-65</a>
+    <a class="sh-cta" href="#request">Отправить ТЗ</a>
+    <a class="sh-call" href="tel:+74994606265" aria-label="Позвонить: +7 (499) 460-62-65"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></a>
+    <button class="sh-burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="shNav"><i></i><i></i></button>
   </div>
 </header>
 
 <main>
-  <!-- 1. HERO -->
-  <section class="hero" id="hero" aria-label="Сармат-ИТ">
-    <div class="si-track">
-      <div class="si-stage">
-        <!-- Спуск: после сборки логотипа камера влетает в глобус эмблемы и садится на Землю, в Москве -->
-        <canvas class="ds-cv" aria-hidden="true"></canvas>
-        <div class="si-logo" aria-hidden="true"></div>
-        <div class="hero-foot"><h1 class="hero-line">Оборудование под задачу компании</h1></div>
-        <div class="ds-caps" aria-hidden="true">
-          <p class="ds-cap"><span class="ds-eyebrow">География</span><span class="ds-line">Доставка до объекта по всей России</span></p>
-          <p class="ds-cap"><span class="ds-eyebrow">55°45′ с. ш., 37°37′ в. д.</span><span class="ds-line">Москва</span></p>
-          <p class="ds-cap ds-cap-land"><span class="ds-eyebrow">Посадка</span><span class="ds-line">Ближе к делу</span></p>
+  <!-- 1. ПЕРВЫЙ ЭКРАН (hub-2026-11, общий каркас pagehero.css/js). Старый первый экран со спутниками-меню и спуском к Земле снят (Антон, 24.11.2026). Картинка: ТЗ заказчика в центре, вокруг виды задач. Узел открывает свою вкладку в «Выберите задачу» (tasks.js) -->
+  <section class="hero ph" id="hero" aria-labelledby="hero-title">
+    <div class="ph-in">
+      <div class="ph-offer">
+        <p class="ph-eyebrow"><i aria-hidden="true"></i>Оборудование под задачу</p>
+        <h1 class="ph-h1" id="hero-title">Оборудование, на котором работает <span>ваша компания</span></h1>
+        <p class="ph-sub">Пишем ТЗ и проект, подбираем и поставляем оборудование, ведём технадзор за монтажом. Монтаж выполняют наши партнёры.</p>
+        <p class="ph-more">Совместимость проверяем до заказа. Серверы собираем и тестируем до отправки. В КП точная модель и цена по каждой строке.</p>
+        <div class="ph-cta">
+          <a class="ph-btn ph-btn-main" href="#request">Отправить ТЗ <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+          <a class="ph-btn ph-btn-alt" href="#tasks">Выбрать задачу</a>
         </div>
-        <!-- Подсказка появляется, когда логотип собрался. Жест или нажатие проигрывает главу до «Как мы работаем» (main.js, hero) -->
-        <button class="si-hint" type="button" aria-label="Дальше: как мы работаем">
-          <span class="si-hint-ico" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="si-hint-txt t-touch" aria-hidden="true">Проведите снизу вверх</span>
-          <span class="si-hint-txt t-mouse" aria-hidden="true">Листайте вниз</span>
-        </button>
-        <div class="si-bar" aria-hidden="true"></div>
+        <p class="ph-more ph-conf">Сервер можно собрать самому по шагам: <a href="configurator.html">конфигуратор задачи</a>. Справа соберётся сводка, её отправите инженеру.</p>
+      </div>
+      <div class="sp" data-hero-pic>
+        <svg class="sp-beams" aria-hidden="true" focusable="false"></svg>
+        <a class="sp-center" href="#request" aria-label="ТЗ заказчика: отправить инженеру">
+          <span class="sp-bar"><i></i><i></i><i></i><em>техническое задание</em></span>
+          <span class="sp-body"><i class="ico sp-ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 11h7M9 14.5h7M9 18h4"/></svg></i><b>Ваше ТЗ</b><span>разбираем и собираем под задачу</span><u></u><u></u><u></u></span>
+        </a>
+        <a class="sp-node n1" href="#catalog"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="5" rx="1"/><rect x="4" y="10" width="16" height="5" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/></svg></i><b>Серверы</b><span>3 сборки в 3D</span></a>
+        <a class="sp-node n2" href="#turnkey"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="1"/><path d="M8 6h8M8 9.5h8M8 13h8M8 16.5h8"/></svg></i><b>Серверная</b><span>сцена с отказом</span></a>
+        <a class="sp-node n3" href="#net"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9.5a13 13 0 0 1 18 0"/><path d="M6 13a8.5 8.5 0 0 1 12 0"/><path d="M9 16.5a4 4 0 0 1 6 0"/><circle cx="12" cy="19.6" r="1"/></svg></i><b>Сеть и связь</b><span>Wi-Fi, сотовая, СКС</span></a>
+        <a class="sp-node n4" href="#workplaces"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg></i><b>Рабочие места</b><span>по вашему ТЗ</span></a>
+        <a class="sp-node n5" href="#video"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8l12-3.5 2 6L5 14z"/><path d="M17 9l4 .5v4l-4-1"/><path d="M8 13.5l1 4H5v3"/></svg></i><b>Видеонаблюдение</b><span>объект в 3D</span></a>
       </div>
     </div>
   </section>
@@ -437,14 +435,14 @@ window.SarmatPage = { arrive(logo, ov) {
             <p class="field-err" id="f-phone-err" hidden>Укажите телефон.</p>
           </div>
           <div class="field">
-            <label for="f-email">E-mail <span class="req-mark" aria-hidden="true">*</span></label>
-            <input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required aria-describedby="f-email-err">
-            <p class="field-err" id="f-email-err" hidden>Укажите e-mail.</p>
+            <label for="f-email">E-mail</label>
+            <input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru, если удобнее письмом" autocomplete="email" maxlength="254" aria-describedby="f-email-err">
+            <p class="field-err" id="f-email-err" hidden>Проверьте адрес e-mail.</p>
           </div>
         </div>
         <div class="field"><label for="f-pos">Интересующая позиция</label>
           <select class="input" id="f-pos" name="pos">
-            <option>Сервер для 1С</option><option>Файловый сервер</option><option>Сервер виртуализации</option><option>Серверная под ключ</option><option>Видеонаблюдение</option><option>Своя конфигурация под задачу</option>
+            <option>Сервер для 1С</option><option>Файловый сервер</option><option>Сервер виртуализации</option><option>Серверная под ключ</option><option>Видеонаблюдение</option><option>Сеть и связь</option><option>Рабочие места</option><option>Своя конфигурация под задачу</option>
           </select>
         </div>
         <div class="field"><label for="f-msg">Комментарий</label><textarea class="input" id="f-msg" name="msg" placeholder="Задача, число пользователей, сроки"></textarea></div>
@@ -479,14 +477,15 @@ window.SarmatPage = { arrive(logo, ov) {
         <img src="img/logo.png?v=09bfd983" width="57" height="48" alt="" decoding="async">
         <span>САРМАТ-ИТ</span>
       </a>
-      <p>Поставка серверного и сетевого оборудования под вашу задачу. Доставка до объекта по всей России.</p>
+      <p>Оборудование под задачу компании: ТЗ и проект, поставка, технадзор за монтажом. Доставка до объекта по всей России.</p>
       <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, ОГРН 1257700007113</p>
+      <p class="ftr-offer">Цены на сайте справочные и не являются публичной офертой (ст. 437 ГК РФ). Точную цену называем после разбора задачи.</p>
     </div>
     <nav class="ftr-nav" aria-label="Разделы (подвал)">
       <a href="#process">Как мы работаем</a>
-      <a href="#catalog">Готовые конфигурации</a>
-      <a href="#turnkey">Объекты под ключ</a>
-      <a href="#why">Почему выбирают нас</a>
+      <a href="#tasks">Выберите задачу</a>
+      <a href="configurator.html">Конфигуратор задачи</a>
+      <a href="#why">Как ведём проекты</a>
       <a href="#request">Заявка на расчёт</a>
       <a href="privacy.html">Политика обработки персональных данных</a>
     </nav>

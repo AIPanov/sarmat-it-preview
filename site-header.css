@@ -1,0 +1,61 @@
+/* Единая шапка сайта (hub-2026-11): одна разметка и один вид на всех страницах.
+   Логотип всегда виден и ведёт на главную, текущий раздел подсвечен. На телефоне меню под кнопкой.
+   Классы .sh-*, чтобы не пересекаться со старыми стилями страниц (.hdr) */
+/* Размытие на ::before, а не на самой шапке: backdrop-filter у .sh делал её точкой отсчёта для fixed, и меню на телефоне сжималось в полоску (мобильная ревизия 24.11.2026) */
+.sh { position: fixed; inset: 0 0 auto; z-index: 70; height: 64px; border-bottom: 1px solid rgba(150,185,230,.12); font-family: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding-top: env(safe-area-inset-top, 0px); }
+.sh::before { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(3,5,11,.72); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); }
+.sh-in { position: relative; max-width: 1200px; height: 64px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); box-sizing: border-box; display: flex; align-items: center; gap: 22px; }
+.sh-brand { display: flex; align-items: center; gap: 10px; flex: none; color: #e8eef7; text-decoration: none; font: 400 19px/1 "Tinos", "Times New Roman", serif; letter-spacing: .06em; white-space: nowrap; }
+.sh-brand img { height: 38px; width: auto; display: block; }
+.sh-nav { display: flex; align-items: center; gap: 22px; margin-left: auto; }
+.sh-nav a { position: relative; color: #a8b5c8; text-decoration: none; font-size: 14px; white-space: nowrap; transition: color .2s; }
+.sh-nav a:hover { color: #e8eef7; }
+.sh-nav a[aria-current="page"] { color: #e8eef7; }
+.sh-nav a[aria-current="page"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 2px; border-radius: 1px; background: linear-gradient(90deg, #a594ff, #7ce7f2); }
+.sh-phone { color: #e8eef7; text-decoration: none; font-size: 14px; white-space: nowrap; }
+.sh-cta { display: inline-flex; align-items: center; min-height: 40px; padding: 0 18px; border-radius: 999px; color: #05101c; background: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8); font-family: inherit; font-weight: 600; font-size: 14px; line-height: 1; text-decoration: none; white-space: nowrap; box-shadow: 0 10px 26px -12px rgba(124,231,242,.6); }
+.sh-burger { display: none; flex: none; width: 44px; height: 44px; position: relative; border: 1px solid rgba(150,185,230,.28); border-radius: 50%; background: rgba(8,14,28,.6); cursor: pointer; }
+.sh-burger i { position: absolute; left: 13px; right: 13px; height: 1.6px; border-radius: 1px; background: #e8eef7; transition: transform .25s, top .25s; }
+.sh-burger i:first-child { top: 17px; } .sh-burger i:last-child { top: 25px; }
+.sh-open .sh-burger i { top: 21px; } .sh-open .sh-burger i:first-child { transform: rotate(45deg); } .sh-open .sh-burger i:last-child { transform: rotate(-45deg); }
+.sh a:focus-visible, .sh button:focus-visible { outline: 2px solid #8fd0ff; outline-offset: 3px; }
+.sh-panel-extra { display: none; }
+@media (max-width: 1200px) { .sh-phone { display: none; } }
+@media (max-width: 960px) {
+  .sh-burger { display: block; }
+  .sh-cta { margin-left: auto; }
+  .sh-in { gap: 10px; }
+  .sh-nav { position: fixed; top: calc(64px + env(safe-area-inset-top, 0px)); left: 0; right: 0; bottom: 0; flex-direction: column; align-items: stretch; gap: 0; margin: 0; padding: 8px clamp(16px, 4vw, 40px) 28px; background: #03050b; isolation: isolate; overflow-y: auto; opacity: 0; visibility: hidden; transform: translateY(-8px); transition: opacity .2s, transform .2s, visibility 0s .2s; }
+  .sh-open .sh-nav { opacity: 1; visibility: visible; transform: none; transition: opacity .2s, transform .2s; }
+  .sh-nav a { padding: 16px 0; font-size: 19px; color: #e8eef7; border-bottom: 1px solid rgba(150,185,230,.12); }
+  .sh-nav a[aria-current="page"]::after { left: auto; right: 0; top: 50%; bottom: auto; width: 8px; height: 8px; border-radius: 50%; transform: translateY(-50%); }
+  .sh-panel-extra { display: grid; gap: 12px; margin-top: 22px; }
+  .sh-panel-extra a { border: 0; padding: 0; font-size: 17px; color: #8fd0ff; }
+  html.sh-lock, html.sh-lock body { overflow: hidden; }
+}
+@media (max-width: 420px) { .sh-brand span { display: none; } .sh-cta { padding: 0 14px; font-size: 13.5px; } }
+
+/* Мобильная ревизия 24.11.2026: звонок одним нажатием, одна главная кнопка, нижняя панель */
+.sh-call { display: none; flex: none; width: 44px; height: 44px; place-items: center; border-radius: 50%; border: 1px solid rgba(150,185,230,.28); background: rgba(8,14,28,.6); color: #e8eef7; }
+.sh-call svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 960px) { .sh-call { display: grid; } }
+@media (max-width: 760px) {
+  .sh-cta { display: none; }
+  .sh-call { margin-left: auto; }
+  .sh-panel-extra a:first-child { font-size: 21px; color: #e8eef7; }
+  .sh-panel-cta { display: flex !important; align-items: center; justify-content: center; min-height: 52px; margin-top: 8px; border-radius: 999px; color: #05101c !important; background: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8); font-weight: 600; font-size: 16px !important; }
+}
+.sh-panel-cta { display: none !important; }
+/* Нижняя панель на телефоне: «Позвонить» и главная кнопка страницы. Появляется после первого экрана, у формы прячется */
+.sh-bar { display: none; }
+@media (max-width: 760px) {
+  .sh-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 65; display: grid; grid-template-columns: auto 1fr; gap: 10px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); background: rgba(3,5,11,.94); border-top: 1px solid rgba(150,185,230,.14); transform: translateY(110%); transition: transform .3s cubic-bezier(.2,.7,.2,1); font-family: "Golos Text", system-ui, sans-serif; }
+  .sh-bar.on { transform: none; }
+  .sh-bar a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; }
+  .sh-bar-call { color: #e8eef7; border: 1px solid rgba(150,185,230,.32); }
+  .sh-bar-call svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+  .sh-bar-main { color: #05101c; background: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8); }
+  html.sh-bar-on .cookie { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+  html.sh-bar-on body { padding-bottom: 72px; }
+  .asst { display: none !important; }
+}

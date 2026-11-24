@@ -1,0 +1,90 @@
+/* Первый экран страниц направлений (hub-2026-11): «Цифровые решения» и «Оборудование под задачу».
+   Один каркас: текст слева, картинка справа (центр и узлы вокруг). Логотип пересобирается в значки узлов (pagehero.js).
+   Файл самостоятельный: цвета заданы здесь, от стилей страницы не зависит */
+.ph { --ph-ink: #e8eef7; --ph-ink-2: #a8b5c8; --ph-ink-3: #7888a0; --ph-a: #7ce7f2; --ph-b: #a594ff; --ph-acc: #5fb0e8;
+  --ph-line: rgba(165,148,255,.22); --ph-sig: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8);
+  position: relative; min-height: 100svh; display: flex; align-items: center; padding: 88px 0 48px; box-sizing: border-box; }
+.ph-in { width: 100%; max-width: 1200px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(28px, 4vw, 64px); align-items: center; }
+
+/* Текст */
+.ph-offer { position: relative; z-index: 3; max-width: 560px; }
+.ph-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 20px; padding: 7px 13px 7px 11px; border: 1px solid var(--ph-line); border-radius: 999px; background: rgba(14,22,44,.55); font: 500 12px/1 "JetBrains Mono", ui-monospace, Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--ph-ink-2); }
+.ph-eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: #7fe0a6; box-shadow: 0 0 0 4px rgba(127,224,166,.15); }
+.ph-h1 { margin: 0; font: 600 clamp(38px, 4.6vw, 66px)/1.03 "Golos Text", system-ui, sans-serif; letter-spacing: -.03em; color: var(--ph-ink); text-wrap: balance; }
+.ph-h1 span { background: var(--ph-sig); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ph-sub { margin: 22px 0 0; font-size: clamp(17px, 1.4vw, 19px); line-height: 1.5; color: var(--ph-ink); max-width: 46ch; }
+.ph-more { margin: 14px 0 0; font-size: 15px; line-height: 1.5; color: var(--ph-ink-3); max-width: 50ch; }
+.ph-more b { color: var(--ph-ink); font-weight: 600; }
+.ph-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.ph-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 50px; padding: 0 24px; border-radius: 999px; border: 1px solid transparent; font: 600 15px/1 "Golos Text", system-ui, sans-serif; text-decoration: none; white-space: nowrap; transition: box-shadow .25s, border-color .2s, background .2s; }
+.ph-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; transition: transform .25s; }
+.ph-btn:hover svg { transform: translateX(3px); }
+.ph-btn-main { color: #05101c; background: var(--ph-sig); box-shadow: 0 12px 30px -12px rgba(124,231,242,.6), inset 0 1px 0 rgba(255,255,255,.4); }
+.ph-btn-main:hover { box-shadow: 0 0 0 6px rgba(124,231,242,.14), 0 16px 36px -10px rgba(165,148,255,.65); }
+.ph-btn-alt { color: var(--ph-ink); background: rgba(255,255,255,.04); border-color: rgba(165,148,255,.38); }
+.ph-btn-alt:hover { border-color: var(--ph-a); background: rgba(124,231,242,.08); }
+.ph-btn:focus-visible { outline: 2px solid #8fd0ff; outline-offset: 3px; }
+.js .ph-offer > * { opacity: 0; transform: translateY(12px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
+.js .ph.on .ph-offer > * { opacity: 1; transform: none; }
+.js .ph.on .ph-offer > :nth-child(2) { transition-delay: .08s; } .js .ph.on .ph-offer > :nth-child(3) { transition-delay: .16s; }
+.js .ph.on .ph-offer > :nth-child(4) { transition-delay: .24s; } .js .ph.on .ph-offer > :nth-child(5) { transition-delay: .32s; }
+
+/* Картинка: центр и пять узлов вокруг */
+.sp { position: relative; display: grid; grid-template-columns: 1fr 1.25fr 1fr; grid-template-rows: auto auto auto; gap: 18px 14px; align-items: center; min-height: 440px; }
+.sp-beams { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.sp-beams line { stroke: rgba(143,208,255,.32); stroke-width: 1.4; stroke-dasharray: 4 6; animation: spFlow 2.4s linear infinite; opacity: 0; transition: opacity .6s .9s; }
+.sp.on .sp-beams line { opacity: 1; }
+@keyframes spFlow { to { stroke-dashoffset: -20; } }
+.sp-center { grid-column: 2; grid-row: 2; position: relative; z-index: 1; display: block; border-radius: 16px; border: 1px solid rgba(124,231,242,.38); background: linear-gradient(180deg, rgba(28,36,74,.85), rgba(10,15,32,.9)); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9), 0 0 40px -12px rgba(124,231,242,.35); text-decoration: none; color: var(--ph-ink); overflow: hidden; opacity: 0; transform: scale(.92); transition: opacity .7s cubic-bezier(.2,.7,.2,1) .2s, transform .7s cubic-bezier(.2,.7,.2,1) .2s, border-color .25s; }
+.sp-center:hover { border-color: var(--ph-a); }
+.sp-bar { display: flex; align-items: center; gap: 5px; padding: 9px 12px; border-bottom: 1px solid var(--ph-line); }
+.sp-bar i { width: 7px; height: 7px; border-radius: 50%; background: rgba(168,181,200,.35); }
+.sp-bar em { margin-left: 8px; font: normal 500 11px/1 "JetBrains Mono", ui-monospace, Menlo, monospace; color: var(--ph-ink-3); }
+.sp-body { display: grid; justify-items: center; gap: 4px; padding: 18px 14px 16px; text-align: center; }
+.sp-body b { font: 600 18px/1.2 "Golos Text", system-ui, sans-serif; margin-top: 6px; }
+.sp-body > span { font-size: 12.5px; color: var(--ph-ink-3); line-height: 1.35; }
+.sp-body u { display: block; width: 80%; height: 6px; border-radius: 3px; background: rgba(143,208,255,.14); margin-top: 6px; }
+.sp-body u + u { width: 64%; } .sp-body u + u + u { width: 72%; }
+.sp-node { position: relative; z-index: 1; display: grid; justify-items: center; gap: 3px; padding: 12px 8px; border-radius: 14px; text-align: center; text-decoration: none; color: var(--ph-ink); transition: background .25s, transform .25s; }
+.sp-node b { font: 600 14.5px/1.2 "Golos Text", system-ui, sans-serif; margin-top: 6px; opacity: 0; transition: opacity .5s; }
+.sp-node span { font-size: 12px; color: var(--ph-ink-3); line-height: 1.3; opacity: 0; transition: opacity .5s; }
+.sp-node:hover { background: rgba(124,231,242,.06); transform: translateY(-2px); }
+.sp-node:hover .ico { border-color: var(--ph-a); box-shadow: 0 0 0 6px rgba(124,231,242,.1); }
+.sp .ico { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; background: #081226; border: 1.5px solid rgba(143,208,255,.55); font-style: normal; transition: border-color .2s, box-shadow .2s; }
+.sp .ico svg { width: 26px; height: 26px; fill: none; stroke: #e8eef7; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.sp-ico { width: 44px !important; height: 44px !important; }
+.sp-ico svg { width: 22px !important; height: 22px !important; }
+.sp .ico.mo-in + b, .sp .ico.mo-in ~ span, .mo-off .sp-node b, .mo-off .sp-node span { opacity: 1; }
+.sp.on .sp-center, .mo-off .sp-center { opacity: 1; transform: none; }
+.n1 { grid-column: 1; grid-row: 1; } .n2 { grid-column: 3; grid-row: 1; }
+.n3 { grid-column: 1; grid-row: 3; } .n4 { grid-column: 3; grid-row: 3; }
+.n5 { grid-column: 2; grid-row: 3; align-self: start; }
+/* Значок в полёте (sarmat-logo.js): тот же кружок, что у узла */
+.sl-fly-b svg { padding: 22%; box-sizing: border-box; fill: none; stroke: #e8eef7; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; background: #081226; border: 1.5px solid rgba(143,208,255,.55); border-radius: 50%; }
+
+@media (max-width: 999px) {
+  .ph { min-height: auto; align-items: flex-start; padding-top: 84px; }
+  .ph-in { grid-template-columns: 1fr; }
+  .sp { min-height: 0; margin-top: 8px; }
+}
+@media (max-width: 760px) {
+  .ph { padding-top: 80px; padding-bottom: 24px; }
+  .ph-h1 { font-size: clamp(30px, 8.6vw, 40px); }
+  .ph-sub { font-size: 16px; margin-top: 14px; }
+  .ph-more { font-size: 14px; margin-top: 10px; }
+  .ph-cta { margin-top: 18px; } .ph-cta .ph-btn { min-height: 48px; padding: 0 16px; font-size: 14.5px; }
+  .ph-cta .ph-btn-main { flex: 1 1 100%; }
+  .ph-cta .ph-btn-alt { border: 0; min-height: 36px; padding: 0; background: none; color: #8fd0ff; text-decoration: underline; text-underline-offset: 3px; }
+  /* Картинка становится рядом узлов с горизонтальной прокруткой: тот же выбор, 90 px вместо 380 */
+  .sp { display: flex; gap: 8px; min-height: 0; margin: 4px calc(clamp(16px, 4vw, 40px) * -1) 0; padding: 4px clamp(16px, 4vw, 40px) 6px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 86%, transparent); mask-image: linear-gradient(90deg, #000 86%, transparent); }
+  .sp::-webkit-scrollbar { display: none; }
+  .sp-center, .sp-beams { display: none; }
+  .sp-node { flex: 0 0 auto; min-width: 104px; padding: 10px 6px; scroll-snap-align: start; border: 1px solid rgba(150,185,230,.16); border-radius: 14px; background: rgba(11,19,36,.7); }
+  .sp .ico { width: 40px; height: 40px; } .sp .ico svg { width: 20px; height: 20px; }
+  .sp-node b { font-size: 13px; } .sp-node span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .sp-center, .sp-node b, .sp-node span, .sp-beams line, .js .ph-offer > * { opacity: 1 !important; transform: none !important; } }
+
+.ph-conf { margin-top: 18px; }
+.ph-conf a { color: #8fd0ff; text-underline-offset: 3px; }
+@media (max-width: 760px) { .sp { scroll-padding-inline: clamp(16px, 4vw, 40px); } }

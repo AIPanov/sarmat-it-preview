@@ -14,17 +14,20 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=shell-2026-11">
+<link rel="stylesheet" href="styles.css?v=hub5">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
 <!-- Anime.js 4.3.6 (MIT): таймлайн сборки лендинга, счётчик цены, появление слоёв. Без него страница целиком видна и работает.
      Перед выкладкой положить файл в site/vendor/: CDN за рубежом передаёт IP посетителя (ревизия, п. 10.6) -->
 <script src="https://cdn.jsdelivr.net/npm/animejs@4.3.6/dist/bundles/anime.umd.min.js" defer></script>
-<script src="main.js?v=shell-2026-11" defer></script>
+<script src="main.js?v=hub4" defer></script>
 <script>try{if(sessionStorage.getItem('sarmat-transit')){document.documentElement.classList.add('tr-in');window.__trArrive=1}}catch(e){}setTimeout(function(){document.documentElement.classList.remove('tr-in')},2000)</script>
-<link rel="stylesheet" href="transit.css?v=2">
-<script src="sarmat-logo.js?v=1" defer></script>
-<script src="transit.js?v=2" defer></script>
-<script src="sol.js?v=1" defer></script>
+<link rel="stylesheet" href="transit.css?v=3">
+<link rel="stylesheet" href="site-header.css?v=5">
+<link rel="stylesheet" href="pagehero.css?v=4">
+<script src="site-header.js?v=2" defer></script>
+<script src="sarmat-logo.js?v=2" defer></script>
+<script src="transit.js?v=4" defer></script>
+<script src="pagehero.js?v=4" defer></script>
 </head>
 <body>
 
@@ -38,48 +41,45 @@
   </defs>
 </svg>
 
-<header class="hdr" id="hdr">
-  <div class="hdr-in">
-    <a class="brand" href="index.html" aria-label="Сармат-ИТ, на главную">
-      <img src="img/logo.png?v=09bfd983" width="48" height="40" alt="" decoding="async">
+<!-- Единая шапка сайта (site-header.css, site-header.js): одинаковая на всех страницах -->
+<header class="sh" id="hdr">
+  <div class="sh-in">
+    <a class="sh-brand" href="index.html" aria-label="Сармат-ИТ, на главную">
+      <img src="img/logo.png?v=09bfd983" width="46" height="38" alt="" decoding="async">
       <span>САРМАТ-ИТ</span>
     </a>
-    <nav class="nav" id="nav" aria-label="Разделы">
-      <a class="nav-dir nav-cur" href="#grows" aria-current="page">Цифровые решения</a>
-      <a class="nav-dir" href="oborudovanie/index.html">Оборудование под задачу</a>
-      <a href="#landing">С чего начать</a>
-      <a href="#works">Работы</a>
-      <a href="#faq">Вопросы</a>
+    <nav class="sh-nav" id="shNav" aria-label="Разделы сайта">
+      <a href="index.html">Главная</a>
+      <a href="solutions.html" aria-current="page">Цифровые решения</a>
+      <a href="oborudovanie/index.html">Оборудование под задачу</a>
+      <a href="index.html#works">Работы</a>
+      <a href="#request">Контакты</a>
+      <div class="sh-panel-extra"><a href="tel:+74994606265">+7 (499) 460-62-65</a><a href="mailto:info@sarmat-it.ru">info@sarmat-it.ru</a></div>
     </nav>
-    <a class="hdr-phone" href="tel:+74994606265">+7 (499) 460-62-65</a>
-    <a class="hdr-call" href="tel:+74994606265" aria-label="Позвонить: +7 (499) 460-62-65">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
-    </a>
-    <a class="btn btn-sig btn-sm hdr-req" href="#request">Обсудить задачу</a>
-    <button class="burger" id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="nav"><i></i><i></i></button>
+    <a class="sh-phone" href="tel:+74994606265">+7 (499) 460-62-65</a>
+    <a class="sh-cta" href="#request">Обсудить задачу</a>
+    <a class="sh-call" href="tel:+74994606265" aria-label="Позвонить: +7 (499) 460-62-65"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></a>
+    <button class="sh-burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="shNav"><i></i><i></i></button>
   </div>
 </header>
 
 <main>
-  <!-- 1. ПЕРВЫЙ ЭКРАН (hub-2026-11, 22.11.2026). Старое кольцо со спутниками и планетой убрано: оно про серверы.
-       Картинка: сайт в центре, вокруг программы, которые к нему подключаются. Пришли с другой страницы:
-       спутники собранного логотипа разлетаются по значкам этой картинки (sol.js). Каждый узел ведёт в свой блок -->
-  <section class="hero sol" id="hero" aria-labelledby="hero-title">
-    <div class="wrap sol-in">
-      <div class="offer" id="offer">
-        <p class="offer-eyebrow" style="--i:0"><i class="live" aria-hidden="true"></i>Цифровые решения</p>
-        <h1 class="offer-h1" id="hero-title" style="--i:1">Программы под то, как работает <span class="tx-shine">ваша компания</span></h1>
-        <p class="offer-sub" style="--i:2">Начинаем с сайта, дальше подключаем то, что снимает рутину с команды: заявки, запись и оплату, кабинеты, связку с 1С. Код пишем сами и передаём вам.</p>
-        <p class="offer-more" style="--i:3">Лендинг <b>от 59&nbsp;000&nbsp;₽</b> за 10 рабочих дней. Остальное считаем после разбора задачи и называем цену до начала работ.</p>
-        <div class="offer-cta" style="--i:4">
-          <a class="btn btn-sig" href="#request">Обсудить задачу <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-          <a class="btn btn-glass" href="#landing">С чего начать</a>
+  <!-- 1. ПЕРВЫЙ ЭКРАН (hub-2026-11, общий каркас pagehero.css/js). Картинка: сайт в центре, вокруг программы, которые к нему подключаются. Каждый узел ведёт в свой блок -->
+  <section class="hero ph" id="hero" aria-labelledby="hero-title">
+    <div class="ph-in">
+      <div class="ph-offer">
+        <p class="ph-eyebrow"><i aria-hidden="true"></i>Цифровые решения</p>
+        <h1 class="ph-h1" id="hero-title">Программы под то, как работает <span>ваша компания</span></h1>
+        <p class="ph-sub">Начинаем с сайта, дальше подключаем то, что снимает рутину с команды: заявки, запись и оплату, кабинеты, связку с 1С. Код пишем сами и передаём вам.</p>
+        <p class="ph-more">Лендинг <b>от 59&nbsp;000&nbsp;₽</b> за 10 рабочих дней. Остальное считаем после разбора задачи и называем цену до начала работ.</p>
+        <div class="ph-cta">
+          <a class="ph-btn ph-btn-main" href="#request">Обсудить задачу <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+          <a class="ph-btn ph-btn-alt" href="#landing">С чего начать</a>
         </div>
       </div>
-
-      <div class="sp" id="solPic">
-        <svg class="sp-beams" id="spBeams" aria-hidden="true" focusable="false"></svg>
-        <a class="sp-site" href="#landing" aria-label="Сайт: с него начинается, лендинг от 59 000 ₽">
+      <div class="sp" data-hero-pic>
+        <svg class="sp-beams" aria-hidden="true" focusable="false"></svg>
+        <a class="sp-center" href="#landing" aria-label="Сайт: с него начинается, лендинг от 59 000 ₽">
           <span class="sp-bar"><i></i><i></i><i></i><em>ваша-компания.ru</em></span>
           <span class="sp-body"><i class="ico sp-ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 8.5h18M6.5 12.5h6M6.5 15.5h9"/></svg></i><b>Сайт</b><span>визитная карточка, с него начинается</span><u></u><u></u><u></u></span>
         </a>
@@ -264,7 +264,7 @@
     <div class="wrap">
       <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Работы</p>
       <h2 class="h2" id="works-title">Что уже работает</h2>
-      <p class="lede">Два проекта, сделанные нашими руками. Один вы сейчас листаете.</p>
+      <p class="lede">Проекты, сделанные нашими руками. Один вы сейчас листаете.</p>
       <div class="works">
         <article class="wk gl spot">
           <div class="wk-vis wk-vis-self" aria-hidden="true">
@@ -305,6 +305,16 @@
           </div>
         </article>
       </div>
+      <!-- Готовые программы Сармат-ИТ (аудит партнёра 24.11.2026). Факты со страницы sarmat-it.ru/stengazeta/ на 24.11.2026 -->
+      <div class="prod gl" id="products">
+        <span class="prod-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/><path d="M7 8h4M7 11h7"/><circle cx="16" cy="9" r="1.6"/></svg></span>
+        <div class="prod-txt">
+          <p class="prod-k">Готовая программа</p>
+          <h3>«Стенгазета»: информационный экран для офиса</h3>
+          <p>Телевизор или монитор у входа показывает время, курсы ЦБ, погоду, новости и поздравления сотрудников. Всё обновляется само. Для Windows, 14 дней бесплатно, лицензия 9&nbsp;990&nbsp;₽ на компьютер.</p>
+        </div>
+        <a class="btn btn-glass prod-go" href="https://sarmat-it.ru/stengazeta/" target="_blank" rel="noopener">Страница программы <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3h8v8M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+      </div>
       <div class="sec-cta"><a class="btn btn-sig" href="#request">Хочу так же <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a></div>
     </div>
   </section>
@@ -315,10 +325,6 @@
       <p class="layer-tag layer-tag-hw" aria-hidden="true"><i></i>Команда</p>
       <div class="team-head">
         <h2 class="h2" id="team-title">Кто делает ваш проект</h2>
-        <div class="seg" role="tablist" aria-label="Как показать команду">
-          <button class="seg-b" type="button" role="tab" id="tabA" aria-controls="teamA" aria-selected="true">Кто что делает</button>
-          <button class="seg-b" type="button" role="tab" id="tabB" aria-controls="teamB" aria-selected="false">Что сделано руками</button>
-        </div>
       </div>
 
       <div class="team-pane" id="teamA" role="tabpanel" aria-labelledby="tabA">
@@ -330,23 +336,10 @@
           <li class="pipe-i gl spot"><span class="pipe-n">04</span><h3>Хостинг, почта, проверки</h3><p>Настраиваем домен, почту, Метрику. Отправляем тестовые заявки.</p><p class="pipe-got"><span>На руках</span>список проверок и доступы на ваше имя</p></li>
           <li class="pipe-i pipe-hw gl spot"><span class="pipe-n">05</span><h3>Серверы и сеть</h3><p>Подключается, когда сайту нужен свой сервер или офису нужна сеть.</p><p class="pipe-got"><span>На руках</span>спецификация с моделью по каждой строке</p></li>
         </ol>
-        <p class="team-note">Объекты заказчиков под NDA, поэтому показываем свои проекты: этот сайт и Пархай.</p>
+        <p class="team-note">Объекты заказчиков под NDA, поэтому показываем свои проекты: этот сайт, Пархай и «Стенгазету».</p>
         <a class="btn btn-sig" href="#request">Начать с разбора <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
       </div>
 
-      <div class="team-pane" id="teamB" role="tabpanel" aria-labelledby="tabB">
-        <p class="lede">Смотрите, что мы сделали сами.</p>
-        <ul class="bento">
-          <li class="bt bt-wide gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 8.5h18M6.5 12h6M6.5 15h9"/></svg></span><h3>Этот сайт</h3><p>Код, дизайн, тексты, форма. Без конструктора.</p><span class="bt-link"><i class="live" aria-hidden="true"></i>Вы на нём</span></li>
-          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="5" rx="1"/><rect x="4" y="10" width="16" height="5" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/><path d="M7 6.5h1M7 12.5h1M7 18h1"/></svg></span><h3>3D-сборки серверов</h3><p>Три сервера, детали встают по шагам. 3D написано своим кодом.</p><a class="bt-link" href="oborudovanie/index.html#catalog">Смотреть сборки</a></li>
-          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></span><h3>Сцена серверной</h3><p>50 рабочих мест, отказ одного сервера и переход на второй.</p><a class="bt-link" href="oborudovanie/index.html#turnkey">Смотреть сцену</a></li>
-          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 6h9M18 6h1M5 12h3M12 12h7M5 18h11M20 18h-1"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span><h3>Конфигуратор</h3><p>Заказчик по шагам описывает задачу, справа собирается сводка.</p><a class="bt-link" href="oborudovanie/configurator.html">Открыть конфигуратор</a></li>
-          <li class="bt bt-wide gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8.5 14.5l2.2 2.2 4.8-4.8"/></svg></span><h3>Пархай</h3><p>Сайт, запись, оплата, кабинеты, свой чат, коды от двери, сторож.</p><a class="bt-link" href="https://parhai.club" target="_blank" rel="noopener">Открыть parhai.club</a></li>
-          <li class="bt gl spot"><span class="bt-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.3-2.9 8-7 9.5-4.1-1.5-7-5.2-7-9.5V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span><h3>Проект серверной</h3><p>Схема, расчёт отказов, программа из 19 тестов.</p><span class="bt-link bt-muted">Под NDA, покажем на встрече</span></li>
-        </ul>
-        <p class="team-note">Над этим работали одни и те же люди. Они же сделают ваш проект.</p>
-        <a class="btn btn-sig" href="#request">Обсудить задачу <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-      </div>
     </div>
   </section>
 
@@ -392,9 +385,9 @@
             <p class="field-err" id="f-phone-err" hidden>Укажите телефон.</p>
           </div>
           <div class="field">
-            <label for="f-email">Почта <span class="req-mark" aria-hidden="true">*</span></label>
-            <input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required aria-describedby="f-email-err">
-            <p class="field-err" id="f-email-err" hidden>Укажите почту.</p>
+            <label for="f-email">Почта</label>
+            <input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru, если удобнее письмом" autocomplete="email" maxlength="254" aria-describedby="f-email-err">
+            <p class="field-err" id="f-email-err" hidden>Проверьте адрес почты.</p>
           </div>
         </div>
         <div class="field"><label for="f-pos">Что нужно</label>
@@ -442,6 +435,7 @@
       </a>
       <p>Цифровые решения для компании: от программ до серверной.</p>
       <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, КПП 773401001, ОГРН 1257700007113</p>
+      <p class="ftr-offer">Цены на сайте справочные и не являются публичной офертой (ст. 437 ГК РФ). Точную цену называем после разбора задачи.</p>
     </div>
     <nav class="ftr-nav" aria-label="Разделы (подвал)">
       <a href="#grows">Цифровые решения</a>

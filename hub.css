@@ -246,3 +246,49 @@ textarea.input { resize: vertical; }
 .duo-core { background: radial-gradient(circle at 50% 50%, rgba(22,38,64,.9), rgba(5,9,18,.98) 72%); border-width: 1.5px; }
 .js .duo .dir { transition: opacity .7s var(--ease) .5s, transform .7s var(--ease) .5s, border-color .25s; }
 .js .hero-head, .js .hero-more { transition-delay: .5s; }
+
+/* Аудит 24.11.2026: подсказки в форме, оговорка про оферту, обязательное поле */
+.quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.quick button { min-height: 34px; padding: 0 12px; border: 1px dashed rgba(143,208,255,.35); border-radius: 999px; background: transparent; color: var(--ink-2); font: 13px/1 var(--sans); cursor: pointer; }
+.quick button:hover { border-color: var(--sh-a); color: var(--ink); }
+.req-mark { color: var(--sh-a); }
+.ftr .ftr-offer { margin-top: 10px; font-size: 12px; color: var(--ink-3); max-width: 40ch; }
+
+/* ===== Телефон (мобильная ревизия 24.11.2026): оба направления на первом экране, порядок блоков, короче страница ===== */
+@media (max-width: 760px) {
+  .sec { padding: 56px 0; }
+  .h2 { margin-bottom: 14px; }
+  main { display: flex; flex-direction: column; }
+  main > .hero { order: 1; } main > #works { order: 2; } main > #how { order: 3; } main > #link { order: 4; } main > #request { order: 5; }
+  .hero { padding: calc(var(--hh) + 14px) 0 28px; }
+  .hero h1 { font-size: clamp(25px, 7vw, 30px); }
+  .eyebrow { margin-bottom: 10px; }
+  .duo { grid-template-columns: 1fr; gap: 0; margin-top: 18px; }
+  .dir-soft { grid-row: 1; } .duo-core { grid-row: 2; } .dir-hw { grid-row: 3; }
+  .duo-core { grid-column: 1; width: 92px; margin: -26px auto; box-shadow: 0 0 0 6px rgba(3,5,11,.95), 0 0 30px 4px rgba(124,231,242,.22); }
+  .dir, .dir-soft, .dir-hw { padding: 18px 18px 20px; -webkit-backdrop-filter: none; backdrop-filter: none; background: linear-gradient(180deg, rgba(24,32,66,.95), rgba(10,15,32,.95)); }
+  .dir-hw { padding-top: 34px; background: linear-gradient(180deg, rgba(16,40,72,.95), rgba(8,16,32,.95)); }
+  .dir h2 { margin-top: 8px; font-size: 24px; }
+  .dir-sub { margin-top: 6px; font-size: 14px; }
+  .dir-note { display: none; }
+  .dir-list { display: flex; gap: 8px; margin: 14px 0 0; border: 0; flex-wrap: wrap; }
+  .dir-list a { padding: 0; border: 0; }
+  .dir-list a::after { display: none; }
+  .dir-list a span, .dir-list a em { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .dir-list .ico { width: 40px; height: 40px; margin: 0; }
+  .dir-list .ico svg { width: 20px; height: 20px; }
+  .dir-btn { margin-top: 16px; align-self: stretch; min-height: 48px; }
+  .hero-more { margin-top: 16px; font-size: 14px; }
+  .how { margin-top: 18px; }
+  .how li { padding: 14px 0 0; }
+  .how h3 { margin-top: 6px; font-size: 19px; }
+  .how p { font-size: 14.5px; margin-top: 4px; }
+  .works { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin-inline: calc(var(--gutter) * -1); padding: 4px var(--gutter) 8px; scrollbar-width: none; }
+  .works::-webkit-scrollbar { display: none; }
+  .work { flex: 0 0 84%; scroll-snap-align: start; padding: 20px; }
+  .layers { margin-top: 18px; gap: 8px; }
+  .ly { padding: 14px 16px 14px 20px; }
+  .ly h3 { font-size: 19px; }
+  .ftr nav a, .ftr address a { padding-block: 8px; }
+}
+@media (max-width: 760px) { .works { scroll-padding-inline: var(--gutter); } }

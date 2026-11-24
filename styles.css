@@ -979,59 +979,67 @@ html:not(.js) .dsc-cap .ds-line, .descent.static .dsc-cap .ds-line { font-size: 
 .nav-cur { position: relative; }
 .nav-cur::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; border-radius: 1px; background: var(--sig); }
 
-/* ===== hub-2026-11: первый экран «Цифровых решений» (sol.js) ===== */
-.hero.sol { min-height: 100svh; display: flex; align-items: center; padding: calc(var(--header-h) + 24px) 0 48px; }
-.sol-in { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(28px, 4vw, 64px); align-items: center; }
-.sol .offer { max-width: 560px; }
-.js .hdr .brand { opacity: 0; }
-.brand-on .hdr .brand, .js .hdr.solid .brand { opacity: 1; transform: none; }
-.sp { position: relative; display: grid; grid-template-columns: 1fr 1.25fr 1fr; grid-template-rows: auto auto auto; gap: 18px 14px; align-items: center; min-height: 440px; }
-.sp-beams { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
-.sp-beams line { stroke: url(#gBeam); stroke: rgba(143,208,255,.32); stroke-width: 1.4; stroke-dasharray: 4 6; animation: spFlow 2.4s linear infinite; opacity: 0; transition: opacity .6s .9s; }
-.sp.on .sp-beams line { opacity: 1; }
-@keyframes spFlow { to { stroke-dashoffset: -20; } }
-.sp-site { grid-column: 2; grid-row: 2; position: relative; z-index: 1; display: block; border-radius: 16px; border: 1px solid var(--sh-line-2); background: linear-gradient(180deg, rgba(28,36,74,.85), rgba(10,15,32,.9)); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9), 0 0 40px -12px rgba(124,231,242,.35); text-decoration: none; color: var(--ink); overflow: hidden; opacity: 0; transform: scale(.92); transition: opacity .7s var(--ease) .2s, transform .7s var(--ease) .2s, border-color .25s; }
-.sp-bar { display: flex; align-items: center; gap: 5px; padding: 9px 12px; border-bottom: 1px solid var(--sh-line); }
-.sp-bar i { width: 7px; height: 7px; border-radius: 50%; background: rgba(168,181,200,.35); }
-.sp-bar em { margin-left: 8px; font: normal 500 11px/1 var(--mono); color: var(--ink-3); }
-.sp-body { display: grid; justify-items: center; gap: 4px; padding: 18px 14px 16px; text-align: center; }
-.sp-body b { font: 600 18px/1.2 var(--sans); margin-top: 6px; }
-.sp-body > span { font-size: 12.5px; color: var(--ink-3); line-height: 1.35; }
-.sp-body u { display: block; width: 80%; height: 6px; border-radius: 3px; background: rgba(143,208,255,.14); margin-top: 6px; }
-.sp-body u + u { width: 64%; } .sp-body u + u + u { width: 72%; }
-.sp-node { position: relative; z-index: 1; display: grid; justify-items: center; gap: 3px; padding: 12px 8px; border-radius: 14px; text-align: center; text-decoration: none; color: var(--ink); transition: background .25s, transform .25s var(--ease); }
-.sp-node b { font: 600 14.5px/1.2 var(--sans); margin-top: 6px; opacity: 0; transition: opacity .5s; }
-.sp-node span { font-size: 12px; color: var(--ink-3); line-height: 1.3; opacity: 0; transition: opacity .5s; }
-.sp-node:hover { background: rgba(124,231,242,.06); transform: translateY(-2px); }
-.sp-node:hover .ico { border-color: var(--sh-a); box-shadow: 0 0 0 6px rgba(124,231,242,.1); }
-.sp .ico { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; background: #081226; border: 1.5px solid rgba(143,208,255,.55); font-style: normal; transition: border-color .2s, box-shadow .2s; }
-.sp .ico svg { width: 26px; height: 26px; fill: none; stroke: #e8eef7; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.sp-ico { width: 44px !important; height: 44px !important; }
-.sp-ico svg { width: 22px !important; height: 22px !important; }
-.sp .ico.mo-in + b, .sp .ico.mo-in ~ span, .mo-off .sp-node b, .mo-off .sp-node span { opacity: 1; }
-.sp.on .sp-site, .mo-off .sp-site { opacity: 1; transform: none; }
-.sp-site:hover { border-color: var(--sh-a); }
-.n1 { grid-column: 1; grid-row: 1; } .n2 { grid-column: 3; grid-row: 1; }
-.n3 { grid-column: 1; grid-row: 3; } .n4 { grid-column: 3; grid-row: 3; }
-.n5 { grid-column: 2; grid-row: 3; align-self: start; }
-.sl-fly-b svg { padding: 22%; box-sizing: border-box; fill: none; stroke: #e8eef7; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; background: #081226; border: 1.5px solid rgba(143,208,255,.55); border-radius: 50%; }
-@media (max-width: 999px) {
-  .hero.sol { min-height: auto; align-items: flex-start; }
-  .sol-in { grid-template-columns: 1fr; }
-  .sp { min-height: 0; margin-top: 8px; }
-}
-@media (max-width: 560px) {
-  .sp { grid-template-columns: 1fr 1fr 1fr; gap: 10px 6px; }
-  .sp-site { grid-column: 1 / -1; grid-row: 1; }
-  .n1 { grid-column: 1; grid-row: 2; } .n2 { grid-column: 2; grid-row: 2; } .n3 { grid-column: 3; grid-row: 2; }
-  .n4 { grid-column: 1; grid-row: 3; } .n5 { grid-column: 2; grid-row: 3; }
-  .sp-beams { display: none; }
-  .sp .ico { width: 44px; height: 44px; } .sp .ico svg { width: 22px; height: 22px; }
-  .sp-node b { font-size: 13px; } .sp-node span { display: none; }
-}
-@media (prefers-reduced-motion: reduce) { .sp-site, .sp-node b, .sp-node span, .sp-beams line { opacity: 1 !important; transform: none !important; } }
-
 /* hub-2026-11: шапка в одну строку */
 .nav a, .brand span { white-space: nowrap; }
 .nav { gap: 22px; }
 @media (max-width: 1340px) { .hdr-phone { display: none; } }
+
+/* Аудит 24.11.2026: готовая программа в «Работах», оговорка про оферту в подвале */
+.prod { margin-top: 20px; display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; padding: 22px 26px; }
+.prod-ico { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 14px; background: rgba(124,231,242,.08); border: 1px solid var(--sh-line); }
+.prod-ico svg { width: 28px; height: 28px; fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.prod-k { margin: 0; font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--sh-a); }
+.prod h3 { margin: 8px 0 6px; font: 600 19px/1.25 var(--sans); }
+.prod-txt p:last-child { margin: 0; color: var(--ink-2); font-size: 15px; }
+.prod-go svg { width: 14px; height: 14px; }
+@media (max-width: 760px) { .prod { grid-template-columns: 1fr; gap: 12px; padding: 18px; } .prod-go { justify-self: start; } }
+.ftr-offer { margin-top: 10px; font-size: 12px; color: var(--ink-3); max-width: 40ch; }
+
+/* ===== Телефон (мобильная ревизия 24.11.2026): «Цифровые решения» короче в два раза ===== */
+@media (max-width: 760px) {
+  .sec { padding-block: 56px; }
+  .h2 { margin-bottom: 12px; }
+  .lede { font-size: 15.5px; }
+  main { display: flex; flex-direction: column; }
+  main > * { order: 5; }
+  main > #hero { order: 1; } main > .first-screen-end { order: 2; } main > #landing { order: 3; } main > #grows { order: 4; }
+  .gl { -webkit-backdrop-filter: none; backdrop-filter: none; background: linear-gradient(180deg, rgba(24,32,66,.95), rgba(10,15,32,.95)); }
+  .btn-sig::after { animation-iteration-count: 1; }
+  .wk-vis { display: none; }
+}
+@media (max-width: 640px) {
+  .tree { margin-top: 24px; gap: 16px; }
+  .tree-beams, .mv { display: none !important; }
+  .node-root { grid-template-columns: 1fr; padding: 18px; gap: 6px; }
+  .node-root h3 { font-size: 21px; }
+  .tree-row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px; margin-inline: calc(var(--gutter) * -1); padding: 2px var(--gutter) 8px; scrollbar-width: none; }
+  .tree-row::-webkit-scrollbar { display: none; }
+  .tree-row .node { flex: 0 0 80%; scroll-snap-align: start; }
+  .lp { margin-top: 20px; gap: 16px; }
+  .lp-demo { position: static; grid-template-columns: 1fr; }
+  .lp-demo .bw, .lp-log { display: none; }
+  .lp-cols > .lp-col:first-child { display: none; }
+  .pipe { grid-template-columns: 1fr; gap: 8px; margin-top: 18px; }
+  .pipe-i { padding: 14px 16px; gap: 4px; }
+}
+@media (max-width: 960px) { .wconsole { display: none; } }
+@media (max-width: 760px) {
+  /* Работы листаются вбок, как на главной; списки короче */
+  .works { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); gap: 12px; margin: 20px calc(var(--gutter) * -1) 0; padding: 2px var(--gutter) 8px; scrollbar-width: none; }
+  .works::-webkit-scrollbar { display: none; }
+  .wk { flex: 0 0 86%; scroll-snap-align: start; }
+  .wk-body { padding: 18px; gap: 10px; }
+  .wk .ticks li { font-size: 14px; }
+  .wk .ticks li:nth-child(n+5) { display: none; }
+  /* Команда: пять этапов строками */
+  .pipe-i { display: grid; grid-template-columns: 28px 1fr; column-gap: 8px; row-gap: 2px; }
+  .pipe-i > * { grid-column: 2; }
+  .pipe-i .pipe-n { grid-column: 1; grid-row: 1 / 4; }
+  .pipe-i h3 { font-size: 17px; margin: 0; }
+  .pipe-i p.pipe-got { margin-top: 4px; padding-top: 6px; font-size: 12.5px; }
+  .pipe-got span { display: inline; margin: 0 6px 0 0; }
+  /* Подвал: ссылки на блоки этой же страницы на телефоне не нужны */
+  .ftr-nav a:nth-child(2), .ftr-nav a:nth-child(3), .ftr-nav a:nth-child(5), .ftr-nav a:nth-child(7) { display: none; }
+  .ftr-nav a { padding-block: 6px; }
+  .tree-row { scroll-padding-inline: var(--gutter); }
+}

@@ -246,6 +246,10 @@
       if (best) { best.used = true; pairs.push([best, t]); }
     });
     const layer = opts.layer || document.body;
+    // центр глобуса на экране: туда втягиваются спутники
+    const gr = logo.parts.globeG.getBoundingClientRect();
+    // если логотип в это время едет на новое место, страница передаёт, где глобус окажется (opts.via)
+    const G = opts.via || { x: gr.left + gr.width / 2, y: gr.top + gr.height / 2, r: gr.width / 2 };
     const done = pairs.map(([o, t], i) => new Promise(res => {
       const f = document.createElement('div'); f.className = 'sl-fly';
       const size = t.d;
@@ -255,16 +259,19 @@
       f.innerHTML = ico + `<div class="sl-fly-b">${t.t.innerHTML}</div>`;
       layer.appendChild(f);
       o.s.gone = true; o.s.node.style.opacity = 0; o.s.line.style.opacity = 0;
+      // Пересборка как на боевом сайте: спутник втягивается в глобус, в нём меняет значок и вылетает к цели.
+      // Порядок вылета по очереди, как спутники вылетают из планеты на «рабочем столе»
       const s0 = o.d / size, x0 = o.x - size / 2, y0 = o.y - size / 2, x1 = t.x - size / 2, y1 = t.y - size / 2;
-      // дуга: середина пути смещена поперёк направления полёта
-      const mx = (x0 + x1) / 2 - (y1 - y0) * 0.22, my = (y0 + y1) / 2 + (x1 - x0) * 0.22;
+      const gx = G.x - size / 2, gy = G.y - size / 2, sIn = Math.max(0.12, G.r * 0.5 / size);
+      const delay = REDUCE ? 0 : i * 70, opt = { duration: dur, delay, easing: 'linear', fill: 'both' };
       const anim = f.animate([
-        { transform: `translate(${x0}px, ${y0}px) scale(${s0}) rotate(0deg)` },
-        { transform: `translate(${mx}px, ${my}px) scale(${(s0 + 1) / 2 * 1.15}) rotate(${i % 2 ? -160 : 160}deg)`, offset: .5 },
-        { transform: `translate(${x1}px, ${y1}px) scale(1) rotate(0deg)` }
-      ], { duration: dur, delay: REDUCE ? 0 : i * 55, easing: 'cubic-bezier(.45,.05,.25,1)', fill: 'forwards' });
-      f.querySelector('.sl-fly-a').animate([{ opacity: 1 }, { opacity: 1, offset: .55 }, { opacity: 0 }], { duration: dur, delay: REDUCE ? 0 : i * 55, fill: 'forwards' });
-      f.querySelector('.sl-fly-b').animate([{ opacity: 0 }, { opacity: 0, offset: .5 }, { opacity: 1 }], { duration: dur, delay: REDUCE ? 0 : i * 55, fill: 'forwards' });
+        { transform: `translate(${x0}px, ${y0}px) scale(${s0})`, opacity: 1, easing: 'cubic-bezier(.55,0,.75,.3)' },
+        { transform: `translate(${gx}px, ${gy}px) scale(${sIn})`, opacity: .15, offset: .38, easing: 'linear' },
+        { transform: `translate(${gx}px, ${gy}px) scale(${sIn})`, opacity: .15, offset: .46, easing: 'cubic-bezier(.2,.7,.25,1)' },
+        { transform: `translate(${x1}px, ${y1}px) scale(1)`, opacity: 1 }
+      ], opt);
+      f.querySelector('.sl-fly-a').animate([{ opacity: 1 }, { opacity: 1, offset: .38 }, { opacity: 0, offset: .42 }, { opacity: 0 }], opt);
+      f.querySelector('.sl-fly-b').animate([{ opacity: 0 }, { opacity: 0, offset: .42 }, { opacity: 1, offset: .46 }, { opacity: 1 }], opt);
       anim.onfinish = () => { t.t.classList.add('mo-in'); f.remove(); res(); };
     }));
     // точки и спутники без пары гаснут вместе с лучами
@@ -274,5 +281,12 @@
     return Promise.all(done);
   }
 
-  window.SarmatLogo = { create, morph, REDUCE };
+  // Где собирается логотип: по центру экрана под шапкой. Одно место для загрузки страницы и для переходов,
+  // поэтому сборка при переходе выглядит так же, как при открытии сайта
+  function stageBox() {
+    const hdr = document.getElementById('hdr'), hh = hdr ? hdr.offsetHeight : 64;
+    const s = Math.min((innerHeight - hh) * 0.8, innerWidth * 0.84, 600);
+    return { left: (innerWidth - s) / 2, top: hh + (innerHeight - hh - s) / 2, width: s, height: s };
+  }
+  window.SarmatLogo = { create, morph, stageBox, REDUCE };
 })();
