@@ -45,7 +45,7 @@
   .sh-panel-extra a:first-child { font-size: 21px; color: #e8eef7; }
   .sh-panel-cta { display: flex !important; align-items: center; justify-content: center; min-height: 52px; margin-top: 8px; border-radius: 999px; color: #05101c !important; background: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8); font-weight: 600; font-size: 16px !important; }
 }
-.sh-panel-cta { display: none !important; }
+@media (min-width: 761px) { .sh-panel-cta { display: none !important; } }
 /* Нижняя панель на телефоне: «Позвонить» и главная кнопка страницы. Появляется после первого экрана, у формы прячется */
 .sh-bar { display: none; }
 @media (max-width: 760px) {

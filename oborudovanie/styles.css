@@ -445,6 +445,7 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
   .js.cookie-open .asst { bottom: calc(28px + var(--cookie-h, 0px) + env(safe-area-inset-bottom, 0px)); }
   /* First screen: the headline and the hint stand above the notice instead of under it */
   .js.cookie-open .hero-foot { bottom: calc(132px + var(--cookie-h, 0px) + env(safe-area-inset-bottom, 0px)); }
+  .js.cookie-open .ds-caps { bottom: calc(68px + var(--cookie-h, 0px) + env(safe-area-inset-bottom, 0px)); }
   .js.cookie-open .si-hint { bottom: calc(20px + var(--cookie-h, 0px) + env(safe-area-inset-bottom, 0px)); }
 }
 @media (max-width: 600px) {
@@ -597,9 +598,7 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
 /* ===== Телефон (мобильная ревизия 24.11.2026): сборки сразу после первого экрана, короче страница ===== */
 @media (max-width: 760px) {
   .sec { padding-block: 56px; }
-  main { display: flex; flex-direction: column; }
-  main > * { order: 5; }
-  main > #hero { order: 1; } main > .first-screen-end { order: 2; } main > #tasks { order: 3; } main > #process { order: 4; }
+  /* порядок блоков как на компьютере: спуск к Земле ведёт в «Как мы работаем» */
   .steps4 { gap: 22px; margin-top: 28px; }
   .deliv { margin-top: 28px; }
   .vals { grid-template-columns: 1fr; gap: 8px; margin-top: 24px; }
@@ -608,4 +607,3 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
   .tk-tab { min-width: 150px; }
 }
 @media (max-width: 860px) { .gal-card { height: min(calc(100svh - 150px), 600px); min-height: 480px; } }
-@media (max-width: 760px) { main > section > .wrap > .eyebrow:first-child { display: none; } }

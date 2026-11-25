@@ -103,6 +103,9 @@
     e.preventDefault();
     const phone = form.querySelector('#f-phone'), consent = form.querySelector('.check input');
     if (!phone.value.trim()) { msg.textContent = 'Укажите телефон.'; msg.hidden = false; phone.focus(); return; }
+    const email = form.querySelector('#f-email'), ev = email.value.trim();
+    if (!ev) { msg.textContent = 'Укажите почту.'; msg.hidden = false; email.focus(); return; }
+    if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[^\s@.]{2,}$/.test(ev)) { msg.textContent = 'Проверьте адрес. Пример:\u00a0name@company.ru.'; msg.hidden = false; email.focus(); return; }
     if (!consent.checked) { msg.textContent = 'Без согласия заявку отправить нельзя.'; msg.hidden = false; return; }
     msg.textContent = 'Это макет: отсюда ничего не отправляется.'; msg.hidden = false;
   });

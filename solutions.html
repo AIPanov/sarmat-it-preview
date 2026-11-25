@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Сармат-ИТ: программы и цифровые решения для компании</title>
-<meta name="description" content="Пишем программы для компаний: заявки и CRM, запись и оплата, личные кабинеты, связка с 1С. Начать можно с сайта: лендинг от 59 000 ₽. Код остаётся у вас.">
+<title>Сармат-ИТ: разработка под запрос компании</title>
+<meta name="description" content="Разрабатываем программы под запрос компании и автоматизируем процессы под ваш продукт: заявки и CRM, оплата, кабинеты, обмен с 1С. Работаем под NDA, код передаём вам.">
 <!-- Концепт shell-2026-11 для показа: не индексируется, счётчика Метрики нет -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#03050b">
@@ -14,19 +14,20 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=hub5">
+<link rel="stylesheet" href="styles.css?v=hub8">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
 <!-- Anime.js 4.3.6 (MIT): таймлайн сборки лендинга, счётчик цены, появление слоёв. Без него страница целиком видна и работает.
      Перед выкладкой положить файл в site/vendor/: CDN за рубежом передаёт IP посетителя (ревизия, п. 10.6) -->
 <script src="https://cdn.jsdelivr.net/npm/animejs@4.3.6/dist/bundles/anime.umd.min.js" defer></script>
-<script src="main.js?v=hub4" defer></script>
-<script>try{if(sessionStorage.getItem('sarmat-transit')){document.documentElement.classList.add('tr-in');window.__trArrive=1}}catch(e){}setTimeout(function(){document.documentElement.classList.remove('tr-in')},2000)</script>
+<script src="main.js?v=hub5" defer></script>
+<script>try{if(sessionStorage.getItem('sarmat-transit')){if(innerWidth>760)document.documentElement.classList.add('tr-in');window.__trArrive=1}}catch(e){}setTimeout(function(){document.documentElement.classList.remove('tr-in')},2000)</script>
 <link rel="stylesheet" href="transit.css?v=3">
-<link rel="stylesheet" href="site-header.css?v=5">
+<link rel="stylesheet" href="site-header.css?v=6">
 <link rel="stylesheet" href="pagehero.css?v=4">
-<script src="site-header.js?v=2" defer></script>
+<link rel="stylesheet" href="trust.css?v=1">
+<script src="site-header.js?v=3" defer></script>
 <script src="sarmat-logo.js?v=2" defer></script>
-<script src="transit.js?v=4" defer></script>
+<script src="transit.js?v=5" defer></script>
 <script src="pagehero.js?v=4" defer></script>
 </head>
 <body>
@@ -68,10 +69,10 @@
   <section class="hero ph" id="hero" aria-labelledby="hero-title">
     <div class="ph-in">
       <div class="ph-offer">
-        <p class="ph-eyebrow"><i aria-hidden="true"></i>Цифровые решения</p>
-        <h1 class="ph-h1" id="hero-title">Программы под то, как работает <span>ваша компания</span></h1>
-        <p class="ph-sub">Начинаем с сайта, дальше подключаем то, что снимает рутину с команды: заявки, запись и оплату, кабинеты, связку с 1С. Код пишем сами и передаём вам.</p>
-        <p class="ph-more">Лендинг <b>от 59&nbsp;000&nbsp;₽</b> за 10 рабочих дней. Остальное считаем после разбора задачи и называем цену до начала работ.</p>
+        <p class="ph-eyebrow"><i aria-hidden="true"></i>Разработка под запрос</p>
+        <h1 class="ph-h1" id="hero-title">Автоматизируем процессы <span>под ваш продукт</span></h1>
+        <p class="ph-sub">Разрабатываем программы под запрос компании: разбираем, как устроена работа, и убираем ручные шаги. Заявки и CRM, оплата, кабинеты, обмен с 1С, свои программы под конкретный процесс. Работаем под NDA, код передаём вам.</p>
+        <p class="ph-more">Начать можно с сайта: лендинг <b>от 59&nbsp;000&nbsp;₽</b> за 10 рабочих дней. Разработку считаем после разбора задачи и называем цену до начала работ.</p>
         <div class="ph-cta">
           <a class="ph-btn ph-btn-main" href="#request">Обсудить задачу <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
           <a class="ph-btn ph-btn-alt" href="#landing">С чего начать</a>
@@ -79,15 +80,15 @@
       </div>
       <div class="sp" data-hero-pic>
         <svg class="sp-beams" aria-hidden="true" focusable="false"></svg>
-        <a class="sp-center" href="#landing" aria-label="Сайт: с него начинается, лендинг от 59 000 ₽">
-          <span class="sp-bar"><i></i><i></i><i></i><em>ваша-компания.ru</em></span>
-          <span class="sp-body"><i class="ico sp-ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 8.5h18M6.5 12.5h6M6.5 15.5h9"/></svg></i><b>Сайт</b><span>визитная карточка, с него начинается</span><u></u><u></u><u></u></span>
+        <a class="sp-center" href="#grows" aria-label="Ваш процесс: что автоматизируем">
+          <span class="sp-bar"><i></i><i></i><i></i><em>ваш процесс</em></span>
+          <span class="sp-body"><i class="ico sp-ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 6h10M6 8l5 8M18 8l-5 8"/></svg></i><b>Ваш продукт</b><span>разбираем процесс и убираем ручные шаги</span><u></u><u></u><u></u></span>
         </a>
         <a class="sp-node n1" href="#grow-crm"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="4.6" height="16" rx="1"/><rect x="9.7" y="4" width="4.6" height="11" rx="1"/><rect x="15.9" y="4" width="4.6" height="7" rx="1"/></svg></i><b>Заявки и CRM</b><span>заявка не теряется</span></a>
         <a class="sp-node n2" href="#grow-pay"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M8.5 14.5l2.2 2.2 4.8-4.8"/></svg></i><b>Запись и оплата</b><span>клиент сам платит</span></a>
         <a class="sp-node n3" href="#grow-soft"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></i><b>Кабинеты и 1С</b><span>без ручного переноса</span></a>
         <a class="sp-node n4" href="#grow-conf"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></i><b>Конфигураторы</b><span>заказ по шагам</span></a>
-        <a class="sp-node n5" href="#watch"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></i><b>Сторож</b><span>пишет, если сайт упал</span></a>
+        <a class="sp-node n5" href="#landing"><i class="ico" data-morph aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 8.5h18M6.5 12.5h6M6.5 15.5h9"/></svg></i><b>Сайт</b><span>с него можно начать</span></a>
       </div>
     </div>
   </section>
@@ -259,6 +260,21 @@
 
   <!-- 4. GROWS. От сайта вниз тянутся лучи к следующим слоям. Лучи рисует main.js (grows) по положению карточек -->
 
+  <!-- КОНФИДЕНЦИАЛЬНОСТЬ И ОТВЕТСТВЕННОСТЬ. Главная ценность компании (Антон, 25.11.2026): NDA, ответственность, репутация.
+       Без цифр и проектов заказчиков; содержание КП на сайт не выносим -->
+  <section class="sec trust" id="trust" aria-labelledby="trust-title">
+    <div class="wrap">
+      <p class="layer-tag">Конфиденциальность</p>
+      <h2 class="h2" id="trust-title">Работаем под NDA. Репутация нам дороже любого заказа</h2>
+      <ul class="trust-list">
+        <li><span class="trust-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><h3>Под NDA с первой встречи</h3><p>Проекты заказчиков не показываем, даже в портфолио. Поэтому в «Работах» только наши собственные проекты.</p></li>
+        <li><span class="trust-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg></span><h3>Ваши процессы остаются вашими</h3><p>Как устроен ваш продукт и ваша работа, знает только команда проекта. Код и доступы оформляем на вас.</p></li>
+        <li><span class="trust-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span><h3>Отвечаем за результат</h3><p>Одна команда от разбора задачи до сдачи. Срок и цену называем до начала работ.</p></li>
+        <li><span class="trust-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg></span><h3>Берёмся за то, что сделаем хорошо</h3><p>Если задача не наша, скажем об этом на первой встрече.</p></li>
+      </ul>
+    </div>
+  </section>
+
   <!-- 8. WORKS. Только свои проекты (решение Антона 17.11.2026). Факты Пархай на 05.11.2026 (copy.md, раздел 4) -->
   <section class="sec" id="works" aria-labelledby="works-title">
     <div class="wrap">
@@ -385,8 +401,8 @@
             <p class="field-err" id="f-phone-err" hidden>Укажите телефон.</p>
           </div>
           <div class="field">
-            <label for="f-email">Почта</label>
-            <input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru, если удобнее письмом" autocomplete="email" maxlength="254" aria-describedby="f-email-err">
+            <label for="f-email">Почта <span class="req-mark" aria-hidden="true">*</span></label>
+            <input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required aria-describedby="f-email-err">
             <p class="field-err" id="f-email-err" hidden>Проверьте адрес почты.</p>
           </div>
         </div>

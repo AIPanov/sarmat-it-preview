@@ -51,7 +51,7 @@
   function arrive() {
     let label = null; try { label = sessionStorage.getItem(KEY); sessionStorage.removeItem(KEY); } catch (e) {}
     const root = document.documentElement;
-    if (!label || REDUCE) { root.classList.remove('tr-in'); return; }
+    if (!label || REDUCE || narrow()) { root.classList.remove('tr-in'); return; }
     const { o, logo } = overlay(label);
     logo.set(1);
     o.classList.add('tr-show', 'tr-now', 'tr-named');

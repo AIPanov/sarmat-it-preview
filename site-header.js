@@ -20,7 +20,9 @@
     const form = document.getElementById('request');
     let formIn = false;
     if (form && 'IntersectionObserver' in window) new IntersectionObserver(es => { formIn = es[0].isIntersecting; upd(); }, { threshold: .15 }).observe(form);
-    const upd = () => { const on = scrollY > innerHeight * .6 && !formIn; bar.classList.toggle('on', on); root.classList.toggle('sh-bar-on', on && innerWidth <= 760); };
+    const track = document.querySelector('.si-track');
+    const startAt = () => track ? track.getBoundingClientRect().bottom + scrollY - innerHeight * .4 : innerHeight * .6;
+    const upd = () => { const on = scrollY > startAt() && !formIn; bar.classList.toggle('on', on); root.classList.toggle('sh-bar-on', on && innerWidth <= 760); };
     addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
   }
 })();

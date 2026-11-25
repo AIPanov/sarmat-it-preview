@@ -232,6 +232,8 @@ textarea.input { resize: vertical; }
 .dir-soft, .dir-hw { transition-delay: .15s; }
 .duo-em { position: absolute; inset: 3%; }
 .duo-em .sl { position: absolute; }
+/* В круге эмблемы только знак: слова логотипа не влезают и наезжают друг на друга */
+.duo-em .sl-3d, .duo-em .sl-over { display: none; }
 .dir-list .ico { flex: none; width: 30px; height: 30px; margin-right: 12px; display: grid; place-items: center; border-radius: 50%; background: #081226; border: 1px solid rgba(143,208,255,.45); font-style: normal; }
 .dir-list .ico svg { width: 17px; height: 17px; fill: none; stroke: #e8eef7; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .dir-list a:hover .ico { border-color: var(--sh-a); }
@@ -259,7 +261,7 @@ textarea.input { resize: vertical; }
   .sec { padding: 56px 0; }
   .h2 { margin-bottom: 14px; }
   main { display: flex; flex-direction: column; }
-  main > .hero { order: 1; } main > #works { order: 2; } main > #how { order: 3; } main > #link { order: 4; } main > #request { order: 5; }
+  main > .hero { order: 1; } main > #trust { order: 2; } main > #works { order: 3; } main > #how { order: 4; } main > #link { order: 5; } main > #request { order: 6; }
   .hero { padding: calc(var(--hh) + 14px) 0 28px; }
   .hero h1 { font-size: clamp(25px, 7vw, 30px); }
   .eyebrow { margin-bottom: 10px; }
@@ -267,7 +269,9 @@ textarea.input { resize: vertical; }
   .dir-soft { grid-row: 1; } .duo-core { grid-row: 2; } .dir-hw { grid-row: 3; }
   .duo-core { grid-column: 1; width: 92px; margin: -26px auto; box-shadow: 0 0 0 6px rgba(3,5,11,.95), 0 0 30px 4px rgba(124,231,242,.22); }
   .dir, .dir-soft, .dir-hw { padding: 18px 18px 20px; -webkit-backdrop-filter: none; backdrop-filter: none; background: linear-gradient(180deg, rgba(24,32,66,.95), rgba(10,15,32,.95)); }
-  .dir-hw { padding-top: 34px; background: linear-gradient(180deg, rgba(16,40,72,.95), rgba(8,16,32,.95)); }
+  .dir-soft { padding-bottom: 40px; }
+  .duo-core { pointer-events: none; }
+  .dir-hw { padding-top: 44px; background: linear-gradient(180deg, rgba(16,40,72,.95), rgba(8,16,32,.95)); }
   .dir h2 { margin-top: 8px; font-size: 24px; }
   .dir-sub { margin-top: 6px; font-size: 14px; }
   .dir-note { display: none; }
@@ -292,3 +296,8 @@ textarea.input { resize: vertical; }
   .ftr nav a, .ftr address a { padding-block: 8px; }
 }
 @media (max-width: 760px) { .works { scroll-padding-inline: var(--gutter); } }
+
+/* Акцент на разработке (25.11.2026): заголовок про программы, вторая строка про оборудование и NDA */
+.hero-lead { margin: 14px auto 0; max-width: 60ch; color: var(--ink-2); font-size: clamp(16px, 1.35vw, 18px); }
+.dir-soft { border-color: rgba(124,231,242,.42); box-shadow: 0 0 60px -28px rgba(124,231,242,.6); }
+@media (max-width: 760px) { .hero-head { text-align: left; } .hero-lead { margin-left: 0; font-size: 15px; } }

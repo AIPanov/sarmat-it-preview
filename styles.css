@@ -1032,7 +1032,7 @@ html:not(.js) .dsc-cap .ds-line, .descent.static .dsc-cap .ds-line { font-size: 
   .wk .ticks li { font-size: 14px; }
   .wk .ticks li:nth-child(n+5) { display: none; }
   /* Команда: пять этапов строками */
-  .pipe-i { display: grid; grid-template-columns: 28px 1fr; column-gap: 8px; row-gap: 2px; }
+  .pipe-i { display: grid; grid-template-columns: 34px 1fr; column-gap: 12px; row-gap: 2px; }
   .pipe-i > * { grid-column: 2; }
   .pipe-i .pipe-n { grid-column: 1; grid-row: 1 / 4; }
   .pipe-i h3 { font-size: 17px; margin: 0; }
@@ -1043,3 +1043,6 @@ html:not(.js) .dsc-cap .ds-line, .descent.static .dsc-cap .ds-line { font-size: 
   .ftr-nav a { padding-block: 6px; }
   .tree-row { scroll-padding-inline: var(--gutter); }
 }
+
+/* Заголовки как на главной и «Оборудовании»: засечки Tinos 400 (решение Антона 25.11.2026). Мелкие подзаголовки списков остаются Golos */
+h1.ph-h1, .h2, .node h3, .wk h3, .prod h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -.01em; }
