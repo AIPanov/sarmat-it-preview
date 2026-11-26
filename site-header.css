@@ -56,6 +56,17 @@
   .sh-bar-call svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
   .sh-bar-main { color: #05101c; background: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8); }
   html.sh-bar-on .cookie { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
-  html.sh-bar-on body { padding-bottom: 72px; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  .ftr { padding-bottom: 28px !important; }
+  html.cookie-open body { padding-bottom: calc(76px + var(--cookie-h, 0px) + env(safe-area-inset-bottom, 0px)); }
   .asst { display: none !important; }
+}
+
+/* UX-ревизия, круг 2: уведомление не лежит поверх меню; кнопка в шапке одной ширины на всех страницах */
+html.sh-lock .cookie { display: none !important; }
+.sh-cta { min-width: 160px; justify-content: center; }
+@media (max-width: 760px) {
+  .cookie { gap: 10px !important; padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)) !important; }
+  .cookie p { font-size: 11px !important; line-height: 1.3 !important; }
+  .cookie .btn { min-height: 36px !important; padding: 0 12px !important; }
 }

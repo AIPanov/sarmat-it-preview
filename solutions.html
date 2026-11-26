@@ -14,17 +14,17 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=hub8">
+<link rel="stylesheet" href="styles.css?v=hub12">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
 <!-- Anime.js 4.3.6 (MIT): таймлайн сборки лендинга, счётчик цены, появление слоёв. Без него страница целиком видна и работает.
      Перед выкладкой положить файл в site/vendor/: CDN за рубежом передаёт IP посетителя (ревизия, п. 10.6) -->
 <script src="https://cdn.jsdelivr.net/npm/animejs@4.3.6/dist/bundles/anime.umd.min.js" defer></script>
-<script src="main.js?v=hub5" defer></script>
+<script src="main.js?v=hub6" defer></script>
 <script>try{if(sessionStorage.getItem('sarmat-transit')){if(innerWidth>760)document.documentElement.classList.add('tr-in');window.__trArrive=1}}catch(e){}setTimeout(function(){document.documentElement.classList.remove('tr-in')},2000)</script>
 <link rel="stylesheet" href="transit.css?v=3">
-<link rel="stylesheet" href="site-header.css?v=6">
+<link rel="stylesheet" href="site-header.css?v=8">
 <link rel="stylesheet" href="pagehero.css?v=4">
-<link rel="stylesheet" href="trust.css?v=1">
+<link rel="stylesheet" href="trust.css?v=2">
 <script src="site-header.js?v=3" defer></script>
 <script src="sarmat-logo.js?v=2" defer></script>
 <script src="transit.js?v=5" defer></script>
@@ -322,15 +322,7 @@
         </article>
       </div>
       <!-- Готовые программы Сармат-ИТ (аудит партнёра 24.11.2026). Факты со страницы sarmat-it.ru/stengazeta/ на 24.11.2026 -->
-      <div class="prod gl" id="products">
-        <span class="prod-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/><path d="M7 8h4M7 11h7"/><circle cx="16" cy="9" r="1.6"/></svg></span>
-        <div class="prod-txt">
-          <p class="prod-k">Готовая программа</p>
-          <h3>«Стенгазета»: информационный экран для офиса</h3>
-          <p>Телевизор или монитор у входа показывает время, курсы ЦБ, погоду, новости и поздравления сотрудников. Всё обновляется само. Для Windows, 14 дней бесплатно, лицензия 9&nbsp;990&nbsp;₽ на компьютер.</p>
-        </div>
-        <a class="btn btn-glass prod-go" href="https://sarmat-it.ru/stengazeta/" target="_blank" rel="noopener">Страница программы <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3h8v8M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
-      </div>
+      <p class="prod-line" id="products">Ещё наша готовая программа: <a href="https://sarmat-it.ru/stengazeta/" target="_blank" rel="noopener">«Стенгазета», информационный экран для офиса</a>. Время, курсы ЦБ, погода, новости и поздравления сотрудников на телевизоре у входа.</p>
       <div class="sec-cta"><a class="btn btn-sig" href="#request">Хочу так же <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a></div>
     </div>
   </section>
@@ -369,11 +361,8 @@
       </div>
       <div class="faq">
         <details><summary>Почему не сайт на конструкторе за 20 тысяч?</summary><div><p>На конструкторе сайт живёт в аренду: перестали платить тариф или конструктор закрыли, сайта нет. Код пишем сами и передаём вам. В цену входит то, что на конструкторе делают отдельно или не делают: проверка формы тестовыми заявками, документы по 152-ФЗ, Метрика с целями, отчёт при сдаче.</p></div></details>
-        <details><summary>Что будет, если сайт упадёт?</summary><div><p>Хостинг, почту и домен настраиваем сами, поэтому знаем, где искать. Можно подключить сторожа: он открывает сайт каждую минуту и пишет в Telegram и Макс, если сайт не открылся или пришёл пустым. Такой сторож уже следит за parhai.club.</p></div></details>
         <details><summary>Кому принадлежит сайт?</summary><div><p>Вам. Домен, хостинг и аккаунты оформляем на ваше имя, код передаём. Уйдёте к другому подрядчику, всё останется у вас.</p></div></details>
-        <details><summary>Сколько ждать?</summary><div><p>Лендинг: 10 рабочих дней. Сроки для сайта с записью, оплатой или кабинетами называем после разбора, до начала работ.</p></div></details>
         <details><summary>Сколько стоит, если нужно больше лендинга?</summary><div><p>Лендинг от 59 000 ₽. Остальное считаем после разбора продукта: цена зависит от того, что сайт должен делать. Итог называем до начала работ.</p></div></details>
-        <details><summary>Что я получу при сдаче?</summary><div><p>Работающий сайт, доступы на ваше имя, код и отчёт: что сделано, что проверено, где что лежит.</p></div></details>
       </div>
     </div>
   </section>
@@ -418,12 +407,13 @@
           </select>
         </div>
         <div class="field"><label for="f-msg">Комментарий</label><textarea class="input" id="f-msg" name="msg" placeholder="Что продаёте, есть ли сайт сейчас, что нужно"></textarea></div>
-        <div class="field">
+        <details class="file-more" id="fileMore"><summary>+ Приложить файл с задачей</summary>
+          <div class="field">
           <label for="f-file">Файл с задачей или спецификацией</label>
           <input class="input input-file" id="f-file" name="file" type="file" accept=".doc,.docx,.xls,.xlsx,.pdf" aria-describedby="f-file-hint f-file-err">
           <p class="field-hint" id="f-file-hint">Word, Excel или PDF, до 10 МБ.</p>
           <p class="field-err" id="f-file-err" hidden></p>
-        </div>
+          </div></details><script>try{if(innerWidth>760)document.getElementById("fileMore").open=true}catch(e){}</script>
         <div class="field field-check">
           <label class="check" for="f-consent">
             <input id="f-consent" name="consent" type="checkbox" value="yes" required aria-describedby="f-consent-err">
@@ -449,7 +439,7 @@
         <img src="img/logo.png?v=09bfd983" width="57" height="48" alt="" decoding="async">
         <span>САРМАТ-ИТ</span>
       </a>
-      <p>Цифровые решения для компании: от программ до серверной.</p>
+      <p>Цифровые решения для компании и оборудование под её задачу. Доставка оборудования до объекта по всей России.</p>
       <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, КПП 773401001, ОГРН 1257700007113</p>
       <p class="ftr-offer">Цены на сайте справочные и не являются публичной офертой (ст. 437 ГК РФ). Точную цену называем после разбора задачи.</p>
     </div>

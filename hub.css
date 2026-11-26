@@ -301,3 +301,36 @@ textarea.input { resize: vertical; }
 .hero-lead { margin: 14px auto 0; max-width: 60ch; color: var(--ink-2); font-size: clamp(16px, 1.35vw, 18px); }
 .dir-soft { border-color: rgba(124,231,242,.42); box-shadow: 0 0 60px -28px rgba(124,231,242,.6); }
 @media (max-width: 760px) { .hero-head { text-align: left; } .hero-lead { margin-left: 0; font-size: 15px; } }
+
+/* Уведомление о cookie (как на остальных страницах) */
+.cookie { position: fixed; z-index: 70; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: min(440px, calc(100vw - 32px)); box-sizing: border-box; display: flex; align-items: center; gap: 16px; padding: 14px 16px; background: rgba(16,26,48,.95); border: 1px solid rgba(150,185,230,.22); border-radius: 16px; box-shadow: 0 24px 50px -20px rgba(0,0,0,.9); }
+.cookie[hidden] { display: none; }
+.cookie p { margin: 0; font: 13px/1.45 var(--sans); color: var(--ink-2, #a8b5c8); }
+.cookie a { color: var(--ink); }
+.cookie .btn { flex: none; min-height: 38px; padding: 0 16px; font-size: 14px; }
+@media (max-width: 600px) {
+  .cookie { left: 0; right: 0; width: 100%; bottom: 0; gap: 12px; border-radius: 14px 14px 0 0; border-width: 1px 0 0; padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .cookie p { font-size: 11.5px; line-height: 1.35; }
+  .cookie .btn { min-height: 34px; padding: 0 14px; font-size: 13px; }
+}
+
+/* Флажок согласия: один вид на всех страницах */
+.check input[type=checkbox] { -webkit-appearance: none; appearance: none; flex: none; width: 20px; height: 20px; margin: 1px 0 0; border: 1.5px solid rgba(150,185,230,.55); border-radius: 6px; background: rgba(8,14,28,.6); display: inline-grid; place-content: center; cursor: pointer; transition: background .2s, border-color .2s; }
+.check input[type=checkbox]::before { content: ""; width: 10px; height: 6px; border: solid #05101c; border-width: 0 0 2px 2px; transform: rotate(-45deg) translate(1px, -1px); opacity: 0; }
+.check input[type=checkbox]:checked { border-color: transparent; background: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8); }
+.check input[type=checkbox]:checked::before { opacity: 1; }
+.check input[type=checkbox]:focus-visible { outline: 2px solid #7ce7f2; outline-offset: 2px; }
+[data-invalid="true"] .check input[type=checkbox], .check[data-invalid="true"] input[type=checkbox] { border-color: #ff8a8a; }
+
+/* UX-ревизия, круг 2 (25.11.2026) */
+.check { display: grid; grid-template-columns: 22px 1fr; column-gap: 10px; align-items: start; }
+.check > input { grid-column: 1; } .check > span { grid-column: 2; }
+.quick button { min-height: 40px; }
+.how h3 { font: 600 19px/1.25 var(--sans); }
+@media (max-width: 760px) { .how h3 { font-size: 17px; } }
+.cookie { z-index: 95; }
+#reqForm .btn[type=submit] { width: 100%; }
+
+/* Подвал как на двух других страницах: название видно и на телефоне, телефон моноширинным */
+.brand-ftr span { display: inline !important; }
+.ftr address a[href^="tel:"] { font: 500 16px/1.2 "JetBrains Mono", ui-monospace, Menlo, monospace; color: var(--ink); }

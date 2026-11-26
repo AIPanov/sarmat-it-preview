@@ -15,12 +15,15 @@
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="transit.css?v=3">
-<link rel="stylesheet" href="site-header.css?v=6">
-<link rel="stylesheet" href="hub.css?v=9">
-<link rel="stylesheet" href="trust.css?v=1">
+<link rel="stylesheet" href="site-header.css?v=8">
+<link rel="stylesheet" href="hub.css?v=12">
+<link rel="stylesheet" href="trust.css?v=2">
+<link rel="stylesheet" href="asst.css?v=2">
 <script src="site-header.js?v=3" defer></script>
 <script src="sarmat-logo.js?v=2" defer></script>
 <script src="transit.js?v=5" defer></script>
+<script src="cookie.js?v=7b3fe5ad" defer></script>
+<script src="asst.js?v=2" defer></script>
 <script src="hub.js?v=8" defer></script>
 </head>
 <body>
@@ -104,6 +107,7 @@
 
   <!-- КОНФИДЕНЦИАЛЬНОСТЬ И ОТВЕТСТВЕННОСТЬ. Главная ценность компании (Антон, 25.11.2026): NDA, ответственность, репутация.
        Без цифр и проектов заказчиков; содержание КП на сайт не выносим -->
+  <div class="first-screen-end" id="firstScreenEnd" aria-hidden="true"></div>
   <section class="sec trust" id="trust" aria-labelledby="trust-title">
     <div class="wrap">
       <p class="eyebrow">Конфиденциальность</p>
@@ -227,15 +231,15 @@
             <label><input type="radio" name="topic" value="Не знаю"><span>Пока не знаю</span></label>
           </div>
         </div>
+        <div class="field"><label for="f-name">Имя</label><input class="input" id="f-name" name="name" placeholder="Как к вам обращаться" autocomplete="name"></div>
         <div class="row2">
-          <div class="field"><label for="f-name">Имя</label><input class="input" id="f-name" name="name" placeholder="Как к вам обращаться" autocomplete="name"></div>
           <div class="field"><label for="f-phone">Телефон <span class="req-mark" aria-hidden="true">*</span></label><input class="input" id="f-phone" name="phone" type="tel" placeholder="+7 999 123-45-67" autocomplete="tel" required></div>
+          <div class="field"><label for="f-email">Почта <span class="req-mark" aria-hidden="true">*</span></label><input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required></div>
         </div>
-        <div class="field"><label for="f-email">Почта <span class="req-mark" aria-hidden="true">*</span></label><input class="input" id="f-email" name="email" type="email" inputmode="email" placeholder="name@company.ru" autocomplete="email" maxlength="254" required></div>
         <div class="field"><label for="f-msg">Пара слов о задаче</label><textarea class="input" id="f-msg" name="msg" rows="3" placeholder="Например: нужна запись клиентов на сайте и сервер под 1С"></textarea>
           <div class="quick" aria-label="Подставить пример"><button type="button" data-q="Сервер под 1С">Сервер под 1С</button><button type="button" data-q="Сайт с записью и оплатой">Сайт с записью и оплатой</button><button type="button" data-q="Видеонаблюдение для офиса или склада">Видеонаблюдение</button><button type="button" data-q="Инфоэкран «Стенгазета» для офиса">«Стенгазета»</button></div></div>
         <label class="check"><input type="checkbox" required> <span>Согласен на обработку персональных данных в соответствии с <a href="privacy.html">политикой</a>.</span></label>
-        <button class="btn btn-sig" type="submit">Отправить</button>
+        <button class="btn btn-sig" type="submit">Отправить заявку</button>
         <p class="form-msg" id="reqMsg" role="status" hidden></p>
       </form>
     </div>
@@ -246,8 +250,8 @@
   <div class="wrap ftr-in">
     <div>
       <a class="brand brand-ftr" href="#top"><img src="img/logo.png?v=09bfd983" width="48" height="40" alt=""><span>САРМАТ-ИТ</span></a>
-      <p>Цифровые решения для компании и оборудование под её задачу.</p>
-      <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, ОГРН 1257700007113</p>
+      <p>Цифровые решения для компании и оборудование под её задачу. Доставка оборудования до объекта по всей России.</p>
+      <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, КПП 773401001, ОГРН 1257700007113</p>
       <p class="ftr-offer">Цены на сайте справочные и не являются публичной офертой (ст. 437 ГК РФ). Точную цену называем после разбора задачи.</p>
     </div>
     <nav aria-label="Разделы (подвал)">
@@ -265,5 +269,38 @@
   </div>
 </footer>
 
+<div class="asst" id="asst">
+  <div class="asst-panel" id="asstPanel" role="dialog" aria-labelledby="asstTitle" hidden>
+    <header><h3 id="asstTitle">Вопрос сотруднику</h3><button class="asst-x" id="asstClose" type="button" aria-label="Закрыть">&#x2715;</button></header>
+    <form class="asst-form" id="asstForm" method="post" action="api/send.php" novalidate>
+      <div>
+        <textarea class="input" id="asstQ" name="question" placeholder="Опишите задачу или задайте вопрос" aria-label="Вопрос" maxlength="4000" required aria-describedby="asstQErr"></textarea>
+        <p class="field-err" id="asstQErr" hidden>Напишите вопрос.</p>
+      </div>
+      <div>
+        <input class="input" id="asstContact" name="contact" type="text" placeholder="Телефон или почта для ответа" aria-label="Телефон или почта для ответа" autocomplete="tel" maxlength="254" required aria-describedby="asstContactErr">
+        <p class="field-err" id="asstContactErr" hidden>Укажите телефон или почту, иначе мы не сможем ответить.</p>
+      </div>
+      <label class="check check-sm" for="asstConsent">
+        <input id="asstConsent" name="consent" type="checkbox" value="yes" required aria-describedby="asstConsentErr">
+        <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике</a></span>
+      </label>
+      <p class="field-err" id="asstConsentErr" hidden>Без согласия вопрос отправить нельзя.</p>
+      <div class="hp" aria-hidden="true"><label for="asstSite">Сайт</label><input id="asstSite" name="site" type="text" tabindex="-1" autocomplete="off"></div>
+      <button class="btn btn-primary" type="submit">Спросить</button>
+      <p class="form-msg err" id="asstErr" hidden>Не получилось отправить вопрос. Попробуйте ещё раз или позвоните: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
+    </form>
+    <p class="asst-done" id="asstDone" role="status" hidden>Вопрос получили. Если срочно, позвоните: <a href="tel:+74994606265">+7 (499) 460-62-65</a>.</p>
+  </div>
+  <button class="asst-bubble" id="asstBubble" type="button">Есть вопрос? Напишите, ответит сотрудник.</button>
+  <button class="asst-fab" id="asstFab" type="button" aria-label="Вопрос сотруднику" aria-expanded="false" aria-controls="asstPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></button>
+</div>
+
+<!-- Cookie notice: показывает cookie.js -->
+<div class="cookie" id="cookieNote" role="region" aria-label="Уведомление о cookie" hidden>
+  <p>Сайт использует cookie и Яндекс Метрику. Продолжая пользоваться сайтом, вы соглашаетесь с <a href="privacy.html">политикой обработки персональных данных</a>.</p>
+  <button class="btn btn-sig btn-sm" type="button">Понятно</button>
+</div>
+<!-- /Cookie notice -->
 </body>
 </html>

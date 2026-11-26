@@ -13,7 +13,7 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preload" href="fonts/tinos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/golos-text-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=hub8">
+<link rel="stylesheet" href="styles.css?v=hub11">
 <script src="cookie.js?v=7b3fe5ad" defer></script>
 <script>
 /* hub-2026-11: пришли с другой страницы. Логотип перехода встаёт ровно на место логотипа этой страницы
@@ -28,10 +28,10 @@ window.SarmatPage = { arrive(logo, ov) {
 } };
 </script>
 <script src="tasks.js?v=2" defer></script>
-<script src="main.js?v=hub6" defer></script>
+<script src="main.js?v=hub7" defer></script>
 <script>try{if(sessionStorage.getItem('sarmat-transit')){if(innerWidth>760)document.documentElement.classList.add('tr-in');window.__trArrive=1}}catch(e){}setTimeout(function(){document.documentElement.classList.remove('tr-in')},2000)</script>
 <link rel="stylesheet" href="../transit.css?v=3">
-<link rel="stylesheet" href="../site-header.css?v=6">
+<link rel="stylesheet" href="../site-header.css?v=8">
 <script src="../site-header.js?v=3" defer></script>
 <script src="../sarmat-logo.js?v=2" defer></script>
 <script src="../transit.js?v=5" defer></script>
@@ -452,12 +452,13 @@ window.SarmatPage = { arrive(logo, ov) {
           </select>
         </div>
         <div class="field"><label for="f-msg">Комментарий</label><textarea class="input" id="f-msg" name="msg" placeholder="Задача, число пользователей, сроки"></textarea></div>
-        <div class="field">
+        <details class="file-more" id="fileMore"><summary>+ Приложить файл с задачей</summary>
+          <div class="field">
           <label for="f-file">Файл с задачей или спецификацией</label>
           <input class="input input-file" id="f-file" name="file" type="file" accept=".doc,.docx,.xls,.xlsx,.pdf" aria-describedby="f-file-hint f-file-err">
           <p class="field-hint" id="f-file-hint">Word, Excel или PDF, до 10 МБ.</p>
           <p class="field-err" id="f-file-err" hidden></p>
-        </div>
+          </div></details><script>try{if(innerWidth>760)document.getElementById("fileMore").open=true}catch(e){}</script>
         <div class="field field-check">
           <label class="check" for="f-consent">
             <input id="f-consent" name="consent" type="checkbox" value="yes" required aria-describedby="f-consent-err">
@@ -483,8 +484,8 @@ window.SarmatPage = { arrive(logo, ov) {
         <img src="img/logo.png?v=09bfd983" width="57" height="48" alt="" decoding="async">
         <span>САРМАТ-ИТ</span>
       </a>
-      <p>Оборудование под задачу компании: ТЗ и проект, поставка, технадзор за монтажом. Доставка до объекта по всей России.</p>
-      <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, ОГРН 1257700007113</p>
+      <p>Цифровые решения для компании и оборудование под её задачу. Доставка оборудования до объекта по всей России.</p>
+      <p class="ftr-req">ООО «САРМАТ-ИТ», ИНН 9734009758, КПП 773401001, ОГРН 1257700007113</p>
       <p class="ftr-offer">Цены на сайте справочные и не являются публичной офертой (ст. 437 ГК РФ). Точную цену называем после разбора задачи.</p>
     </div>
     <nav class="ftr-nav" aria-label="Разделы (подвал)">

@@ -1389,7 +1389,7 @@ function liveCheck(input, el, problem) {
   bubble.addEventListener('click', open);
   fab.addEventListener('click', () => panel.hidden ? open() : close());
   document.getElementById('asstClose').addEventListener('click', close);
-  panel.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) close(); });
   const contact = document.getElementById('asstContact'), contactErr = document.getElementById('asstContactErr'), qErr = document.getElementById('asstQErr');
   const consent = document.getElementById('asstConsent'), consentErr = document.getElementById('asstConsentErr'), aErr = document.getElementById('asstErr');
   // Почта, если есть @, иначе телефон.

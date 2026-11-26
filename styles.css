@@ -1046,3 +1046,51 @@ html:not(.js) .dsc-cap .ds-line, .descent.static .dsc-cap .ds-line { font-size: 
 
 /* Заголовки как на главной и «Оборудовании»: засечки Tinos 400 (решение Антона 25.11.2026). Мелкие подзаголовки списков остаются Golos */
 h1.ph-h1, .h2, .node h3, .wk h3, .prod h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -.01em; }
+
+/* Мелочи мобильной ревизии 25.11 (Н10, Н15) */
+.btn-primary { color: #05101c; background: var(--sig, linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8)); box-shadow: 0 12px 30px -12px rgba(124,231,242,.6), inset 0 1px 0 rgba(255,255,255,.4); }
+.modal-x { width: 44px; height: 44px; right: 10px; top: 10px; }
+@media (max-width: 760px) {
+  .tree-down { justify-items: start; text-align: left; }
+  .tree-down-txt { font-size: 18px; text-align: left; }
+  .pipe-i p.pipe-got { display: none; }
+  .prod-go.btn { min-height: 0; padding: 0; border: 0; background: none; box-shadow: none; color: var(--accent-2); }
+}
+@media (max-width: 600px) {
+  .cookie { left: 0; right: 0; width: 100%; bottom: 0; border-radius: 14px 14px 0 0; border-width: 1px 0 0; padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .cookie p { font-size: 11.5px; line-height: 1.35; }
+}
+
+/* Флажок согласия: один вид на всех страницах */
+.check input[type=checkbox] { -webkit-appearance: none; appearance: none; flex: none; width: 20px; height: 20px; margin: 1px 0 0; border: 1.5px solid rgba(150,185,230,.55); border-radius: 6px; background: rgba(8,14,28,.6); display: inline-grid; place-content: center; cursor: pointer; transition: background .2s, border-color .2s; }
+.check input[type=checkbox]::before { content: ""; width: 10px; height: 6px; border: solid #05101c; border-width: 0 0 2px 2px; transform: rotate(-45deg) translate(1px, -1px); opacity: 0; }
+.check input[type=checkbox]:checked { border-color: transparent; background: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8); }
+.check input[type=checkbox]:checked::before { opacity: 1; }
+.check input[type=checkbox]:focus-visible { outline: 2px solid #7ce7f2; outline-offset: 2px; }
+[data-invalid="true"] .check input[type=checkbox], .check[data-invalid="true"] input[type=checkbox] { border-color: #ff8a8a; }
+
+/* «Приложить файл»: на телефоне свёрнуто, на компьютере раскрыто */
+.file-more > summary { cursor: pointer; color: #8fd0ff; font-size: 14px; list-style: none; padding: 6px 0; width: max-content; }
+.file-more > summary::-webkit-details-marker { display: none; }
+.file-more[open] > summary { margin-bottom: 8px; }
+
+/* UX-ревизия, круг 2 (25.11.2026) */
+@media (min-width: 761px) { .file-more > summary { display: none; } }
+@media (max-width: 760px) { .file-more > summary { min-height: 44px; display: flex; align-items: center; } }
+.check, .field label.check { display: grid; grid-template-columns: 22px 1fr; column-gap: 10px; align-items: start; }
+.check > input { grid-column: 1; } .check > span { grid-column: 2; }
+.modal-title { padding-right: 52px; }
+.cookie { z-index: 95; }
+@media (max-width: 760px) {
+  .sec .btn-sig { color: var(--ink); background: rgba(255,255,255,.04); border-color: rgba(165,148,255,.38); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+  .sec .btn-sig::after { display: none; }
+}
+.layer-tag > i { display: none; }
+.tree-chips { justify-content: flex-start; }
+.tree-chips li { padding: 0; border: 0; background: none; }
+.tree-chips li + li::before { content: "·"; margin-right: 8px; color: var(--ink-3); }
+@media (min-width: 761px) { .tree-chips { justify-content: center; } }
+
+/* «Стенгазета» одной строкой под работами (Антон 25.11.2026) */
+.prod-line { margin: 20px 0 0; color: var(--ink-2); font-size: 15px; max-width: 70ch; }
+.prod-line a { color: var(--accent-2); }

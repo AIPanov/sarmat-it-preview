@@ -607,3 +607,42 @@ select.input { appearance: none; -webkit-appearance: none; background-image: url
   .tk-tab { min-width: 150px; }
 }
 @media (max-width: 860px) { .gal-card { height: min(calc(100svh - 150px), 600px); min-height: 480px; } }
+
+/* Мелочи мобильной ревизии 25.11 (Н12, Н15) */
+.btn-primary { color: #05101c; background: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8); box-shadow: 0 12px 30px -12px rgba(124,231,242,.6), inset 0 1px 0 rgba(255,255,255,.4); }
+.modal-x { width: 44px; height: 44px; right: 10px; top: 10px; }
+.check input { accent-color: #7ce7f2; }
+@media (max-width: 600px) {
+  .val-top { display: none; }
+  .val h3 { margin: 0 0 4px; font-size: 21px; }
+}
+@media (max-width: 760px) {
+  .val, .deliv, .form { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .val { background: linear-gradient(180deg, rgba(16,26,48,.97), rgba(11,19,36,.97)); }
+  .deliv, .form { background: rgba(11,19,36,.97); }
+}
+@media (max-width: 600px) {
+  .cookie { left: 0; right: 0; width: 100%; bottom: 0; border-radius: 14px 14px 0 0; border-width: 1px 0 0; padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .cookie p { font-size: 11.5px; line-height: 1.35; }
+}
+
+/* Флажок согласия: один вид на всех страницах */
+.check input[type=checkbox] { -webkit-appearance: none; appearance: none; flex: none; width: 20px; height: 20px; margin: 1px 0 0; border: 1.5px solid rgba(150,185,230,.55); border-radius: 6px; background: rgba(8,14,28,.6); display: inline-grid; place-content: center; cursor: pointer; transition: background .2s, border-color .2s; }
+.check input[type=checkbox]::before { content: ""; width: 10px; height: 6px; border: solid #05101c; border-width: 0 0 2px 2px; transform: rotate(-45deg) translate(1px, -1px); opacity: 0; }
+.check input[type=checkbox]:checked { border-color: transparent; background: linear-gradient(110deg, #a594ff, #7ce7f2 58%, #5fb0e8); }
+.check input[type=checkbox]:checked::before { opacity: 1; }
+.check input[type=checkbox]:focus-visible { outline: 2px solid #7ce7f2; outline-offset: 2px; }
+[data-invalid="true"] .check input[type=checkbox], .check[data-invalid="true"] input[type=checkbox] { border-color: #ff8a8a; }
+
+/* «Приложить файл»: на телефоне свёрнуто, на компьютере раскрыто */
+.file-more > summary { cursor: pointer; color: #8fd0ff; font-size: 14px; list-style: none; padding: 6px 0; width: max-content; }
+.file-more > summary::-webkit-details-marker { display: none; }
+.file-more[open] > summary { margin-bottom: 8px; }
+
+/* UX-ревизия, круг 2 (25.11.2026) */
+@media (min-width: 761px) { .file-more > summary { display: none; } }
+@media (max-width: 760px) { .file-more > summary { min-height: 44px; display: flex; align-items: center; } }
+.check, .field label.check { display: grid; grid-template-columns: 22px 1fr; column-gap: 10px; align-items: start; }
+.check > input { grid-column: 1; } .check > span { grid-column: 2; }
+.modal-title { padding-right: 52px; }
+.cookie { z-index: 95; }
